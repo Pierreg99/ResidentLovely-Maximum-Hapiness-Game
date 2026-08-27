@@ -7,8 +7,9 @@
 <p align="center">
   <a href="https://pierreg99.github.io/resident-lovely-game/"><img src="https://img.shields.io/badge/PLAY_NOW-GitHub_Pages-cyan?style=for-the-badge&logo=github" alt="Play Now" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" /></a>
-  <a href="ROADMAP.md"><img src="https://img.shields.io/badge/Version-v1.4.0_Kawaii-orange.svg?style=for-the-badge" alt="Version" /></a>
-  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Changelog-Updated-emerald.svg?style=for-the-badge" alt="Changelog" /></a>
+  <a href="ROADMAP.md"><img src="https://img.shields.io/badge/Roadmap-v1.4.0_Master-orange.svg?style=for-the-badge" alt="Roadmap" /></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Changelog-Comprehensive-emerald.svg?style=for-the-badge" alt="Changelog" /></a>
+  <a href="docs/Resident_Lovely_Master_Game_Design_Document.docx"><img src="https://img.shields.io/badge/Design_Doc-DOCX-magenta.svg?style=for-the-badge" alt="DOCX Design Doc" /></a>
   <a href="#"><img src="https://img.shields.io/badge/Standard-Zero_Emojis-pink.svg?style=for-the-badge" alt="Zero Emojis" /></a>
 </p>
 
@@ -20,6 +21,7 @@
 
 - **Public GitHub Pages (Play in Browser)**: [https://pierreg99.github.io/resident-lovely-game/](https://pierreg99.github.io/resident-lovely-game/)
 - **Local Control Center Endpoint**: `http://localhost:8080/resident-lovely/index.html`
+- **Master Design Document (DOCX)**: [docs/Resident_Lovely_Master_Game_Design_Document.docx](docs/Resident_Lovely_Master_Game_Design_Document.docx)
 
 ---
 
@@ -73,6 +75,17 @@
 
 ---
 
+## ❖ Alchemy & Confectionery Crafting Recipes
+
+| Ingredient 1 | Ingredient 2 | Resulting Item | Effect |
+|---|---|---|---|
+| **Sparkle Herb (Green)** | **Sparkle Herb (Green)** | **Double Sparkle Herb** | Restores 70% Joy Vitality |
+| **Sparkle Herb (Green)** | **Sweet Powder (Red)** | **Mega Bliss Cupcake** | Restores 100% Joy + Cauldron Fuel |
+| **Double Sparkle Herb (G+G)** | **Sparkle Herb (Green)** | **Ultra Joy Elixir** | Restores 100% Joy + Radiant Star Shield |
+| **Silver Foyer Key** | **Golden Sparkle Ribbon** | **Master Ballroom Key** | Unlocks West Wing Solarium Garden |
+
+---
+
 ## ❖ Modular Project Architecture
 
 ```
@@ -80,15 +93,17 @@ resident-lovely-game/
 ├── index.html                   # Lightweight HTML shell & ESM mount
 ├── LICENSE                      # Official MIT License
 ├── README.md                    # Project documentation & architecture
-├── ROADMAP.md                   # Phased milestone roadmap & progress
-├── CHANGELOG.md                 # Version release notes (v1.0.0 - v1.4.0)
+├── ROADMAP.md                   # Phased milestone roadmap & progress matrix
+├── CHANGELOG.md                 # Full version release history (v1.0.0 - v1.4.0)
 ├── assets/
 │   └── resident-lovely-banner.svg # Vector hero artwork (1200x500)
 ├── css/
 │   └── style.css                # Dedicated NEXUS PRIVÉ v6.0 glassmorphic CSS
 ├── docs/
+│   ├── Resident_Lovely_Master_Game_Design_Document.docx # Master DOCX GDD
 │   ├── 2026-08-27--resident-lovely-3d-mobile-game.md
-│   └── 2026-08-27--resident-lovely-maps-and-weapons.md
+│   ├── 2026-08-27--resident-lovely-maps-and-weapons.md
+│   └── 2026-08-27--resident-lovely-masterwork-documentation-and-deploy.md
 └── src/
     ├── main.js                  # Main coordinator & animation lifecycle
     ├── engine/
