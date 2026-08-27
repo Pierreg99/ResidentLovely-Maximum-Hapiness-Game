@@ -15,8 +15,8 @@ function createChamberFloor(w, d, color1 = 0x090d16, color2 = 0x131d31) {
   const nx = Math.ceil(w / tileSize);
   const nz = Math.ceil(d / tileSize);
   const geo = new THREE.BoxGeometry(tileSize, 0.2, tileSize);
-  const mat1 = new THREE.MeshStandardMaterial({ color: color1, roughness: 0.3, metalness: 0.1 });
-  const mat2 = new THREE.MeshStandardMaterial({ color: color2, roughness: 0.3, metalness: 0.2 });
+  const mat1 = new THREE.MeshStandardMaterial({ color: color1, roughness: 0.2, metalness: 0.2 });
+  const mat2 = new THREE.MeshStandardMaterial({ color: color2, roughness: 0.2, metalness: 0.3 });
 
   for (let x = -nx/2; x < nx/2; x++) {
     for (let z = -nz/2; z < nz/2; z++) {
@@ -35,18 +35,30 @@ export function initRooms() {
   scene.add(rooms.library);
   scene.add(rooms.garden);
 
-  // --- 1. GRAND FOYER ---
+  // --- 1. GRAND FOYER (Baroque Stained-Glass Mansion) ---
   (function buildFoyer() {
     const g = rooms.foyer;
     g.add(createChamberFloor(28, 28, 0x090d16, 0x131d31));
 
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.7 });
-    const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.7, roughness: 0.25 });
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.6 });
+    const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.2 });
     const velvetMat = new THREE.MeshStandardMaterial({ color: 0x831843, roughness: 0.8 });
 
     const backWall = new THREE.Mesh(new THREE.BoxGeometry(28, 9, 0.6), wallMat);
     backWall.position.set(0, 4.5, -14);
     g.add(backWall);
+
+    // Stained-Glass Rose Window on Back Wall
+    const windowFrame = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.2, 16, 32), goldTrimMat);
+    windowFrame.position.set(0, 5.8, -13.6);
+    g.add(windowFrame);
+
+    const stainedGlass = new THREE.Mesh(
+      new THREE.CircleGeometry(3.0, 32),
+      new THREE.MeshBasicMaterial({ color: 0xec4899, transparent: true, opacity: 0.75, side: THREE.DoubleSide })
+    );
+    stainedGlass.position.set(0, 5.8, -13.5);
+    g.add(stainedGlass);
 
     const frontWall = new THREE.Mesh(new THREE.BoxGeometry(28, 9, 0.6), wallMat);
     frontWall.position.set(0, 4.5, 14);
@@ -60,15 +72,21 @@ export function initRooms() {
     rightWall.position.set(14, 4.5, 0);
     g.add(rightWall);
 
+    // Gilded Rococo Crown Pillars
     for (let x of [-8, 8]) {
       for (let z of [-8, 8]) {
-        const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.55, 9, 16), goldTrimMat);
+        const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.58, 9, 16), goldTrimMat);
         pillar.position.set(x, 4.5, z);
         pillar.castShadow = true;
         g.add(pillar);
+
+        const cap = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.3, 1.3), goldTrimMat);
+        cap.position.set(x, 8.8, z);
+        g.add(cap);
       }
     }
 
+    // Grand Staircase
     const stairGroup = new THREE.Group();
     for (let i = 0; i < 9; i++) {
       const step = new THREE.Mesh(new THREE.BoxGeometry(8.5, 0.35, 0.8), goldTrimMat);
@@ -82,10 +100,10 @@ export function initRooms() {
     }
     g.add(stairGroup);
 
-    // Grand Concert Piano
+    // Grand Concert Piano with High-Gloss Lacquer
     const pianoGroup = new THREE.Group();
     pianoGroup.name = 'grand_piano';
-    const pianoBodyMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.15, metalness: 0.3 });
+    const pianoBodyMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.1, metalness: 0.4 });
 
     const mainBox = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.8, 3.2), pianoBodyMat);
     mainBox.position.set(0, 1.4, 0);
@@ -102,7 +120,7 @@ export function initRooms() {
       pianoGroup.add(leg);
     }
 
-    const keybed = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.15, 0.6), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+    const keybed = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.15, 0.6), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 }));
     keybed.position.set(0, 1.4, 1.6);
     pianoGroup.add(keybed);
 
@@ -119,14 +137,14 @@ export function initRooms() {
     pianoGroup.rotation.y = -Math.PI / 4;
     g.add(pianoGroup);
 
-    // Golden Gramophone
+    // Golden Gramophone Save Station
     const gramophone = new THREE.Group();
     gramophone.name = 'gramophone_save';
     const table = new THREE.Mesh(new THREE.CylinderGeometry(1, 1.1, 1.2, 16), goldTrimMat);
     table.position.y = 0.6;
     gramophone.add(table);
 
-    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.3, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85, side: THREE.DoubleSide }));
+    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.3, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.15, side: THREE.DoubleSide }));
     horn.rotation.x = Math.PI / 4;
     horn.position.set(0, 1.85, 0.3);
     gramophone.add(horn);
@@ -139,25 +157,25 @@ export function initRooms() {
     g.add(gramophone);
 
     // Doors
-    const doorEast = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.2, 2.6), new THREE.MeshStandardMaterial({ color: 0xec4899, metalness: 0.4 }));
+    const doorEast = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.2, 2.6), new THREE.MeshStandardMaterial({ color: 0xec4899, metalness: 0.5, roughness: 0.2 }));
     doorEast.position.set(13.8, 2.1, 0);
     doorEast.name = 'door_library';
     g.add(doorEast);
 
-    const doorWest = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.2, 2.6), new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.4 }));
+    const doorWest = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.2, 2.6), new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.5, roughness: 0.2 }));
     doorWest.position.set(-13.8, 2.1, 0);
     doorWest.name = 'door_garden';
     g.add(doorWest);
   })();
 
-  // --- 2. EAST WING: LIBRARY ---
+  // --- 2. EAST WING: LIBRARY OF HARMONY ---
   (function buildLibrary() {
     const g = rooms.library;
     g.position.set(45, 0, 0);
     g.add(createChamberFloor(24, 24, 0x1c1917, 0x292524));
 
     const bookMat = new THREE.MeshStandardMaterial({ color: 0x7c2d12, roughness: 0.8 });
-    const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.7 });
+    const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.2 });
 
     for (let z = -8; z <= 8; z += 4) {
       const shelfL = new THREE.Mesh(new THREE.BoxGeometry(1.0, 7.5, 3.4), bookMat);
@@ -169,7 +187,7 @@ export function initRooms() {
       g.add(shelfR);
     }
 
-    // Golden Cauldron
+    // Golden Alchemical Cauldron
     const cauldronGroup = new THREE.Group();
     cauldronGroup.name = 'golden_cauldron';
 
@@ -182,7 +200,7 @@ export function initRooms() {
     pot.rotation.x = Math.PI;
     cauldronGroup.add(pot);
 
-    const liquid = new THREE.Mesh(new THREE.CircleGeometry(1.0, 16), new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xec4899, emissiveIntensity: 0.6 }));
+    const liquid = new THREE.Mesh(new THREE.CircleGeometry(1.0, 16), new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xec4899, emissiveIntensity: 0.8 }));
     liquid.rotation.x = -Math.PI / 2;
     liquid.position.y = 1.4;
     cauldronGroup.add(liquid);
@@ -201,21 +219,22 @@ export function initRooms() {
     g.add(doorFoyer);
   })();
 
-  // --- 3. WEST WING: SOLARIUM GARDEN ---
+  // --- 3. WEST WING: SOLARIUM GARDEN (Blossoming Roses & Crystal Columns) ---
   (function buildGarden() {
     const g = rooms.garden;
     g.position.set(-45, 0, 0);
     g.add(createChamberFloor(26, 26, 0x064e3b, 0x047857));
 
-    const glassMat = new THREE.MeshStandardMaterial({ color: 0x6ee7b7, roughness: 0.1, transparent: true, opacity: 0.35 });
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x6ee7b7, roughness: 0.1, transparent: true, opacity: 0.45 });
     for (let x = -10; x <= 10; x += 5) {
       for (let z = -10; z <= 10; z += 5) {
-        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.3, 8, 12), glassMat);
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 8, 14), glassMat);
         col.position.set(x, 4, z);
         g.add(col);
       }
     }
 
+    // Tiered Fountain
     const fountainBase = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.5, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x22d3ee, roughness: 0.2 }));
     fountainBase.position.set(0, 0.4, 0);
     g.add(fountainBase);
@@ -223,6 +242,22 @@ export function initRooms() {
     const fountainSpire = new THREE.Mesh(new THREE.ConeGeometry(1.6, 2.5, 16), new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 0.4 }));
     fountainSpire.position.set(0, 2.2, 0);
     g.add(fountainSpire);
+
+    // Kawaii Rose Bushes
+    const bushMat = new THREE.MeshStandardMaterial({ color: 0x059669, roughness: 0.7 });
+    const roseMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, emissive: 0xf472b6, emissiveIntensity: 0.3 });
+
+    for (let x of [-7, 7]) {
+      for (let z of [-7, 7]) {
+        const bush = new THREE.Mesh(new THREE.SphereGeometry(0.9, 12, 12), bushMat);
+        bush.position.set(x, 0.6, z);
+        g.add(bush);
+
+        const flower = new THREE.Mesh(new THREE.OctahedronGeometry(0.2), roseMat);
+        flower.position.set(x, 1.4, z);
+        g.add(flower);
+      }
+    }
 
     const lanternPositions = [
       [0, 0, -6],
@@ -233,11 +268,11 @@ export function initRooms() {
 
     lanternPositions.forEach((pos, idx) => {
       const lGroup = new THREE.Group();
-      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 2.2, 12), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8 }));
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.18, 2.2, 12), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 }));
       post.position.y = 1.1;
       lGroup.add(post);
 
-      const flameMesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.35), new THREE.MeshBasicMaterial({ color: 0x475569 }));
+      const flameMesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.38), new THREE.MeshBasicMaterial({ color: 0x475569 }));
       flameMesh.position.y = 2.4;
       lGroup.add(flameMesh);
 
@@ -265,21 +300,21 @@ export function spawnGroundItem(itemId, pos, roomName) {
   group.userData = { itemId, roomName };
 
   const halo = new THREE.Mesh(
-    new THREE.TorusGeometry(0.45, 0.04, 8, 24),
+    new THREE.TorusGeometry(0.48, 0.05, 8, 24),
     new THREE.MeshBasicMaterial({ color: 0x22d3ee, wireframe: true })
   );
   halo.rotation.x = Math.PI / 2;
   group.add(halo);
 
   const core = new THREE.Mesh(
-    new THREE.OctahedronGeometry(0.32),
+    new THREE.OctahedronGeometry(0.36),
     new THREE.MeshStandardMaterial({
       color: (itemId.includes('herb') ? 0x10b981 : (itemId.includes('key') ? 0xf59e0b : 0xec4899)),
       emissive: 0x22d3ee,
-      emissiveIntensity: 0.4
+      emissiveIntensity: 0.5
     })
   );
-  core.position.y = 0.4;
+  core.position.y = 0.45;
   group.add(core);
 
   rooms[roomName].add(group);
@@ -289,7 +324,7 @@ export function spawnGroundItem(itemId, pos, roomName) {
 
 export function updateGroundItems(delta, time) {
   groundItems.forEach(item => {
-    item.rotation.y += delta * 1.5;
-    item.position.y = 0.2 + Math.sin(time * 3 + item.position.x) * 0.08;
+    item.rotation.y += delta * 1.6;
+    item.position.y = 0.2 + Math.sin(time * 3 + item.position.x) * 0.09;
   });
 }

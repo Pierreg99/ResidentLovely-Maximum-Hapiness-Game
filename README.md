@@ -7,12 +7,12 @@
 <p align="center">
   <a href="https://pierreg99.github.io/resident-lovely-game/"><img src="https://img.shields.io/badge/PLAY_NOW-GitHub_Pages-cyan?style=for-the-badge&logo=github" alt="Play Now" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" /></a>
-  <a href="ROADMAP.md"><img src="https://img.shields.io/badge/Version-v1.3.0_ESM-orange.svg?style=for-the-badge" alt="Version" /></a>
+  <a href="ROADMAP.md"><img src="https://img.shields.io/badge/Version-v1.4.0_Kawaii-orange.svg?style=for-the-badge" alt="Version" /></a>
   <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Changelog-Updated-emerald.svg?style=for-the-badge" alt="Changelog" /></a>
   <a href="#"><img src="https://img.shields.io/badge/Standard-Zero_Emojis-pink.svg?style=for-the-badge" alt="Zero Emojis" /></a>
 </p>
 
-> **Resident Lovely** is an over-the-shoulder 3D action-adventure survival-joy game parodying classic survival-horror mechanics (specifically the *Resident Evil* franchise) inverted into an uncompromising aesthetic of **Maximum Happiness and Wholesomeness**. Built with a modular **ESM (ECMAScript Modules)** architecture.
+> **Resident Lovely** is an over-the-shoulder 3D action-adventure survival-joy game parodying classic survival-horror mechanics (specifically the *Resident Evil* franchise) inverted into an uncompromising aesthetic of **Maximum Happiness, Kawaii Charm, and Wholesomeness**. Built with a modular **ESM (ECMAScript Modules)** architecture.
 
 ---
 
@@ -23,70 +23,34 @@
 
 ---
 
-## ❖ Modular Project Architecture
+## ★ Key Kawaii & Authentic Gameplay Features
 
-```
-resident-lovely-game/
-├── index.html                   # Clean HTML shell & module entry point
-├── LICENSE                      # Official MIT License
-├── README.md                    # Project documentation & guides
-├── ROADMAP.md                   # Phased roadmap & feature progress
-├── CHANGELOG.md                 # Chronological version release notes
-├── assets/
-│   └── resident-lovely-banner.svg # Vector hero artwork & schematics
-├── css/
-│   └── style.css                # NEXUS PRIVÉ v6.0 glassmorphic stylesheet
-├── docs/
-│   ├── 2026-08-27--resident-lovely-3d-mobile-game.md
-│   └── 2026-08-27--resident-lovely-maps-and-weapons.md
-└── src/
-    ├── main.js                  # Main lifecycle & game loop coordinator
-    ├── engine/
-    │   ├── audio.js             # Synthesized Web Audio API sound engine
-    │   ├── input.js             # Multi-touch virtual joystick & key bindings
-    │   └── camera.js            # Over-the-shoulder chase camera & recoil shake
-    ├── world/
-    │   ├── scene.js             # Three.js scene, dynamic lighting & particles
-    │   ├── rooms.js             # Procedural room builders (Foyer, Library, Garden)
-    │   └── destructibles.js     # Floating balloons & breakable gift boxes
-    ├── entities/
-    │   ├── player.js            # 3D Player character ("Agent Joy") model & physics
-    │   └── grump.js             # 3D Grump AI variants (Bear, Specter, Knight)
-    ├── weapons/
-    │   └── arsenal.js           # 4-weapon system, 3D ballistics & beam lasers
-    └── systems/
-        ├── inventory.js         # 8-slot inventory grid, combine recipes & ECG
-        ├── quests.js            # Multi-tier quest log & objective HUD
-        ├── minimap.js           # 360° Radar mini-map & estate blueprint modal
-        └── persistence.js       # Save & load snapshotting with localStorage
-```
+### 1. Expressive Chibi "Agent Joy" & Squash-and-Stretch Grump AI
+- **Chibi Agent Joy**: Large glossy anime eyes with star highlights, rosy blush cheeks (`#f472b6`), animated twin-tail pigtails that bounce with spring physics, and foot-hop running cycles.
+- **Squash-and-Stretch Grumps**:
+  - *Gloom Bear*: Fluffy plush bear with stitched patch seams and big teary eyes that turn into starry gold sparkle eyes upon being uplifted.
+  - *Sighing Specter*: Translucent marshmallow ghost with heart ribbons and soft lavender aura.
+  - *Chibi Gilded Knight*: Plush knight with toy shield, oversized cardboard-gold helmet with bouncing pink plume.
 
----
+### 2. Authentic Resident Evil Survival-Joy Mechanics
+- **180° Quick-Turn (`Z` or `[180° TURN]` Button)**: Instant character spin with camera follow whip and audio swoosh.
+- **Interactive 3D Item Inspection (`★ 3D INSPECT`)**: Dedicated 3D orbit viewer inside the inventory modal allowing 360-degree rotation to discover secrets and lore.
+- **Typewriter / Gramophone Save Dialog**: Authentic prompt dialog ("Will you record your joyful journey in the Grand Chronicle?") with synthesized typewriter key clatter and carriage bell.
+- **Expanded 3-Tier Herb Alchemy**:
+  - `Green Herb` + `Green Herb` = *Double Sparkle Herb* (70% Joy)
+  - `Green Herb` + `Red Sweet Powder` = *Mega Bliss Cupcake* (100% Joy)
+  - `Double Green Herb` + `Green Herb` = *Ultra Joy Elixir* (100% Joy + Star Shield)
+  - `Silver Foyer Key` + `Golden Ribbon` = *Master Ballroom Key*
 
-## ★ Key Features
-
-### 1. High-Quality 4-Weapon Wholesome Arsenal
-- **Mk-IV Confetti Pistol (`[1]`)**: High-velocity precision sparkly darts with rapid single-fire.
-- **Pastry Bubble Shotgun (`[2]`)**: 5-projectile bubble spread that traps Grumps in giant floating buoyant bubbles!
-- **Confectionery Mortar (`[3]`)**: Heavy ballistic gravity arc exploding in a massive 360-degree confetti shockwave with screen recoil shake.
+### 3. High-Quality 4-Weapon Wholesome Arsenal
+- **Mk-IV Confetti Pistol (`[1]`)**: Star-shaped sparkle darts with rapid single-fire.
+- **Pastry Bubble Shotgun (`[2]`)**: 5-pellet bubble spread that traps Grumps in giant floating buoyant bubbles!
+- **Confectionery Mortar (`[3]`)**: Heavy ballistic cupcake missile exploding in a 360-degree confetti shockwave with screen recoil shake.
 - **Prismatic Joy Beam (`[4]`)**: Continuous neon rainbow laser beam with real-time cylinder mesh & polyphonic synth audio hum.
 
-### 2. Tactical Radar Mini-Map & Estate Blueprint
-- **Circular Radar Mini-Map**: Real-time 360-degree radar scan, room bounds, player orientation cone, Grump blips (Blue = Gloomy, Gold = Dancing), and item pins.
-- **Fullscreen Architectural Blueprint (`[MAP]` / Key `M`)**: Interactive floorplan of Château de la Joie with door lock status (Red [LOCK] / Emerald [OPEN]) and player pinpoint coordinates.
-
-### 3. Classic 8-Slot Inventory System (Resident Evil Parody)
-- **Joy Vitality ECG**: Real-time heartbeat monitor graph (`MAX BLISS` ➔ `CHEERFUL` ➔ `GRUMPY`).
-- **Combine System**:
-  - *Sparkle Herb (Green)* + *Sweet Powder (Red)* ➔ *Mega Bliss Cupcake*
-  - *Silver Foyer Key* + *Golden Ribbon* ➔ *Master Ballroom Key*
-- **Save Points**: Golden Gramophone Music Boxes with `localStorage` persistence.
-
-### 4. Multi-Tier Quests & Tasks
-- **Quest 1: The Foyer Sonatina** (Play Grand Piano triad `[C-E-G]` to unlock East Wing Key).
-- **Quest 2: Alchemical Bliss Brew** (Deposit crafted Mega Bliss Cupcake into Library Cauldron).
-- **Quest 3: Solarium Heart Lanterns** (Ignite all 4 Heart Lanterns in the West Wing Garden).
-- **Quest 4: Château Joy Brigade** (Uplift all 5 Gloomy Grumps into celebration dancers).
+### 4. Tactical Radar Mini-Map & Estate Blueprint
+- **Circular Radar Mini-Map**: Real-time 360-degree radar scan, room bounds, player orientation cone, and live entity blips.
+- **Fullscreen Architectural Blueprint (`[MAP]` / Key `M`)**: Interactive floorplan of Château de la Joie with door lock status (Red [LOCK] / Emerald [OPEN]).
 
 ---
 
@@ -94,10 +58,11 @@ resident-lovely-game/
 
 ### Mobile Touch Controls
 - **Left Thumb**: Dynamic floating virtual analog joystick (360-degree movement).
-- **Right Thumb**: Swipe screen to orbit camera; dedicated tactile action buttons for `[AIM]`, `[JOY BLAST]`, `[EXAMINE]`, `[GUN]`, `[ITEMS]`, `[TASKS]`, and `[MAP]`.
+- **Right Thumb**: Touch drag to orbit camera; dedicated tactile action buttons for `[AIM]`, `[JOY BLAST]`, `[EXAMINE]`, `[180° TURN]`, `[GUN]`, `[ITEMS]`, `[TASKS]`, and `[MAP]`.
 
 ### Desktop Controls
 - **Movement**: `W`, `A`, `S`, `D` or Arrow Keys
+- **180° Quick-Turn**: `Z` or `S + Space`
 - **Aim / Fire**: Right-Click to Aim, Left-Click / `Space` to Fire
 - **Weapon Slots**: `1` (Pistol), `2` (Shotgun), `3` (Mortar), `4` (Joy Beam)
 - **Cycle Weapon**: Tap `[GUN]` button or cycle numbers
@@ -105,6 +70,46 @@ resident-lovely-game/
 - **Inventory**: `I` or `Tab`
 - **Quest Log**: `Q`
 - **Tactical Map**: `M`
+
+---
+
+## ❖ Modular Project Architecture
+
+```
+resident-lovely-game/
+├── index.html                   # Lightweight HTML shell & ESM mount
+├── LICENSE                      # Official MIT License
+├── README.md                    # Project documentation & architecture
+├── ROADMAP.md                   # Phased milestone roadmap & progress
+├── CHANGELOG.md                 # Version release notes (v1.0.0 - v1.4.0)
+├── assets/
+│   └── resident-lovely-banner.svg # Vector hero artwork (1200x500)
+├── css/
+│   └── style.css                # Dedicated NEXUS PRIVÉ v6.0 glassmorphic CSS
+├── docs/
+│   ├── 2026-08-27--resident-lovely-3d-mobile-game.md
+│   └── 2026-08-27--resident-lovely-maps-and-weapons.md
+└── src/
+    ├── main.js                  # Main coordinator & animation lifecycle
+    ├── engine/
+    │   ├── audio.js             # Synthesized Web Audio API SFX engine
+    │   ├── input.js             # Multi-touch virtual joystick & 180° turn
+    │   └── camera.js            # Over-the-shoulder chase camera & recoil trauma
+    ├── world/
+    │   ├── scene.js             # Three.js scene, lighting & particle pool
+    │   ├── rooms.js             # Procedural room builders (Foyer, Library, Garden)
+    │   └── destructibles.js     # Floating balloons & breakable gift boxes
+    ├── entities/
+    │   ├── player.js            # Chibi "Agent Joy" with pigtail bounce & 180° turn
+    │   └── grump.js             # Squash-and-stretch Grump AI (Bear, Specter, Knight)
+    ├── weapons/
+    │   └── arsenal.js           # 4-weapon system, 3D ballistics & beam lasers
+    └── systems/
+        ├── inventory.js         # 3D inspection viewer & 3-tier herb alchemy
+        ├── quests.js            # Multi-tier quest log & objective HUD
+        ├── minimap.js           # 360° Radar mini-map & estate blueprint modal
+        └── persistence.js       # Typewriter save dialog & localStorage
+```
 
 ---
 

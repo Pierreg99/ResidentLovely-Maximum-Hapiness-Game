@@ -8,6 +8,20 @@ export const ITEMS_DB = {
     type: 'consumable',
     icon: '<circle cx="12" cy="12" r="8" fill="#10b981"/><path d="M12 4v16M4 12h16" stroke="#05070a" stroke-width="2"/>'
   },
+  herb_double: {
+    id: 'herb_double',
+    name: 'DOUBLE SPARKLE HERB (G+G)',
+    desc: 'Two blended green sparkle herbs. Restores 70% Joy Vitality with fresh mint aroma.',
+    type: 'consumable',
+    icon: '<circle cx="8" cy="12" r="6" fill="#10b981"/><circle cx="16" cy="12" r="6" fill="#10b981"/><path d="M8 8v8M16 8v8" stroke="#05070a" stroke-width="1.5"/>'
+  },
+  elixir_ultra: {
+    id: 'elixir_ultra',
+    name: 'ULTRA JOY ELIXIR (G+G+G)',
+    desc: 'Triple-concentrated sparkle herb elixir. Restores 100% Joy and grants radiant bliss protection!',
+    type: 'consumable',
+    icon: '<polygon points="12 2 20 18 4 18" fill="#10b981"/><circle cx="12" cy="13" r="4" fill="#22d3ee"/>'
+  },
   powder_red: {
     id: 'powder_red',
     name: 'SWEET POWDER (RED)',
@@ -25,7 +39,7 @@ export const ITEMS_DB = {
   key_foyer: {
     id: 'key_foyer',
     name: 'SILVER FOYER KEY',
-    desc: 'Engraved with a smiling sun emblem. Unlocks the East Wing Library.',
+    desc: 'Engraved with a smiling sun. Inspect underneath to read the secret inscription: "Harmony unlocks the East Wing".',
     type: 'key',
     icon: '<circle cx="8" cy="8" r="5" fill="none" stroke="#22d3ee" stroke-width="2"/><path d="M12 12l8 8M16 16l2-2M18 18l2-2" stroke="#22d3ee" stroke-width="2"/>'
   },
@@ -46,7 +60,7 @@ export const ITEMS_DB = {
   tome_scroll: {
     id: 'tome_scroll',
     name: 'SCROLL OF JOY HARMONY',
-    desc: 'Ancient alchemical recipe scroll found on the Library Lectern.',
+    desc: 'Ancient alchemical recipe scroll detailing 3-tier herb blending secrets.',
     type: 'quest_item',
     icon: '<rect x="4" y="4" width="16" height="16" rx="2" fill="#a855f7"/><line x1="8" y1="8" x2="16" y2="8" stroke="#fff"/><line x1="8" y1="12" x2="16" y2="12" stroke="#fff"/>'
   }
@@ -65,11 +79,156 @@ export class InventorySystem {
     this.btnInvCombine = document.getElementById('btn-inv-combine');
     this.btnInvDrop = document.getElementById('btn-inv-drop');
 
+    // 3D Inspection Canvas & Setup
+    this.inspectModal = document.getElementById('inspect-modal');
+    this.inspectCanvas = document.getElementById('inspect-canvas');
+    this.inspectCloseBtn = document.getElementById('inspect-close-btn');
+    this.btnInvExamine = document.getElementById('btn-inv-examine');
+
+    this.initInspectViewer();
+
     document.getElementById('inv-close-btn').addEventListener('click', () => this.toggle());
 
     this.btnInvUse.addEventListener('click', () => this.useSelected());
     this.btnInvCombine.addEventListener('click', () => this.startCombine());
     this.btnInvDrop.addEventListener('click', () => this.dropSelected());
+    if (this.btnInvExamine) {
+      this.btnInvExamine.addEventListener('click', () => this.examineSelected());
+    }
+  }
+
+  initInspectViewer() {
+    if (!this.inspectCanvas) return;
+    this.inspectScene = new THREE.Scene();
+    this.inspectScene.background = new THREE.Color(0x05070a);
+
+    this.inspectCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    this.inspectCamera.position.set(0, 0, 4);
+
+    this.inspectRenderer = new THREE.WebGLRenderer({ canvas: this.inspectCanvas, antialias: true });
+    this.inspectRenderer.setSize(220, 220);
+
+    const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
+    light1.position.set(3, 4, 3);
+    this.inspectScene.add(light1);
+
+    const light2 = new THREE.AmbientLight(0x38bdf8, 0.6);
+    this.inspectScene.add(light2);
+
+    this.inspectMeshGroup = new THREE.Group();
+    this.inspectScene.add(this.inspectMeshGroup);
+
+    if (this.inspectCloseBtn) {
+      this.inspectCloseBtn.addEventListener('click', () => {
+        this.inspectModal.style.display = 'none';
+      });
+    }
+
+    // Touch / Mouse Orbit on Inspect Canvas
+    let isDragging = false;
+    let prevX = 0, prevY = 0;
+
+    this.inspectCanvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      prevX = e.clientX;
+      prevY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - prevX;
+      const dy = e.clientY - prevY;
+      this.inspectMeshGroup.rotation.y += dx * 0.02;
+      this.inspectMeshGroup.rotation.x += dy * 0.02;
+      prevX = e.clientX;
+      prevY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    this.inspectCanvas.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      prevX = e.touches[0].clientX;
+      prevY = e.touches[0].clientY;
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging || !e.touches[0]) return;
+      const dx = e.touches[0].clientX - prevX;
+      const dy = e.touches[0].clientY - prevY;
+      this.inspectMeshGroup.rotation.y += dx * 0.02;
+      this.inspectMeshGroup.rotation.x += dy * 0.02;
+      prevX = e.touches[0].clientX;
+      prevY = e.touches[0].clientY;
+    }, { passive: false });
+
+    window.addEventListener('touchend', () => { isDragging = false; });
+
+    // Render loop for inspect viewer
+    const animateInspect = () => {
+      requestAnimationFrame(animateInspect);
+      if (this.inspectModal && this.inspectModal.style.display === 'flex') {
+        if (!isDragging) {
+          this.inspectMeshGroup.rotation.y += 0.01;
+        }
+        this.inspectRenderer.render(this.inspectScene, this.inspectCamera);
+      }
+    };
+    animateInspect();
+  }
+
+  examineSelected() {
+    if (this.gameState.selectedSlot === null) return;
+    const slot = this.gameState.inventory[this.gameState.selectedSlot];
+    if (!slot) return;
+
+    audio.playPop();
+    const item = ITEMS_DB[slot.id];
+    document.getElementById('inspect-title').textContent = `INSPECTING: ${item.name}`;
+    document.getElementById('inspect-desc').textContent = item.desc;
+
+    // Build 3D item geometry in inspection scene
+    while (this.inspectMeshGroup.children.length > 0) {
+      this.inspectMeshGroup.remove(this.inspectMeshGroup.children[0]);
+    }
+
+    if (slot.id.includes('herb')) {
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 1.4, 12), new THREE.MeshStandardMaterial({ color: 0x065f46 }));
+      this.inspectMeshGroup.add(stem);
+      for (let i = 0; i < 4; i++) {
+        const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), new THREE.MeshStandardMaterial({ color: 0x10b981 }));
+        leaf.scale.set(1.5, 0.4, 0.8);
+        leaf.position.set(Math.sin(i * 1.5) * 0.4, -0.3 + i * 0.3, Math.cos(i * 1.5) * 0.4);
+        this.inspectMeshGroup.add(leaf);
+      }
+    } else if (slot.id.includes('key')) {
+      const head = new THREE.Mesh(new THREE.TorusGeometry(0.45, 0.08, 12, 24), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8 }));
+      head.position.y = 0.6;
+      this.inspectMeshGroup.add(head);
+
+      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.2, 12), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8 }));
+      this.inspectMeshGroup.add(shaft);
+
+      const teeth = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 0.1), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8 }));
+      teeth.position.set(0.18, -0.45, 0);
+      this.inspectMeshGroup.add(teeth);
+    } else if (slot.id === 'bliss_cupcake') {
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.4, 0.6, 16), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
+      this.inspectMeshGroup.add(base);
+
+      const frosting = new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 16), new THREE.MeshStandardMaterial({ color: 0xec4899 }));
+      frosting.position.y = 0.5;
+      this.inspectMeshGroup.add(frosting);
+
+      const cherry = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), new THREE.MeshStandardMaterial({ color: 0x22d3ee }));
+      cherry.position.y = 1.1;
+      this.inspectMeshGroup.add(cherry);
+    } else {
+      const orb = new THREE.Mesh(new THREE.OctahedronGeometry(0.8), new THREE.MeshStandardMaterial({ color: 0xa855f7, wireframe: true }));
+      this.inspectMeshGroup.add(orb);
+    }
+
+    this.inspectModal.style.display = 'flex';
   }
 
   toggle() {
@@ -152,12 +311,14 @@ export class InventorySystem {
       this.btnInvUse.disabled = false;
       this.btnInvCombine.disabled = false;
       this.btnInvDrop.disabled = false;
+      if (this.btnInvExamine) this.btnInvExamine.disabled = false;
     } else {
       this.itemDetailName.textContent = 'SELECT AN ITEM';
       this.itemDetailDesc.textContent = 'Inspect your collected treats, keys, and happiness enhancers.';
       this.btnInvUse.disabled = true;
       this.btnInvCombine.disabled = true;
       this.btnInvDrop.disabled = true;
+      if (this.btnInvExamine) this.btnInvExamine.disabled = true;
     }
   }
 
@@ -169,7 +330,8 @@ export class InventorySystem {
     const item = ITEMS_DB[slot.id];
     if (item.type === 'consumable') {
       audio.playCheer();
-      this.gameState.joy = Math.min(100, this.gameState.joy + 40);
+      const healAmount = slot.id === 'herb_green' ? 35 : (slot.id === 'herb_double' ? 70 : 100);
+      this.gameState.joy = Math.min(100, this.gameState.joy + healAmount);
       if (this.callbacks.onToast) this.callbacks.onToast(`CONSUMED ${item.name}! JOY RESTORED.`);
       slot.qty--;
       if (slot.qty <= 0) this.gameState.inventory[this.gameState.selectedSlot] = null;
@@ -208,6 +370,27 @@ export class InventorySystem {
 
     const ids = [item1.id, item2.id].sort().join('+');
 
+    // 1. Green + Green = Double Herb (70% Heal)
+    if (ids === 'herb_green+herb_green') {
+      this.consumeSlot(idx1);
+      this.consumeSlot(idx2);
+      this.addItem('herb_double', 1);
+      audio.playCheer();
+      if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: DOUBLE SPARKLE HERB (G+G)! ★');
+      return;
+    }
+
+    // 2. Double Herb + Green = Ultra Elixir (100% Heal + Shield)
+    if (ids === 'herb_double+herb_green') {
+      this.consumeSlot(idx1);
+      this.consumeSlot(idx2);
+      this.addItem('elixir_ultra', 1);
+      audio.playCheer();
+      if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: ULTRA JOY ELIXIR (G+G+G)! ★');
+      return;
+    }
+
+    // 3. Green Herb + Sweet Red Powder = Mega Bliss Cupcake
     if (ids === 'herb_green+powder_red') {
       this.consumeSlot(idx1);
       this.consumeSlot(idx2);
@@ -218,6 +401,7 @@ export class InventorySystem {
       return;
     }
 
+    // 4. Silver Key + Gold Ribbon = Master Ballroom Key
     if (ids === 'key_foyer+ribbon_gold') {
       this.consumeSlot(idx1);
       this.consumeSlot(idx2);

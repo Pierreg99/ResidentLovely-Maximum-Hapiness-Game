@@ -163,20 +163,20 @@
           EXAMINE
         </button>
 
+        <!-- 180 Quick-Turn Button -->
+        <button id="btn-quick-turn" class="btn-action" title="180° Quick Turn (Z)">
+          <svg class="btn-svg" viewBox="0 0 24 24">
+            <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+          </svg>
+          180° TURN
+        </button>
+
         <!-- Weapon Next Cycle -->
         <button id="btn-cycle-weapon" class="btn-action">
           <svg class="btn-svg" viewBox="0 0 24 24">
             <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
           </svg>
           GUN
-        </button>
-
-        <!-- Audio Toggle -->
-        <button id="btn-audio-toggle" class="btn-action">
-          <svg class="btn-svg" viewBox="0 0 24 24">
-            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-          </svg>
-          AUDIO
         </button>
 
         <!-- Joy Fire Trigger -->
@@ -282,8 +282,32 @@
         <div class="inv-actions">
           <button id="btn-inv-use" class="btn-inv-act">❖ USE</button>
           <button id="btn-inv-combine" class="btn-inv-act gold">◈ COMBINE</button>
+          <button id="btn-inv-examine" class="btn-inv-act">★ 3D INSPECT</button>
           <button id="btn-inv-drop" class="btn-inv-act">✖ DISCARD</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D ITEM INSPECTION MODAL -->
+  <div id="inspect-modal">
+    <div class="inspect-box">
+      <div id="inspect-title" class="save-title">INSPECT ITEM</div>
+      <canvas id="inspect-canvas" width="220" height="220"></canvas>
+      <div style="font-family:var(--font-mono); font-size:8.5px; color:var(--text-dim);">[DRAG TO ROTATE 360°]</div>
+      <div id="inspect-desc" class="save-sub">Inspect secrets underneath objects.</div>
+      <button id="inspect-close-btn" class="modal-close-btn" style="width:100%;">BACK TO INVENTORY</button>
+    </div>
+  </div>
+
+  <!-- AUTHENTIC TYPEWRITER / GRAMOPHONE SAVE DIALOG MODAL -->
+  <div id="save-modal">
+    <div class="save-card">
+      <div class="save-title">★ GRAND MEMORY CHRONICLE ★</div>
+      <div class="save-sub">Will you record your joyful journey in the Château Chronicle?<br><span style="color:var(--gold-accent);">Data will be saved to Memory Card Slot 1.</span></div>
+      <div class="save-actions">
+        <button id="btn-confirm-save" class="btn-save-act gold">RECORD PROGRESS</button>
+        <button id="btn-cancel-save" class="btn-save-act cancel">CANCEL</button>
       </div>
     </div>
   </div>

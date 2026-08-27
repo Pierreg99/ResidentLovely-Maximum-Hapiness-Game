@@ -1,7 +1,7 @@
 import { scene, renderer, updateParticles, spawnConfetti } from './world/scene.js';
 import { rooms, initRooms, lanternMeshes, groundItems, spawnGroundItem, updateGroundItems } from './world/rooms.js';
 import { destructibles, initDestructibles, updateDestructibles } from './world/destructibles.js';
-import { player, initPlayer, updatePlayer } from './entities/player.js';
+import { player, initPlayer, updatePlayer, performQuickTurn } from './entities/player.js';
 import { grumps, initGrumps, updateGrumps } from './entities/grump.js';
 import { triggerWeaponFire, updateProjectiles } from './weapons/arsenal.js';
 import { audio } from './engine/audio.js';
@@ -10,7 +10,7 @@ import { initInput } from './engine/input.js';
 import { InventorySystem, ITEMS_DB } from './systems/inventory.js';
 import { QuestSystem, QUESTS } from './systems/quests.js';
 import { MinimapSystem } from './systems/minimap.js';
-import { saveGame, loadGame } from './systems/persistence.js';
+import { PersistenceSystem, loadGame } from './systems/persistence.js';
 
 // Global Game State
 const gameState = {
@@ -71,6 +71,9 @@ const inventorySystem = new InventorySystem(gameState, {
 
 const questSystem = new QuestSystem();
 const minimapSystem = new MinimapSystem(gameState);
+const persistenceSystem = new PersistenceSystem(gameState, lanternMeshes, QUESTS, inventorySystem, questSystem, {
+  onToast: showToast
+});
 
 // Initialize 3D world & entities
 initRooms();
@@ -107,9 +110,9 @@ const btnAim = document.getElementById('btn-aim');
 function toggleAim() {
   audio.init();
   player.isAiming = !player.isAiming;
-  btnAim.classList.toggle('active', player.isAiming);
+  if (btnAim) btnAim.classList.toggle('active', player.isAiming);
   player.laserGuide.visible = player.isAiming;
-  reticleLayer.style.opacity = player.isAiming ? '1' : '0';
+  if (reticleLayer) reticleLayer.style.opacity = player.isAiming ? '1' : '0';
 }
 
 // Piano Puzzle Setup
@@ -127,7 +130,9 @@ function openPianoPuzzle() {
   }
 }
 
-pianoCloseBtn.addEventListener('click', () => { pianoModal.style.display = 'none'; });
+if (pianoCloseBtn) {
+  pianoCloseBtn.addEventListener('click', () => { pianoModal.style.display = 'none'; });
+}
 
 const noteFreqs = { 'C': 261.63, 'D': 293.66, 'E': 329.63, 'F': 349.23, 'G': 392.00, 'A': 440.00 };
 
@@ -154,13 +159,13 @@ document.querySelectorAll('.piano-key').forEach(key => {
   });
 });
 
-// Room Transitions & Door Cutscenes
+// Room Transitions & Authentic Door Loading Cutscene
 const doorCurtain = document.getElementById('door-curtain');
 const roomNameDisplay = document.getElementById('room-name-display');
 
 function changeRoom(newRoom, targetSpawnPos) {
   audio.playDoorChime();
-  doorCurtain.style.display = 'flex';
+  if (doorCurtain) doorCurtain.style.display = 'flex';
 
   setTimeout(() => {
     gameState.room = newRoom;
@@ -171,7 +176,7 @@ function changeRoom(newRoom, targetSpawnPos) {
     if (newRoom === 'garden') roomNameDisplay.textContent = '❖ SOLARIUM GARDEN';
 
     setTimeout(() => {
-      doorCurtain.style.display = 'none';
+      if (doorCurtain) doorCurtain.style.display = 'none';
     }, 450);
   }, 650);
 }
@@ -344,15 +349,7 @@ function handleContextInteract() {
   }
 
   if (currentInteractable.type === 'save') {
-    audio.playGramophone();
-    saveGame(gameState, lanternMeshes, QUESTS);
-    showToast('PROGRESS SAVED TO GOLD GRAMOPHONE');
-    const q4 = QUESTS.find(q => q.id === 'quest_uplift');
-    if (q4) {
-      q4.tasks[1].done = true;
-      questSystem.checkAllDone();
-      questSystem.render();
-    }
+    persistenceSystem.promptSave();
     return;
   }
 
@@ -417,6 +414,7 @@ initInput({
   onToggleQuestLog: () => questSystem.toggle(),
   onToggleFullMap: () => minimapSystem.toggleFullMap(),
   onContextInteract: handleContextInteract,
+  onQuickTurn: performQuickTurn,
   onFire: () => triggerWeaponFire(gameState, cameraController, {
     onToast: showToast,
     onGrumpUplifted: () => {
@@ -440,10 +438,13 @@ initInput({
   onToast: showToast
 });
 
-document.getElementById('btn-restart-party').addEventListener('click', () => {
-  document.getElementById('party-banner').style.display = 'none';
-  showToast('KEEP SPREADING MAXIMUM HAPPINESS ACROSS THE WORLD!');
-});
+const btnRestart = document.getElementById('btn-restart-party');
+if (btnRestart) {
+  btnRestart.addEventListener('click', () => {
+    document.getElementById('party-banner').style.display = 'none';
+    showToast('KEEP SPREADING MAXIMUM HAPPINESS ACROSS THE WORLD!');
+  });
+}
 
 // Load Save Data & Initial Render
 loadGame(gameState, lanternMeshes, QUESTS, inventorySystem, questSystem);
@@ -487,4 +488,4 @@ function animate() {
 }
 
 animate();
-showToast('❖ RESIDENT LOVELY ESM ENGINE ACTIVE ❖');
+showToast('❖ KAWAII ENGINE & ACCURATE LOGIC ACTIVE ❖');

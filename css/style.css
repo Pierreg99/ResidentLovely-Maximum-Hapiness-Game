@@ -435,7 +435,7 @@ body, html {
   justify-content: center;
   gap: 2px;
   font-family: var(--font-mono);
-  font-size: 7.5px;
+  font-size: 7px;
   font-weight: 700;
   letter-spacing: 0.5px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
@@ -509,7 +509,7 @@ body, html {
 
 .modal-title {
   font-family: var(--font-mono);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 1.5px;
   color: var(--cyan-glow);
@@ -663,17 +663,19 @@ body, html {
 
 .inv-actions {
   display: flex;
-  gap: 6px;
+  gap: 5px;
+  flex-wrap: wrap;
 }
 
 .btn-inv-act {
   flex: 1;
-  padding: 7px 8px;
+  min-width: 60px;
+  padding: 7px 6px;
   background: rgba(15, 23, 42, 0.8);
   border: 1px solid var(--border-cyan);
   color: var(--text-main);
   font-family: var(--font-mono);
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
   border-radius: 4px;
   cursor: pointer;
@@ -691,6 +693,121 @@ body, html {
 .btn-inv-act.gold:hover, .btn-inv-act.gold:active {
   background: var(--gold-accent);
   color: #000;
+}
+
+/* 3D Item Inspection Modal */
+#inspect-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(5, 7, 10, 0.96);
+  z-index: 220;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.inspect-box {
+  background: var(--bg-panel);
+  border: 2px solid var(--cyan-glow);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 0 30px rgba(34, 211, 238, 0.3);
+}
+
+#inspect-canvas {
+  width: 220px;
+  height: 220px;
+  border: 1px solid var(--border-cyan);
+  border-radius: 8px;
+  cursor: grab;
+}
+
+#inspect-canvas:active {
+  cursor: grabbing;
+}
+
+/* Authentic Resident Evil Typewriter Save Dialog Modal */
+#save-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(5, 7, 10, 0.94);
+  z-index: 230;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.save-card {
+  background: var(--bg-panel);
+  border: 2px solid var(--gold-accent);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.3);
+}
+
+.save-title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gold-accent);
+  letter-spacing: 1px;
+}
+
+.save-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
+.save-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-save-act {
+  flex: 1;
+  padding: 9px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-save-act.gold {
+  background: var(--gold-accent);
+  color: #05070a;
+  border: none;
+}
+
+.btn-save-act.cancel {
+  background: transparent;
+  border: 1px solid var(--border-cyan);
+  color: var(--text-main);
 }
 
 /* Quest Log Modal */
