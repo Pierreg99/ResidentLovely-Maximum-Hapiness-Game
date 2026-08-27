@@ -492,7 +492,7 @@ function animate() {
       }
     }
   });
-  updateGrumps(delta, time);
+  updateGrumps(delta, time, cameraController.camera);
   updateDestructibles(time);
   updateGroundItems(delta, time);
   updateParticles(delta);
@@ -506,4 +506,4 @@ function animate() {
 }
 
 animate();
-showToast('❖ RESIDENT LOVELY v1.6.1 CAMERA & GRAPHICS CALIBRATED ❖');
+showToast('❖ RESIDENT LOVELY v1.6.2 DUAL-SMOOTHING ACTIVE ❖');

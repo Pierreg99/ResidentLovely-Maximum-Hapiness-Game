@@ -117,14 +117,18 @@ export function createGrump(pos, roomName, type = 'bear') {
     }
   }
 
-  // Overhead Joy Health Bar
+  // Overhead Billboarding Joy Health Bar Group
+  const barGroup = new THREE.Group();
+  barGroup.position.y = 1.9;
+
   const barBg = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.15), new THREE.MeshBasicMaterial({ color: 0x111827 }));
-  barBg.position.y = 1.9;
-  gGroup.add(barBg);
+  barGroup.add(barBg);
 
   const barFill = new THREE.Mesh(new THREE.PlaneGeometry(0.01, 0.12), new THREE.MeshBasicMaterial({ color: 0xec4899 }));
-  barFill.position.set(-0.58, 1.9, 0.01);
-  gGroup.add(barFill);
+  barFill.position.set(-0.58, 0, 0.01);
+  barGroup.add(barFill);
+
+  gGroup.add(barGroup);
 
   // Giant Bubble Trap Mesh
   const bubbleTrap = new THREE.Mesh(
@@ -137,6 +141,7 @@ export function createGrump(pos, roomName, type = 'bear') {
 
   const grumpObj = {
     group: gGroup,
+    barGroup,
     roomName,
     type,
     happiness: 0,
@@ -169,8 +174,8 @@ export function upliftGrump(grump, amount, gameState, callbacks) {
   // Trigger Squash & Stretch reaction
   grump.squashTimer = 0.25;
 
-  // Knockback impulse
-  const knockVec = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation).multiplyScalar(0.45);
+  // Correct Knockback impulse (+Z forward away from player)
+  const knockVec = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation).multiplyScalar(0.45);
   grump.group.position.add(knockVec);
 
   grump.barFill.geometry.dispose();
@@ -192,8 +197,13 @@ export function upliftGrump(grump, amount, gameState, callbacks) {
   }
 }
 
-export function updateGrumps(delta, time) {
+export function updateGrumps(delta, time, camera) {
   grumps.forEach(g => {
+    // Billboard overhead health bar towards camera
+    if (camera && g.barGroup) {
+      g.barGroup.quaternion.copy(camera.quaternion);
+    }
+
     // Handle Squash & Stretch on hit
     if (g.squashTimer > 0) {
       g.squashTimer -= delta;
