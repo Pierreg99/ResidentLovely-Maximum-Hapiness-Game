@@ -1,7 +1,7 @@
 # RESIDENT LOVELY ❖ MASTER DEVELOPMENT ROADMAP & PROGRESS MATRIX
 
 **Project Title**: Resident Lovely: Maximum Happiness 3D  
-**Current Milestone**: `v1.4.0 (Kawaii Graphics & Authentic Resident Evil Logic)`  
+**Current Milestone**: `v1.5.0 (Full Graphic Overhaul & Integrated Masterwork)`  
 **Repository**: [Pierreg99/resident-lovely-game](https://github.com/Pierreg99/resident-lovely-game)  
 **Classification**: NEXUS PRIVÉ v6.0 Standard | Strict Zero-Emoji Compliance  
 **Engine**: Three.js (r128) WebGL PBR + Procedural Web Audio API (ESM Architecture)  
@@ -12,7 +12,7 @@
 
 ```
 ========================================================================================
-RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████████████░░░░] 85.0%
+RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████████████░░░░] 88.0%
 ========================================================================================
 • Core WebGL & Touch Engine:       [████████████████████] 100% (v1.0.0 ✔)
 • 8-Slot RE Inventory & Alchemy:   [████████████████████] 100% (v1.0.0 ✔)
@@ -27,9 +27,11 @@ RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████
 • 3D Item Orbit Inspection Viewer: [████████████████████] 100% (v1.4.0 ✔)
 • Typewriter Save Chronicle Modal: [████████████████████] 100% (v1.4.0 ✔)
 • 3-Tier Herb & Pastry Alchemy:    [████████████████████] 100% (v1.4.0 ✔)
-• Confectionery Kitchen Wing:      [████████░░░░░░░░░░░░]  40% (v1.5.0 ❖)
-• Boss: The Grumpy Master Chef:    [██████░░░░░░░░░░░░░░]  30% (v1.5.0 ❖)
-• PWA Offline ServiceWorker:       [░░░░░░░░░░░░░░░░░░░░]   0% (v1.6.0 ◈)
+• Volumetric God Rays & Stardust:  [████████████████████] 100% (v1.5.0 ✔)
+• Baroque Wainscoting & Paintings: [████████████████████] 100% (v1.5.0 ✔)
+• Confectionery Kitchen Wing:      [████████░░░░░░░░░░░░]  40% (v1.6.0 ❖)
+• Boss: The Grumpy Master Chef:    [██████░░░░░░░░░░░░░░]  30% (v1.6.0 ❖)
+• PWA Offline ServiceWorker:       [░░░░░░░░░░░░░░░░░░░░]   0% (v1.7.0 ◈)
 • 2-Player Co-Op over WebRTC:      [░░░░░░░░░░░░░░░░░░░░]   0% (v2.0.0 ◈)
 • WebXR Immersive VR Mode:         [░░░░░░░░░░░░░░░░░░░░]   0% (v2.0.0 ◈)
 ========================================================================================
@@ -55,137 +57,52 @@ RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████
 - [x] **Harmonic Triad Melody Puzzle**: Interactive `[C]` ➔ `[E]` ➔ `[G]` sonatina puzzle unlocking the secret key drawer.
 - [x] **Library Alchemical Cauldron**: Golden cauldron with bubbling magenta brew and steam particles in East Wing.
 - [x] **West Wing Solarium Garden**: Glass crystal colonnade, tiered marble fountain, and 4 Heart Lanterns.
-- [x] **3 Diverse Grump AI Variants**:
-  - `Gloom Bear`: Fluffy plush bear with stitched patch seams.
-  - `Sighing Specter`: Floating translucent marshmallow ghost.
-  - `Gilded Knight`: Heavy-armored plush knight with cardboard helmet.
+- [x] **3 Diverse Grump AI Variants**: Gloom Bear, Sighing Specter, Gilded Knight.
 - [x] **Multi-Tier Quest Log Modal**: Dedicated in-game mission tracker with interactive task checkboxes.
 
 ---
 
 ### ❖ Phase 3: 4-Weapon Wholesome Arsenal & Tactical Maps (`v1.2.0`) ✔ [COMPLETED]
-- [x] **4-Weapon Arsenal System**:
-  - `Mk-IV Confetti Pistol`: Rapid precision sparkly darts with gold muzzle flashes.
-  - `Pastry Bubble Shotgun`: 5-pellet bubble spread with buoyant physics trapping enemies inside soap bubbles.
-  - `Confectionery Mortar`: Arcing ballistic cupcake missile with 360° confetti shockwave and screen shake.
-  - `Prismatic Joy Beam`: Continuous neon rainbow laser beam with real-time cylinder mesh & polyphonic synth audio hum.
-- [x] **Interactive Radar Mini-Map HUD**:
-  - 360-degree rotating radar scan with room boundaries.
-  - Player orientation cone and live entity blips (Blue = Gloomy, Gold = Dancing, Magenta = Destructibles).
-- [x] **Fullscreen Estate Architectural Blueprint Modal**:
-  - Interactive SVG floorplan of *Château de la Joie* with dynamic door lock states (`[LOCK]` / `[OPEN]`).
-  - Active player pinpoint coordinates indicator (`[▶] S.M.I.L.E. Agent`).
-- [x] **Destructible Environmental Objects**:
-  - Floating pastel balloons in room corners; pop for surprise treat drops.
-  - Gilded gift chests that fracture into gold pieces.
-- [x] **Dynamic Muzzle Flash Lighting**: Colored point lights illuminating mansion walls during fire.
+- [x] **4-Weapon Arsenal System**: Confetti Pistol, Bubble Shotgun, Confectionery Mortar, Prismatic Joy Beam.
+- [x] **Interactive Radar Mini-Map HUD**: 360-degree rotating radar scan with room boundaries.
+- [x] **Fullscreen Estate Architectural Blueprint Modal**: Interactive SVG floorplan with dynamic door lock states.
+- [x] **Destructible Environmental Objects**: Floating balloons and breakable gilded gift chests.
 
 ---
 
 ### ❖ Phase 4: ESM Multi-Module Architecture Decoupling (`v1.3.0`) ✔ [COMPLETED]
-- [x] **Modular Structure Extraction**:
-  - `src/main.js`: Main lifecycle & animation loop coordinator.
-  - `src/engine/audio.js`: Sound synthesis engine.
-  - `src/engine/input.js`: Input matrix & virtual joystick.
-  - `src/engine/camera.js`: Chase camera & screen trauma decay.
-  - `src/world/scene.js`: Three.js scene, lighting, and confetti particle pool.
-  - `src/world/rooms.js`: Procedural room builders (Foyer, Library, Solarium Garden).
-  - `src/world/destructibles.js`: Breakable balloons & gift boxes.
-  - `src/entities/player.js`: Player model & movement physics.
-  - `src/entities/grump.js`: Grump AI state machines & happiness gauges.
-  - `src/weapons/arsenal.js`: 4-weapon projectile physics & beam raycasting.
-  - `src/systems/inventory.js`: 8-slot inventory grid & combine recipes.
-  - `src/systems/quests.js`: Multi-tier quest chain & objective HUD.
-  - `src/systems/minimap.js`: Rotating radar mini-map & estate blueprint.
-  - `src/systems/persistence.js`: Save/load storage snapshotting.
-  - `css/style.css`: Dedicated stylesheet with NEXUS PRIVÉ v6.0 tokens.
+- [x] **Modular Structure Extraction**: Decoupled into 15 structured ES Modules across `src/engine/`, `src/world/`, `src/entities/`, `src/weapons/`, `src/systems/`.
+- [x] **Dedicated CSS**: `css/style.css` stylesheet with NEXUS PRIVÉ v6.0 glassmorphic tokens.
 
 ---
 
 ### ❖ Phase 5: Kawaii Graphics & Authentic Resident Evil Logic (`v1.4.0`) ✔ [COMPLETED]
-- [x] **Expressive Chibi "Agent Joy" Character Model**:
-  - Chibi proportions with large glossy dark anime eyes, dual star highlights, and rosy pink blush cheeks (`#f472b6`).
-  - Animated twin-tail pigtails that oscillate with real-time spring physics while sprinting.
-  - Tactile foot-hop running animation cycle and gold S.M.I.L.E. belt buckle.
-- [x] **Squash-and-Stretch Kawaii Grump AI**:
-  - Fluffy plush materials with stitched seams.
-  - Real-time mesh squash-and-stretch deformation on joy impacts.
-  - Big teary anime eyes that morph into starry golden sparkle eyes upon being uplifted.
-- [x] **Authentic 180° Quick-Turn**:
-  - Instant character spin (`Z` key or touch button) with camera whip and swoosh sound.
-- [x] **Interactive 3D Item Inspection Viewer (`★ 3D INSPECT`)**:
-  - Dedicated 3D Three.js orbit viewer modal inside inventory to rotate objects 360° and discover secrets.
-- [x] **Authentic Typewriter / Gramophone Save Dialog**:
-  - Classic confirmation prompt modal with synthesized mechanical typewriter keystrokes and carriage return bell.
-- [x] **Expanded 3-Tier Herb Alchemy**:
-  - `Green Herb` + `Green Herb` ➔ **Double Sparkle Herb** (70% Joy)
-  - `Green Herb` + `Red Sweet Powder` ➔ **Mega Bliss Cupcake** (100% Joy)
-  - `Double Green Herb` + `Green Herb` ➔ **Ultra Joy Elixir** (100% Joy + Radiant Star Shield)
-- [x] **Baroque Architecture Upgrades**:
-  - Large stained-glass rose windows casting pink light on ballroom walls.
-  - Blooming kawaii rose bushes with glowing pink blossoms in the Solarium Garden.
+- [x] **Chibi Agent Joy Model**: Glossy anime eyes, rosy cheeks, bouncing twin-tail pigtails, and foot-hop running cycles.
+- [x] **Squash-and-Stretch Grump AI**: Fluffy plush materials, teary-to-starry eye transformation on uplift.
+- [x] **180° Quick-Turn**: Instant character spin (`Z` key or touch button) with camera whip and swoosh sound.
+- [x] **3D Item Inspection Viewer (`★ 3D INSPECT`)**: Dedicated 3D Three.js orbit viewer modal.
+- [x] **Typewriter Save Dialog**: Classic confirmation prompt with synthesized mechanical typewriter keystrokes.
+- [x] **3-Tier Herb Alchemy**: Green+Green (Double Herb), Green+Red (Cupcake), Double+Green (Ultra Elixir).
 
 ---
 
-### ❖ Phase 6: Secret Confectionery Kitchen & Master Chef Boss (`v1.5.0`) ❖ [IN PROGRESS]
-- [ ] **Expansion Chamber: The Grand Confectionery Kitchen**:
-  - Industrial copper candy vats, conveyor belts with moving cupcakes, and pastry ovens.
-  - Secret refrigerator vault puzzle requiring temperature calibration.
-- [ ] **Boss Encounter: The Grumpy Master Chef**:
-  - Multi-phase happiness battle against a giant plush chef wielding oversized rolling pins.
-  - Phase 1: Flour cloud attacks & pastry roll dodges.
-  - Phase 2: Bubble shield barrier requiring Confectionery Mortar bombardment.
-  - Phase 3: Joy Uplift celebration feast triggering the Grand Manor Finale.
-- [ ] **New Weapon: Triple-Scoop Ice Cream Launcher**:
-  - 3-burst Neapolitan ice cream scoops with freeze-happiness slow effect on Grumps.
-- [ ] **Time-Attack "Joy Rush" Speedrun Challenge**:
-  - Leaderboard time trials for fastest manor happiness restoration.
+### ❖ Phase 6: Full Graphic Overhaul & Atmospheric Shading (`v1.5.0`) ✔ [COMPLETED]
+- [x] **Volumetric God Rays**: Translucent additive light shafts projecting from the stained-glass rose window.
+- [x] **Ambient Stardust Motes**: 55 floating glitter particles drifting through illuminated zones.
+- [x] **Multi-Tier Crystal Chandelier**: Gilded chandelier with hanging crystal prisms casting refractive highlights.
+- [x] **Baroque Wainscoting & Framed Paintings**: Gilded perimeter moldings and landscape art.
+- [x] **Cascading Fountain Ripples**: Animated rotating water ripple rings in the Solarium Garden.
+- [x] **Eye Blinking Animation**: Periodic cute blinking timing on Agent Joy.
 
 ---
 
-### ❖ Phase 7: PWA Offline Support & Performance Polish (`v1.6.0`) ◈ [PLANNED]
-- [ ] **Progressive Web App (PWA)**:
-  - `manifest.json` with high-res vector icons and standalone fullscreen display.
-  - `sw.js` ServiceWorker caching all static assets for 100% offline playability.
-- [ ] **High-Refresh Rate Optimization**:
-  - 120 FPS display pacing on mobile OLED screens.
-  - Dynamic LOD (Level of Detail) mesh swapping for distant room assets.
-- [ ] **Reconfigurable Controls Menu**:
-  - Customizable virtual joystick size, sensitivity, and button positioning.
+### ❖ Phase 7: Secret Confectionery Kitchen & Master Chef Boss (`v1.6.0`) ❖ [IN PROGRESS]
+- [ ] **Expansion Chamber: The Grand Confectionery Kitchen**.
+- [ ] **Boss Encounter: The Grumpy Master Chef**.
+- [ ] **New Weapon: Triple-Scoop Ice Cream Launcher**.
 
 ---
 
 ### ❖ Phase 8: Co-Op Multiplayer & WebXR VR Mode (`v2.0.0`) ◈ [PLANNED]
-- [ ] **2-Player Co-Op Happiness Missions**:
-  - Peer-to-peer multiplayer using WebRTC DataChannels (zero server dependencies).
-  - Synchronized Grump happiness states, shared inventory trading, and co-op puzzle triggers.
-- [ ] **WebXR Immersive Spatial / VR Support**:
-  - Native WebXR 6-DoF VR exploration of *Château de la Joie*.
-  - Motion controller joy blaster aiming and physical item inspection.
-
----
-
-## ★ Weapon Arsenal Specifications Matrix
-
-| Weapon | Slot | Projectile Type | Damage / Happiness | Fire Rate | Special Physics Effect |
-|---|---|---|---|---|---|
-| **Mk-IV Confetti Pistol** | `[1]` | Precision Star Sparkle | +35% Joy | High (3.5/s) | Gold muzzle flash, straight ballistic laser |
-| **Pastry Bubble Shotgun** | `[2]` | 5x Iridescent Bubble Spread | +45% Joy | Med (1.2/s) | Envelops Grumps into buoyant floating bubbles |
-| **Confectionery Mortar** | `[3]` | Arcing Cupcake Missile | +75% Joy | Slow (0.5/s) | 360° Confetti shockwave, camera recoil trauma |
-| **Prismatic Joy Beam** | `[4]` | Continuous Rainbow Laser | +35%/tick | Continuous | Multi-target raycast penetration, synth hum |
-| **Triple-Scoop Launcher** | `[5]` | 3-Burst Ice Cream Scoops | +50% Joy | Burst (1.0/s) | *In Development for v1.5.0* |
-
----
-
-## ★ Herb & Confectionery Alchemy Cheat Sheet
-
-```
-+---------------------------+---------------------------+---------------------------------+
-| INGREDIENT 1              | INGREDIENT 2              | RESULTING MASTERWORK            |
-+---------------------------+---------------------------+---------------------------------+
-| Sparkle Herb (Green)      | Sparkle Herb (Green)      | Double Sparkle Herb (70% Joy)   |
-| Sparkle Herb (Green)      | Sweet Powder (Red)        | Mega Bliss Cupcake (100% Joy)   |
-| Double Sparkle Herb (G+G) | Sparkle Herb (Green)      | Ultra Joy Elixir (100% + Shield)|
-| Silver Foyer Key          | Golden Sparkle Ribbon     | Master Ballroom Key             |
-+---------------------------+---------------------------+---------------------------------+
-```
+- [ ] **2-Player Co-Op over WebRTC DataChannels**.
+- [ ] **WebXR Immersive VR Mode**.

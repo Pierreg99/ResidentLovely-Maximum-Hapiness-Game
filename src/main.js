@@ -1,4 +1,4 @@
-import { scene, renderer, updateParticles, spawnConfetti } from './world/scene.js';
+import { scene, renderer, updateParticles, spawnConfetti, updateStardust } from './world/scene.js';
 import { rooms, initRooms, lanternMeshes, groundItems, spawnGroundItem, updateGroundItems } from './world/rooms.js';
 import { destructibles, initDestructibles, updateDestructibles } from './world/destructibles.js';
 import { player, initPlayer, updatePlayer, performQuickTurn } from './entities/player.js';
@@ -480,6 +480,7 @@ function animate() {
   updateDestructibles(time);
   updateGroundItems(delta, time);
   updateParticles(delta);
+  updateStardust(time);
 
   minimapSystem.render(player, grumps, destructibles);
   checkContextualInteractions();
@@ -488,4 +489,4 @@ function animate() {
 }
 
 animate();
-showToast('❖ KAWAII ENGINE & ACCURATE LOGIC ACTIVE ❖');
+showToast('❖ RESIDENT LOVELY v1.5.0 MASTERWORK ACTIVE ❖');

@@ -11,10 +11,12 @@ export const player = {
   isAiming: false,
   isQuickTurning: false,
   quickTurnTimer: 0,
+  blinkTimer: 0,
   speed: 7.4,
   meshBody: null,
   meshHead: null,
   meshGun: null,
+  eyes: [],
   leftPigtail: null,
   rightPigtail: null,
   laserGuide: null,
@@ -25,7 +27,7 @@ export function initPlayer() {
   const pGroup = player.group;
 
   // 1. Chibi Torso with Tactical Pastel Vest
-  const vestMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.2 });
+  const vestMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.25 });
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.44, 1.2, 16), vestMat);
   body.position.y = 0.65;
   body.castShadow = true;
@@ -33,7 +35,7 @@ export function initPlayer() {
   player.meshBody = body;
 
   // Gold S.M.I.L.E. Belt Buckle
-  const buckle = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.46), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8 }));
+  const buckle = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.46), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 }));
   buckle.position.set(0, 0.35, 0.2);
   pGroup.add(buckle);
 
@@ -43,14 +45,14 @@ export function initPlayer() {
   pGroup.add(pouch);
 
   // 2. Kawaii Chibi Head
-  const headMat = new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.5 });
+  const headMat = new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.45 });
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 20), headMat);
   head.position.y = 1.55;
   head.castShadow = true;
   pGroup.add(head);
   player.meshHead = head;
 
-  // Large Glossy Anime Eyes
+  // Large Glossy Anime Eyes with Blinking Support
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0x09090b });
   const eyeHighlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
@@ -59,6 +61,7 @@ export function initPlayer() {
     eye.scale.set(1, 1.3, 0.4);
     eye.position.set(x, 1.58, 0.38);
     pGroup.add(eye);
+    player.eyes.push(eye);
 
     // Specular Star Highlight
     const h1 = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), eyeHighlightMat);
@@ -70,7 +73,7 @@ export function initPlayer() {
     pGroup.add(h2);
 
     // Rosy Pink Blush Cheeks
-    const blush = new THREE.Mesh(new THREE.CircleGeometry(0.07, 12), new THREE.MeshBasicMaterial({ color: 0xf472b6, transparent: true, opacity: 0.75 }));
+    const blush = new THREE.Mesh(new THREE.CircleGeometry(0.075, 12), new THREE.MeshBasicMaterial({ color: 0xf472b6, transparent: true, opacity: 0.75 }));
     blush.position.set(x * 1.5, 1.46, 0.39);
     pGroup.add(blush);
   }
@@ -82,7 +85,7 @@ export function initPlayer() {
   beret.rotation.z = 0.12;
   pGroup.add(beret);
 
-  const starBadge = new THREE.Mesh(new THREE.OctahedronGeometry(0.08), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8 }));
+  const starBadge = new THREE.Mesh(new THREE.OctahedronGeometry(0.08), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 }));
   starBadge.position.set(-0.25, 1.92, 0.32);
   pGroup.add(starBadge);
 
@@ -104,7 +107,7 @@ export function initPlayer() {
   player.rightPigtail = rightTail;
 
   // 5. Custom Mk-IV Confetti Blaster with Heart Tip
-  const gunMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85, roughness: 0.2 });
+  const gunMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.2 });
   const gun = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.22, 0.65), gunMat);
   gun.position.set(0.42, 1.05, 0.4);
   pGroup.add(gun);
@@ -148,6 +151,16 @@ export function performQuickTurn() {
 }
 
 export function updatePlayer(delta, time, currentRoom) {
+  // Eye Blinking Logic
+  player.blinkTimer -= delta;
+  if (player.blinkTimer <= 0) {
+    player.eyes.forEach(e => { e.scale.y = 0.1; });
+    setTimeout(() => {
+      player.eyes.forEach(e => { e.scale.y = 1.3; });
+      player.blinkTimer = Math.random() * 3.5 + 2.5; // Next blink in 2.5-6s
+    }, 120);
+  }
+
   // Handle 180 Quick-Turn Animation
   if (player.isQuickTurning) {
     player.quickTurnTimer -= delta;
@@ -187,8 +200,8 @@ export function updatePlayer(delta, time, currentRoom) {
     player.meshHead.position.y = 1.55 + Math.abs(Math.sin(time * 14)) * 0.08;
 
     if (player.leftPigtail && player.rightPigtail) {
-      player.leftPigtail.rotation.x = Math.sin(time * 14) * 0.3;
-      player.rightPigtail.rotation.x = -Math.sin(time * 14) * 0.3;
+      player.leftPigtail.rotation.x = Math.sin(time * 14) * 0.32;
+      player.rightPigtail.rotation.x = -Math.sin(time * 14) * 0.32;
     }
   } else {
     player.meshBody.position.y = 0.65;

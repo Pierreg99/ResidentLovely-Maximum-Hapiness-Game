@@ -8,6 +8,7 @@ export const rooms = {
 
 export const lanternMeshes = [];
 export const groundItems = [];
+export const animatedWaterMeshes = [];
 
 function createChamberFloor(w, d, color1 = 0x090d16, color2 = 0x131d31) {
   const group = new THREE.Group();
@@ -15,8 +16,8 @@ function createChamberFloor(w, d, color1 = 0x090d16, color2 = 0x131d31) {
   const nx = Math.ceil(w / tileSize);
   const nz = Math.ceil(d / tileSize);
   const geo = new THREE.BoxGeometry(tileSize, 0.2, tileSize);
-  const mat1 = new THREE.MeshStandardMaterial({ color: color1, roughness: 0.2, metalness: 0.2 });
-  const mat2 = new THREE.MeshStandardMaterial({ color: color2, roughness: 0.2, metalness: 0.3 });
+  const mat1 = new THREE.MeshStandardMaterial({ color: color1, roughness: 0.18, metalness: 0.25 });
+  const mat2 = new THREE.MeshStandardMaterial({ color: color2, roughness: 0.18, metalness: 0.35 });
 
   for (let x = -nx/2; x < nx/2; x++) {
     for (let z = -nz/2; z < nz/2; z++) {
@@ -30,6 +31,16 @@ function createChamberFloor(w, d, color1 = 0x090d16, color2 = 0x131d31) {
   return group;
 }
 
+function createFramedPainting(w, h, frameMat, innerColor) {
+  const g = new THREE.Group();
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(w + 0.3, h + 0.3, 0.1), frameMat);
+  g.add(frame);
+  const canvas = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshStandardMaterial({ color: innerColor, roughness: 0.4 }));
+  canvas.position.z = 0.06;
+  g.add(canvas);
+  return g;
+}
+
 export function initRooms() {
   scene.add(rooms.foyer);
   scene.add(rooms.library);
@@ -41,24 +52,13 @@ export function initRooms() {
     g.add(createChamberFloor(28, 28, 0x090d16, 0x131d31));
 
     const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.6 });
-    const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.2 });
+    const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85, roughness: 0.2 });
     const velvetMat = new THREE.MeshStandardMaterial({ color: 0x831843, roughness: 0.8 });
 
+    // Walls
     const backWall = new THREE.Mesh(new THREE.BoxGeometry(28, 9, 0.6), wallMat);
     backWall.position.set(0, 4.5, -14);
     g.add(backWall);
-
-    // Stained-Glass Rose Window on Back Wall
-    const windowFrame = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.2, 16, 32), goldTrimMat);
-    windowFrame.position.set(0, 5.8, -13.6);
-    g.add(windowFrame);
-
-    const stainedGlass = new THREE.Mesh(
-      new THREE.CircleGeometry(3.0, 32),
-      new THREE.MeshBasicMaterial({ color: 0xec4899, transparent: true, opacity: 0.75, side: THREE.DoubleSide })
-    );
-    stainedGlass.position.set(0, 5.8, -13.5);
-    g.add(stainedGlass);
 
     const frontWall = new THREE.Mesh(new THREE.BoxGeometry(28, 9, 0.6), wallMat);
     frontWall.position.set(0, 4.5, 14);
@@ -72,7 +72,30 @@ export function initRooms() {
     rightWall.position.set(14, 4.5, 0);
     g.add(rightWall);
 
-    // Gilded Rococo Crown Pillars
+    // Stained-Glass Rose Window on Back Wall
+    const windowFrame = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.22, 16, 32), goldTrimMat);
+    windowFrame.position.set(0, 5.8, -13.6);
+    g.add(windowFrame);
+
+    const stainedGlass = new THREE.Mesh(
+      new THREE.CircleGeometry(3.0, 32),
+      new THREE.MeshBasicMaterial({ color: 0xec4899, transparent: true, opacity: 0.75, side: THREE.DoubleSide })
+    );
+    stainedGlass.position.set(0, 5.8, -13.5);
+    g.add(stainedGlass);
+
+    // Framed Paintings on Left and Right Walls
+    const paintingL = createFramedPainting(2.8, 3.8, goldTrimMat, 0x0284c7);
+    paintingL.position.set(-13.6, 4.5, -4);
+    paintingL.rotation.y = Math.PI / 2;
+    g.add(paintingL);
+
+    const paintingR = createFramedPainting(2.8, 3.8, goldTrimMat, 0xd946ef);
+    paintingR.position.set(13.6, 4.5, -4);
+    paintingR.rotation.y = -Math.PI / 2;
+    g.add(paintingR);
+
+    // Gilded Rococo Crown Pillars & Wainscoting
     for (let x of [-8, 8]) {
       for (let z of [-8, 8]) {
         const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.58, 9, 16), goldTrimMat);
@@ -100,10 +123,10 @@ export function initRooms() {
     }
     g.add(stairGroup);
 
-    // Grand Concert Piano with High-Gloss Lacquer
+    // Grand Concert Piano with High-Gloss Obsidian Lacquer
     const pianoGroup = new THREE.Group();
     pianoGroup.name = 'grand_piano';
-    const pianoBodyMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.1, metalness: 0.4 });
+    const pianoBodyMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.1, metalness: 0.45 });
 
     const mainBox = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.8, 3.2), pianoBodyMat);
     mainBox.position.set(0, 1.4, 0);
@@ -144,7 +167,7 @@ export function initRooms() {
     table.position.y = 0.6;
     gramophone.add(table);
 
-    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.3, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.15, side: THREE.DoubleSide }));
+    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.65, 1.35, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.92, roughness: 0.15, side: THREE.DoubleSide }));
     horn.rotation.x = Math.PI / 4;
     horn.position.set(0, 1.85, 0.3);
     gramophone.add(horn);
@@ -175,7 +198,7 @@ export function initRooms() {
     g.add(createChamberFloor(24, 24, 0x1c1917, 0x292524));
 
     const bookMat = new THREE.MeshStandardMaterial({ color: 0x7c2d12, roughness: 0.8 });
-    const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8, roughness: 0.2 });
+    const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85, roughness: 0.2 });
 
     for (let z = -8; z <= 8; z += 4) {
       const shelfL = new THREE.Mesh(new THREE.BoxGeometry(1.0, 7.5, 3.4), bookMat);
@@ -186,6 +209,18 @@ export function initRooms() {
       shelfR.position.set(10.5, 3.75, z);
       g.add(shelfR);
     }
+
+    // Rolling Brass Library Ladder
+    const ladder = new THREE.Group();
+    for (let y = 0; y < 12; y++) {
+      const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.8, 8), goldTrimMat);
+      rung.rotation.z = Math.PI / 2;
+      rung.position.y = y * 0.5;
+      ladder.add(rung);
+    }
+    ladder.position.set(-9.8, 0, 2);
+    ladder.rotation.z = -0.15;
+    g.add(ladder);
 
     // Golden Alchemical Cauldron
     const cauldronGroup = new THREE.Group();
@@ -200,7 +235,7 @@ export function initRooms() {
     pot.rotation.x = Math.PI;
     cauldronGroup.add(pot);
 
-    const liquid = new THREE.Mesh(new THREE.CircleGeometry(1.0, 16), new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xec4899, emissiveIntensity: 0.8 }));
+    const liquid = new THREE.Mesh(new THREE.CircleGeometry(1.0, 16), new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xec4899, emissiveIntensity: 0.85 }));
     liquid.rotation.x = -Math.PI / 2;
     liquid.position.y = 1.4;
     cauldronGroup.add(liquid);
@@ -219,7 +254,7 @@ export function initRooms() {
     g.add(doorFoyer);
   })();
 
-  // --- 3. WEST WING: SOLARIUM GARDEN (Blossoming Roses & Crystal Columns) ---
+  // --- 3. WEST WING: SOLARIUM GARDEN (Blossoming Roses & Tiered Fountain) ---
   (function buildGarden() {
     const g = rooms.garden;
     g.position.set(-45, 0, 0);
@@ -234,18 +269,27 @@ export function initRooms() {
       }
     }
 
-    // Tiered Fountain
+    // Tiered Fountain with Animated Water Rings
     const fountainBase = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.5, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x22d3ee, roughness: 0.2 }));
     fountainBase.position.set(0, 0.4, 0);
     g.add(fountainBase);
 
-    const fountainSpire = new THREE.Mesh(new THREE.ConeGeometry(1.6, 2.5, 16), new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 0.4 }));
+    const fountainSpire = new THREE.Mesh(new THREE.ConeGeometry(1.6, 2.5, 16), new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 0.45 }));
     fountainSpire.position.set(0, 2.2, 0);
     g.add(fountainSpire);
 
+    const waterRing = new THREE.Mesh(
+      new THREE.RingGeometry(1.8, 3.8, 24),
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.65, side: THREE.DoubleSide })
+    );
+    waterRing.rotation.x = -Math.PI / 2;
+    waterRing.position.y = 0.75;
+    g.add(waterRing);
+    animatedWaterMeshes.push(waterRing);
+
     // Kawaii Rose Bushes
     const bushMat = new THREE.MeshStandardMaterial({ color: 0x059669, roughness: 0.7 });
-    const roseMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, emissive: 0xf472b6, emissiveIntensity: 0.3 });
+    const roseMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, emissive: 0xf472b6, emissiveIntensity: 0.35 });
 
     for (let x of [-7, 7]) {
       for (let z of [-7, 7]) {
@@ -253,7 +297,7 @@ export function initRooms() {
         bush.position.set(x, 0.6, z);
         g.add(bush);
 
-        const flower = new THREE.Mesh(new THREE.OctahedronGeometry(0.2), roseMat);
+        const flower = new THREE.Mesh(new THREE.OctahedronGeometry(0.22), roseMat);
         flower.position.set(x, 1.4, z);
         g.add(flower);
       }
@@ -326,5 +370,9 @@ export function updateGroundItems(delta, time) {
   groundItems.forEach(item => {
     item.rotation.y += delta * 1.6;
     item.position.y = 0.2 + Math.sin(time * 3 + item.position.x) * 0.09;
+  });
+
+  animatedWaterMeshes.forEach(w => {
+    w.rotation.z += delta * 0.5;
   });
 }
