@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://pierreg99.github.io/resident-lovely-game/"><img src="https://img.shields.io/badge/PLAY_NOW-GitHub_Pages-cyan?style=for-the-badge&logo=github" alt="Play Now" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" /></a>
-  <a href="ROADMAP.md"><img src="https://img.shields.io/badge/Roadmap-v1.5.0_Master-orange.svg?style=for-the-badge" alt="Roadmap" /></a>
+  <a href="ROADMAP.md"><img src="https://img.shields.io/badge/Roadmap-v1.6.0_Master-orange.svg?style=for-the-badge" alt="Roadmap" /></a>
   <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Changelog-Comprehensive-emerald.svg?style=for-the-badge" alt="Changelog" /></a>
   <a href="docs/Resident_Lovely_Master_Game_Design_Document.docx"><img src="https://img.shields.io/badge/Design_Doc-DOCX-magenta.svg?style=for-the-badge" alt="DOCX Design Doc" /></a>
   <a href="#"><img src="https://img.shields.io/badge/Standard-Zero_Emojis-pink.svg?style=for-the-badge" alt="Zero Emojis" /></a>
@@ -25,31 +25,22 @@
 
 ---
 
-## ★ Key Visual & Gameplay Masterwork Features (v1.5.0)
+## ★ Key Visual & Gameplay Masterwork Features (v1.6.0)
 
-### 1. Volumetric Atmosphere & Baroque Graphics
-- **Volumetric God Rays**: Translucent additive pink light beams projecting diagonally from the stained-glass rose window onto the Foyer checkerboard floor.
-- **Ambient Stardust Motes**: 55 floating glitter particles drifting through illuminated zones with Brownian drift physics.
-- **Multi-Tier Crystal Chandelier**: Gilded brass framework with hanging crystal prisms casting refractive highlights.
-- **Baroque Architecture**: Gilded wainscoting moldings, framed oil landscape paintings, and rolling library ladders.
-- **Cascading Fountain**: Tiered Solarium fountain with animated rotating water ripple rings and blooming rose bushes.
+### 1. 3-Mode Camera Engine (Classic Fixed / 360° OTS / ADS)
+- **Mode 1: Dynamic 360° Over-The-Shoulder (OTS)**: Smooth third-person chase camera with 360° yaw orbit and vertical pitch tilt (±35°).
+- **Mode 2: Classic Fixed Cinematic Camera Angles**: Authentic 1996 *Resident Evil* Spencer Mansion style with preset cinematic room vantage nodes per chamber (Front Entrance Wide, Grand Staircase Balcony, Library Mezzanine, Solarium Fountain) that dynamically cut angles based on player position zones.
+- **Mode 3: Precision First-Person / ADS Down-the-Sights View**: Intimate first-person view aligned with Agent Joy's eye level and blaster sightline for precise confetti shooting.
+- **Instant Toggle**: Press `V` on keyboard or tap `[VIEW: OTS / FIXED / ADS]` on the top HUD.
 
-### 2. Expressive Chibi "Agent Joy" & Squash-and-Stretch Grump AI
-- **Chibi Agent Joy**: Large glossy anime eyes with animated blinking cycles, star highlights, rosy blush cheeks (`#f472b6`), animated twin-tail pigtails with physics spring inertia, and foot-hop running cycles.
-- **Squash-and-Stretch Grumps**:
-  - *Gloom Bear*: Fluffy plush bear with stitched patch seams and big teary eyes that turn into starry gold sparkle eyes upon being uplifted.
-  - *Sighing Specter*: Translucent marshmallow ghost with heart ribbons and soft lavender aura.
-  - *Chibi Gilded Knight*: Plush knight with toy shield, oversized cardboard-gold helmet with bouncing pink plume.
+### 2. Dynamic Holographic Sights & Target Lock-On
+- **Smart Target Acquisition**: Real-time raycasting detects the closest Gloomy Grump within aiming sightline.
+- **HUD Lock-On Box**: Displays target name and live range measurement in meters (e.g. `[★ LOCKED: GLOOM BEAR 7.2m]`).
+- **Dynamic Crosshair**: Reacts to weapon recoil bloom and character movement.
 
-### 3. Authentic Resident Evil Survival-Joy Mechanics
-- **180° Quick-Turn (`Z` or `[180° TURN]` Button)**: Instant character spin with camera follow whip and audio swoosh.
-- **Interactive 3D Item Inspection (`★ 3D INSPECT`)**: Dedicated 3D orbit viewer inside the inventory modal allowing 360-degree rotation to discover secrets and lore.
-- **Typewriter / Gramophone Save Dialog**: Authentic prompt dialog ("Will you record your joyful journey in the Grand Chronicle?") with synthesized typewriter key clatter and carriage bell.
-- **Expanded 3-Tier Herb Alchemy**:
-  - `Green Herb` + `Green Herb` = *Double Sparkle Herb* (70% Joy)
-  - `Green Herb` + `Red Sweet Powder` = *Mega Bliss Cupcake* (100% Joy)
-  - `Double Green Herb` + `Green Herb` = *Ultra Joy Elixir* (100% Joy + Star Shield)
-  - `Silver Foyer Key` + `Golden Ribbon` = *Master Ballroom Key*
+### 3. 180° Quick-Turn & 360° Free Orbit Navigation
+- **180° Quick-Turn (`Z` or `S + Space` or `[180° TURN]` Button)**: Instant character spin with camera follow whip and audio swoosh.
+- **360° Orbit Look**: Right-screen touch drag or mouse move to pan 360 degrees horizontally and tilt vertically.
 
 ### 4. High-Quality 4-Weapon Wholesome Arsenal
 - **Mk-IV Confetti Pistol (`[1]`)**: Star-shaped sparkle darts with rapid single-fire.
@@ -63,11 +54,13 @@
 
 ### Mobile Touch Controls
 - **Left Thumb**: Dynamic floating virtual analog joystick (360-degree movement).
-- **Right Thumb**: Touch drag to orbit camera; dedicated tactile action buttons for `[AIM]`, `[JOY BLAST]`, `[EXAMINE]`, `[180° TURN]`, `[GUN]`, `[ITEMS]`, `[TASKS]`, and `[MAP]`.
+- **Right Thumb**: Touch drag to orbit camera (360° yaw & vertical pitch tilt).
+- **Tactile Action Buttons**: `[AIM]`, `[JOY BLAST]`, `[EXAMINE]`, `[180° TURN]`, `[GUN]`, `[VIEW]`, `[ITEMS]`, `[TASKS]`, and `[MAP]`.
 
 ### Desktop Controls
 - **Movement**: `W`, `A`, `S`, `D` or Arrow Keys
 - **180° Quick-Turn**: `Z` or `S + Space`
+- **Switch Camera View**: `V` (Cycles 360° OTS ➔ Classic Fixed ➔ First-Person ADS)
 - **Aim / Fire**: Right-Click to Aim, Left-Click / `Space` to Fire
 - **Weapon Slots**: `1` (Pistol), `2` (Shotgun), `3` (Mortar), `4` (Joy Beam)
 - **Cycle Weapon**: Tap `[GUN]` button or cycle numbers
@@ -97,7 +90,7 @@ resident-lovely-game/
 ├── LICENSE                      # Official MIT License
 ├── README.md                    # Project documentation & architecture
 ├── ROADMAP.md                   # Phased milestone roadmap & progress matrix
-├── CHANGELOG.md                 # Full version release history (v1.0.0 - v1.5.0)
+├── CHANGELOG.md                 # Full version release history (v1.0.0 - v1.6.0)
 ├── assets/
 │   └── resident-lovely-banner.svg # Vector hero artwork (1200x500)
 ├── css/
@@ -112,8 +105,8 @@ resident-lovely-game/
     ├── main.js                  # Main coordinator & animation lifecycle
     ├── engine/
     │   ├── audio.js             # Synthesized Web Audio API SFX engine
-    │   ├── input.js             # Multi-touch virtual joystick & 180° turn
-    │   └── camera.js            # Over-the-shoulder chase camera & recoil trauma
+    │   ├── input.js             # Multi-touch joystick, 360/180 turn & View toggle
+    │   └── camera.js            # 3-Mode Camera Engine (Fixed/OTS/ADS) & Recoil
     ├── world/
     │   ├── scene.js             # Three.js scene, volumetric rays & stardust
     │   ├── rooms.js             # Procedural room builders (Foyer, Library, Garden)
@@ -122,7 +115,7 @@ resident-lovely-game/
     │   ├── player.js            # Chibi "Agent Joy" with eye blinking & pigtails
     │   └── grump.js             # Squash-and-stretch Grump AI (Bear, Specter, Knight)
     ├── weapons/
-    │   └── arsenal.js           # 4-weapon system, 3D ballistics & beam lasers
+    │   └── arsenal.js           # 4 weapons, dynamic holographic sights & lock-on
     └── systems/
         ├── inventory.js         # 3D inspection viewer & 3-tier herb alchemy
         ├── quests.js            # Multi-tier quest log & objective HUD

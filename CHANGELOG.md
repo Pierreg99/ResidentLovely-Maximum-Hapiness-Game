@@ -5,6 +5,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ---
 
+## [1.6.0] - 2026-08-27
+
+### Added
+- **3-Mode Camera Engine (Classic Fixed / 360° OTS / First-Person ADS)**:
+  - **Mode 1: Dynamic 360° Over-The-Shoulder (OTS)**: Smooth third-person chase camera with 360° yaw orbit and vertical pitch tilt (±35°).
+  - **Mode 2: Classic Fixed Cinematic Camera Angles**: Authentic 1996 *Resident Evil* Spencer Mansion style with preset cinematic room vantage nodes per chamber (Front Entrance Wide, Grand Staircase Balcony, Library Mezzanine, Solarium Fountain) that dynamically cut angles based on player position zones.
+  - **Mode 3: Precision First-Person / ADS Down-the-Sights View**: Intimate first-person view aligned with Agent Joy's eye level and blaster sightline for precise confetti shooting.
+  - Instant on-the-fly toggling via `V` key or top HUD `[VIEW: OTS / FIXED / ADS]` button.
+- **Dynamic Holographic Sights & Target Lock-On**:
+  - Real-time raycasting detects closest Gloomy Grump in line-of-sight when aiming.
+  - HUD Lock-On telemetry box with target name and range measurement in meters (`[★ LOCKED: GLOOM BEAR 7.2m]`).
+  - Expanding/contracting dynamic crosshair with recoil bloom.
+- **180° Quick-Turn & Orbit Touch Controls**:
+  - Polished 180° instant turn on `Z` / `S + Space` / `[180° TURN]` touch button with dynamic camera whip and swoosh sound effect.
+  - 360° touch swipe support for both horizontal yaw and vertical pitch elevation.
+- **Master Design Document (DOCX)**:
+  - Updated `docs/Resident_Lovely_Master_Game_Design_Document.docx` with complete v1.6.0 camera architecture and targeting specifications.
+
+---
+
 ## [1.5.0] - 2026-08-27
 
 ### Added
@@ -19,59 +39,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 - **Character & Eye Animation Refinements**:
   - Animated eye blinking timing on Agent Joy (periodic 120ms blinks every 2.5-6s).
   - Enhanced foot-hop stride dynamics with spring-inertia twin-tail pigtails.
-- **Master Design Document (DOCX)**:
-  - Updated `docs/Resident_Lovely_Master_Game_Design_Document.docx` with complete v1.5.0 system and visual specifications.
 
 ---
 
 ## [1.4.0] - 2026-08-27
 
 ### Added
-- **Expressive Kawaii Chibi "Agent Joy" Character Model**:
-  - Smooth chibi head proportions with large glossy dark anime eyes and dual specular highlight stars.
-  - Rosy pink blush cheeks (`#f472b6`) and gold S.M.I.L.E. star belt buckle.
-  - Animated twin-tail pigtails that oscillate with real-time spring physics while sprinting.
-  - Tactile foot-hop running animation cycle.
-- **Squash-and-Stretch Kawaii Grump AI**:
-  - *Gloom Bear*: Fluffy plush bear with stitched patch textures, big teary anime eyes that morph into starry golden sparkle eyes upon being uplifted. Real-time mesh squash-and-stretch deformation on joy impacts.
-  - *Sighing Specter*: Translucent marshmallow ghost with heart-shaped ribbons and soft lavender glow.
-  - *Chibi Gilded Knight*: Plush knight with toy shield, oversized cardboard-gold helmet with bouncing pink plume.
-- **Authentic Resident Evil Parody Mechanics**:
-  - **180° Quick-Turn**: Instant pivot (`Z` key or `[180° TURN]` touch button) with swoosh audio and camera whip.
-  - **3D Item Inspection Modal (`★ 3D INSPECT`)**: Dedicated 3D Three.js orbit viewer allowing 360-degree rotation and examination of inventory items to reveal hidden inscriptions and lore.
-  - **Authentic Typewriter / Gramophone Save Dialog**: Interactive save modal ("Will you record your joyful journey in the Grand Chronicle?") with synthesized mechanical typewriter keystrokes and carriage return bell.
-  - **Expanded 3-Tier Herb Alchemy**:
-    - `Green + Green` ➔ `Double Sparkle Herb` (70% Joy)
-    - `Green + Red` ➔ `Mega Bliss Cupcake` (100% Joy)
-    - `Double Green + Green` ➔ `Ultra Joy Elixir` (100% Joy + Star Shield)
+- **Expressive Kawaii Chibi "Agent Joy" Character Model**.
+- **Squash-and-Stretch Kawaii Grump AI**.
+- **Authentic 180° Quick-Turn & 3D Item Inspection Modal**.
+- **Authentic Typewriter / Gramophone Save Dialog**.
+- **Expanded 3-Tier Herb Alchemy**.
 
 ---
 
 ## [1.3.0] - 2026-08-27
 
 ### Added
-- **ESM Multi-Module Architecture Decoupling**:
-  - Decoupled single monolithic file into 15 cleanly organized ECMAScript Modules across `src/engine/`, `src/world/`, `src/entities/`, `src/weapons/`, `src/systems/`.
-  - Dedicated `css/style.css` stylesheet for NEXUS PRIVÉ tokens.
+- **ESM Multi-Module Architecture Decoupling (15 Modules)**.
 
 ---
 
 ## [1.2.0] - 2026-08-27
 
 ### Added
-- **4-Weapon Wholesome Arsenal System**:
-  - Confetti Pistol, Bubble Shotgun, Confectionery Mortar, Prismatic Joy Beam.
-- **Interactive Radar Mini-Map & Estate Blueprint**:
-  - 360-degree rotating radar scan with room boundaries and entity blips.
-  - Fullscreen architectural blueprint modal with live door lock states.
+- **4-Weapon Wholesome Arsenal System & Radar Mini-Map HUD**.
 
 ---
 
 ## [1.1.0] - 2026-08-27
 
 ### Added
-- **Multi-Tier Quest & Task Engine**:
-  - Piano Triad Sonatina, Alchemical Cauldron Brew, Solarium Heart Lanterns.
+- **Multi-Tier Quest & Task Engine & Procedural Baroque 3D Assets**.
 
 ---
 

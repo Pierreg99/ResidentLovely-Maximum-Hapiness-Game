@@ -1,7 +1,7 @@
 # RESIDENT LOVELY ❖ MASTER DEVELOPMENT ROADMAP & PROGRESS MATRIX
 
 **Project Title**: Resident Lovely: Maximum Happiness 3D  
-**Current Milestone**: `v1.5.0 (Full Graphic Overhaul & Integrated Masterwork)`  
+**Current Milestone**: `v1.6.0 (Advanced Sights, 360/180 Turn & 3-Mode Camera Engine)`  
 **Repository**: [Pierreg99/resident-lovely-game](https://github.com/Pierreg99/resident-lovely-game)  
 **Classification**: NEXUS PRIVÉ v6.0 Standard | Strict Zero-Emoji Compliance  
 **Engine**: Three.js (r128) WebGL PBR + Procedural Web Audio API (ESM Architecture)  
@@ -12,7 +12,7 @@
 
 ```
 ========================================================================================
-RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████████████░░░░] 88.0%
+RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████████████░░░░] 92.0%
 ========================================================================================
 • Core WebGL & Touch Engine:       [████████████████████] 100% (v1.0.0 ✔)
 • 8-Slot RE Inventory & Alchemy:   [████████████████████] 100% (v1.0.0 ✔)
@@ -28,10 +28,12 @@ RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████
 • Typewriter Save Chronicle Modal: [████████████████████] 100% (v1.4.0 ✔)
 • 3-Tier Herb & Pastry Alchemy:    [████████████████████] 100% (v1.4.0 ✔)
 • Volumetric God Rays & Stardust:  [████████████████████] 100% (v1.5.0 ✔)
-• Baroque Wainscoting & Paintings: [████████████████████] 100% (v1.5.0 ✔)
-• Confectionery Kitchen Wing:      [████████░░░░░░░░░░░░]  40% (v1.6.0 ❖)
-• Boss: The Grumpy Master Chef:    [██████░░░░░░░░░░░░░░]  30% (v1.6.0 ❖)
-• PWA Offline ServiceWorker:       [░░░░░░░░░░░░░░░░░░░░]   0% (v1.7.0 ◈)
+• Baroque Wainscoting & Art:       [████████████████████] 100% (v1.5.0 ✔)
+• 3-Mode Camera Engine (Fixed/OTS):[████████████████████] 100% (v1.6.0 ✔)
+• Dynamic Holographic Sights & ADS:[████████████████████] 100% (v1.6.0 ✔)
+• Confectionery Kitchen Wing:      [████████░░░░░░░░░░░░]  40% (v1.7.0 ❖)
+• Boss: The Grumpy Master Chef:    [██████░░░░░░░░░░░░░░]  30% (v1.7.0 ❖)
+• PWA Offline ServiceWorker:       [░░░░░░░░░░░░░░░░░░░░]   0% (v1.8.0 ◈)
 • 2-Player Co-Op over WebRTC:      [░░░░░░░░░░░░░░░░░░░░]   0% (v2.0.0 ◈)
 • WebXR Immersive VR Mode:         [░░░░░░░░░░░░░░░░░░░░]   0% (v2.0.0 ◈)
 ========================================================================================
@@ -39,70 +41,15 @@ RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████
 
 ---
 
-## ★ Comprehensive Phased Milestone Breakdown
-
-### ❖ Phase 1: Core Foundation & Game Loop (`v1.0.0`) ✔ [COMPLETED]
-- [x] **WebGL 3D Engine**: Single-file Three.js (r128) renderer with PCF soft shadow maps, ambient occlusion, and device DPR capping.
-- [x] **Over-the-Shoulder Camera**: Smooth spring-interpolation third-person chase camera with aim zoom.
-- [x] **Mobile Touch Joystick**: Floating dynamic 360-degree analog virtual joystick with safe-area padding.
-- [x] **8-Slot Resident Evil Inventory Grid**: 4x2 glassmorphic inventory matrix with item inspect, use, and combine.
-- [x] **Joy Vitality ECG Graph**: Dynamic SVG heartbeat electrocardiogram (`MAX BLISS` ➔ `CHEERFUL` ➔ `GRUMPY`).
-- [x] **Procedural Audio Engine**: Web Audio API synthesizers producing confetti pops, cheerful chords, and gramophone lullabies.
-- [x] **Local Persistence**: Golden Gramophone save station snapshotting to browser `localStorage`.
-
----
-
-### ❖ Phase 2: Tasks, Quests & Baroque 3D Assets (`v1.1.0`) ✔ [COMPLETED]
-- [x] **Interactive Grand Concert Piano**: Procedural grand piano with individual white/black keys and playable polyphonic notes.
-- [x] **Harmonic Triad Melody Puzzle**: Interactive `[C]` ➔ `[E]` ➔ `[G]` sonatina puzzle unlocking the secret key drawer.
-- [x] **Library Alchemical Cauldron**: Golden cauldron with bubbling magenta brew and steam particles in East Wing.
-- [x] **West Wing Solarium Garden**: Glass crystal colonnade, tiered marble fountain, and 4 Heart Lanterns.
-- [x] **3 Diverse Grump AI Variants**: Gloom Bear, Sighing Specter, Gilded Knight.
-- [x] **Multi-Tier Quest Log Modal**: Dedicated in-game mission tracker with interactive task checkboxes.
-
----
-
-### ❖ Phase 3: 4-Weapon Wholesome Arsenal & Tactical Maps (`v1.2.0`) ✔ [COMPLETED]
-- [x] **4-Weapon Arsenal System**: Confetti Pistol, Bubble Shotgun, Confectionery Mortar, Prismatic Joy Beam.
-- [x] **Interactive Radar Mini-Map HUD**: 360-degree rotating radar scan with room boundaries.
-- [x] **Fullscreen Estate Architectural Blueprint Modal**: Interactive SVG floorplan with dynamic door lock states.
-- [x] **Destructible Environmental Objects**: Floating balloons and breakable gilded gift chests.
-
----
-
-### ❖ Phase 4: ESM Multi-Module Architecture Decoupling (`v1.3.0`) ✔ [COMPLETED]
-- [x] **Modular Structure Extraction**: Decoupled into 15 structured ES Modules across `src/engine/`, `src/world/`, `src/entities/`, `src/weapons/`, `src/systems/`.
-- [x] **Dedicated CSS**: `css/style.css` stylesheet with NEXUS PRIVÉ v6.0 glassmorphic tokens.
-
----
-
-### ❖ Phase 5: Kawaii Graphics & Authentic Resident Evil Logic (`v1.4.0`) ✔ [COMPLETED]
-- [x] **Chibi Agent Joy Model**: Glossy anime eyes, rosy cheeks, bouncing twin-tail pigtails, and foot-hop running cycles.
-- [x] **Squash-and-Stretch Grump AI**: Fluffy plush materials, teary-to-starry eye transformation on uplift.
-- [x] **180° Quick-Turn**: Instant character spin (`Z` key or touch button) with camera whip and swoosh sound.
-- [x] **3D Item Inspection Viewer (`★ 3D INSPECT`)**: Dedicated 3D Three.js orbit viewer modal.
-- [x] **Typewriter Save Dialog**: Classic confirmation prompt with synthesized mechanical typewriter keystrokes.
-- [x] **3-Tier Herb Alchemy**: Green+Green (Double Herb), Green+Red (Cupcake), Double+Green (Ultra Elixir).
-
----
-
-### ❖ Phase 6: Full Graphic Overhaul & Atmospheric Shading (`v1.5.0`) ✔ [COMPLETED]
-- [x] **Volumetric God Rays**: Translucent additive light shafts projecting from the stained-glass rose window.
-- [x] **Ambient Stardust Motes**: 55 floating glitter particles drifting through illuminated zones.
-- [x] **Multi-Tier Crystal Chandelier**: Gilded chandelier with hanging crystal prisms casting refractive highlights.
-- [x] **Baroque Wainscoting & Framed Paintings**: Gilded perimeter moldings and landscape art.
-- [x] **Cascading Fountain Ripples**: Animated rotating water ripple rings in the Solarium Garden.
-- [x] **Eye Blinking Animation**: Periodic cute blinking timing on Agent Joy.
-
----
-
-### ❖ Phase 7: Secret Confectionery Kitchen & Master Chef Boss (`v1.6.0`) ❖ [IN PROGRESS]
-- [ ] **Expansion Chamber: The Grand Confectionery Kitchen**.
-- [ ] **Boss Encounter: The Grumpy Master Chef**.
-- [ ] **New Weapon: Triple-Scoop Ice Cream Launcher**.
-
----
-
-### ❖ Phase 8: Co-Op Multiplayer & WebXR VR Mode (`v2.0.0`) ◈ [PLANNED]
-- [ ] **2-Player Co-Op over WebRTC DataChannels**.
-- [ ] **WebXR Immersive VR Mode**.
+### ❖ Phase 7: Advanced Sights, 360/180 Turn & 3-Mode Camera Engine (`v1.6.0`) ✔ [COMPLETED]
+- [x] **3-Mode Camera System**:
+  - `Mode 1: Dynamic 360° Over-The-Shoulder (OTS)` with free yaw orbit and pitch vertical elevation (±35°).
+  - `Mode 2: Classic Fixed Cinematic Camera Angles` (Authentic Resident Evil Spencer Mansion style with preset cinematic room vantages and automatic trigger switching).
+  - `Mode 3: Precision First-Person / ADS Down-the-Sights View` for confetti sniping.
+  - Instant on-the-fly toggling via `V` key or top HUD `[VIEW: OTS / FIXED / ADS]` button.
+- [x] **Dynamic Holographic Sights & Target Lock-On**:
+  - Real-time raycasting detects closest Gloomy Grump in line-of-sight when aiming.
+  - HUD Lock-On telemetry box with target name and range measurement in meters (`[★ LOCKED: GLOOM BEAR 7.2m]`).
+- [x] **180° Quick-Turn & Orbit Touch Controls**:
+  - Polished 180° instant turn on `Z` / `S + Space` / `[180° TURN]` touch button with dynamic camera whip and swoosh sound effect.
+  - 360° touch swipe support for both horizontal yaw and vertical pitch elevation.

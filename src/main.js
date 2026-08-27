@@ -3,7 +3,7 @@ import { rooms, initRooms, lanternMeshes, groundItems, spawnGroundItem, updateGr
 import { destructibles, initDestructibles, updateDestructibles } from './world/destructibles.js';
 import { player, initPlayer, updatePlayer, performQuickTurn } from './entities/player.js';
 import { grumps, initGrumps, updateGrumps } from './entities/grump.js';
-import { triggerWeaponFire, updateProjectiles } from './weapons/arsenal.js';
+import { triggerWeaponFire, updateProjectiles, updateTargetSights } from './weapons/arsenal.js';
 import { audio } from './engine/audio.js';
 import { CameraController } from './engine/camera.js';
 import { initInput } from './engine/input.js';
@@ -101,6 +101,16 @@ function cycleWeapon() {
   const curIdx = weaponOrder.indexOf(gameState.currentWeapon);
   const nextIdx = (curIdx + 1) % weaponOrder.length;
   setWeapon(weaponOrder[nextIdx]);
+}
+
+// View Mode Toggle Handler
+const btnViewModeLabel = document.getElementById('btn-view-mode-label');
+
+function handleCycleViewMode() {
+  audio.playPop();
+  const label = cameraController.cycleViewMode();
+  if (btnViewModeLabel) btnViewModeLabel.textContent = label;
+  showToast(`★ ${label} ★`);
 }
 
 // Aim Toggle
@@ -415,6 +425,7 @@ initInput({
   onToggleFullMap: () => minimapSystem.toggleFullMap(),
   onContextInteract: handleContextInteract,
   onQuickTurn: performQuickTurn,
+  onCycleViewMode: handleCycleViewMode,
   onFire: () => triggerWeaponFire(gameState, cameraController, {
     onToast: showToast,
     onGrumpUplifted: () => {
@@ -434,7 +445,10 @@ initInput({
   onSetWeapon: setWeapon,
   onCycleWeapon: cycleWeapon,
   onToggleAim: toggleAim,
-  onRotateCamera: (deltaX) => { player.rotation -= deltaX; },
+  onRotateCamera: (deltaYaw, deltaPitch = 0) => {
+    player.rotation -= deltaYaw;
+    cameraController.addOrbit(-deltaYaw, deltaPitch);
+  },
   onToast: showToast
 });
 
@@ -459,7 +473,7 @@ function animate() {
   const time = clock.getElapsedTime();
 
   updatePlayer(delta, time, gameState.room);
-  cameraController.update(player, delta);
+  cameraController.update(player, delta, gameState.room);
   updateProjectiles(delta, gameState, {
     onToast: showToast,
     onGrumpUplifted: () => {
@@ -481,6 +495,7 @@ function animate() {
   updateGroundItems(delta, time);
   updateParticles(delta);
   updateStardust(time);
+  updateTargetSights(gameState.room);
 
   minimapSystem.render(player, grumps, destructibles);
   checkContextualInteractions();
@@ -489,4 +504,4 @@ function animate() {
 }
 
 animate();
-showToast('❖ RESIDENT LOVELY v1.5.0 MASTERWORK ACTIVE ❖');
+showToast('❖ RESIDENT LOVELY CAMERA & SIGHTS ACTIVE ❖');

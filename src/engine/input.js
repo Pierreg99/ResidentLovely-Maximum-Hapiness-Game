@@ -15,6 +15,7 @@ export function initInput(callbacks) {
     onFire,
     onSetWeapon,
     onCycleWeapon,
+    onCycleViewMode,
     onToggleAim,
     onQuickTurn,
     onRotateCamera
@@ -31,6 +32,9 @@ export function initInput(callbacks) {
     if (e.code === 'KeyQ') onToggleQuestLog();
     if (e.code === 'KeyM') onToggleFullMap();
     if (e.code === 'KeyE') onContextInteract();
+    if (e.code === 'KeyV') {
+      if (onCycleViewMode) onCycleViewMode();
+    }
     if (e.code === 'KeyZ') {
       if (onQuickTurn) onQuickTurn();
     }
@@ -112,15 +116,16 @@ export function initInput(callbacks) {
     }
   }
 
-  // Touch Swipe for Camera Rotation
+  // 360° Touch Swipe for Camera Yaw & Pitch Orbit
   let lookTouchId = null;
   let lastTouchX = 0;
+  let lastTouchY = 0;
 
   window.addEventListener('touchstart', (e) => {
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
       if (
-        touch.clientX > window.innerWidth * 0.45 &&
+        touch.clientX > window.innerWidth * 0.42 &&
         !e.target.closest('.action-cluster') &&
         !e.target.closest('.weapon-dock') &&
         !e.target.closest('.modal-overlay') &&
@@ -131,6 +136,7 @@ export function initInput(callbacks) {
         if (lookTouchId === null) {
           lookTouchId = touch.identifier;
           lastTouchX = touch.clientX;
+          lastTouchY = touch.clientY;
         }
       }
     }
@@ -142,8 +148,10 @@ export function initInput(callbacks) {
       const touch = e.changedTouches[i];
       if (touch.identifier === lookTouchId) {
         const deltaX = touch.clientX - lastTouchX;
-        onRotateCamera(deltaX * 0.007);
+        const deltaY = touch.clientY - lastTouchY;
+        onRotateCamera(deltaX * 0.008, deltaY * 0.005);
         lastTouchX = touch.clientX;
+        lastTouchY = touch.clientY;
         break;
       }
     }
@@ -170,6 +178,9 @@ export function initInput(callbacks) {
 
   const btnTurn = document.getElementById('btn-quick-turn');
   if (btnTurn) btnTurn.addEventListener('click', onQuickTurn);
+
+  const btnViewMode = document.getElementById('btn-view-mode');
+  if (btnViewMode) btnViewMode.addEventListener('click', onCycleViewMode);
 
   const promptBox = document.getElementById('prompt-box');
   if (promptBox) promptBox.addEventListener('click', onContextInteract);

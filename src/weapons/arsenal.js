@@ -6,6 +6,54 @@ import { player } from '../entities/player.js';
 import { audio } from '../engine/audio.js';
 
 export const projectiles = [];
+export let currentTargetLock = null;
+
+export function updateTargetSights(currentRoom) {
+  if (!player.isAiming) {
+    currentTargetLock = null;
+    const lockBox = document.getElementById('reticle-lock-box');
+    const lockTxt = document.getElementById('reticle-lock-txt');
+    if (lockBox) lockBox.style.display = 'none';
+    if (lockTxt) lockTxt.textContent = 'STANDBY';
+    return;
+  }
+
+  const fwd = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
+  const pPos = player.group.position;
+  let closestGrump = null;
+  let closestDist = 20.0;
+
+  grumps.forEach(g => {
+    if (g.roomName !== currentRoom || g.isDancing) return;
+    let wPos = g.group.position.clone();
+    if (g.roomName === 'library') wPos.add(rooms.library.position);
+    if (g.roomName === 'garden') wPos.add(rooms.garden.position);
+
+    const toEnemy = wPos.clone().sub(pPos);
+    const dist = toEnemy.length();
+
+    if (dist < closestDist) {
+      const angle = fwd.angleTo(toEnemy.normalize());
+      if (angle < 0.42) {
+        closestDist = dist;
+        closestGrump = { entity: g, dist: dist.toFixed(1), name: g.type.toUpperCase() };
+      }
+    }
+  });
+
+  currentTargetLock = closestGrump;
+  const lockBox = document.getElementById('reticle-lock-box');
+  const lockTxt = document.getElementById('reticle-lock-txt');
+  const rangeTxt = document.getElementById('reticle-range-txt');
+
+  if (closestGrump) {
+    if (lockBox) lockBox.style.display = 'flex';
+    if (lockTxt) lockTxt.textContent = `★ LOCKED: ${closestGrump.name}`;
+    if (rangeTxt) rangeTxt.textContent = `RANGE: ${closestGrump.dist}m`;
+  } else {
+    if (lockBox) lockBox.style.display = 'none';
+  }
+}
 
 export function launchProjectile(type, origin, dir, currentRoom) {
   const pGroup = new THREE.Group();
