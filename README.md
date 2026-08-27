@@ -1,16 +1,29 @@
 # RESIDENT LOVELY ❖ Maximum Happiness 3D
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![NEXUS PRIVÉ](https://img.shields.io/badge/Design_System-NEXUS_PRIVÉ_v6.0-cyan.svg)](#)
-[![Three.js](https://img.shields.io/badge/WebGL-Three.js_r128-orange.svg)](#)
-[![Audio](https://img.shields.io/badge/Audio-Web_Audio_API-emerald.svg)](#)
-[![Emoji Free](https://img.shields.io/badge/Standards-Zero_Emojis-pink.svg)](#)
+<p align="center">
+  <img src="assets/resident-lovely-banner.svg" alt="Resident Lovely Banner" width="100%" />
+</p>
+
+<p align="center">
+  <a href="https://pierreg99.github.io/resident-lovely-game/"><img src="https://img.shields.io/badge/PLAY_NOW-GitHub_Pages-cyan?style=for-the-badge&logo=github" alt="Play Now" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" /></a>
+  <a href="ROADMAP.md"><img src="https://img.shields.io/badge/Version-v1.2.0-orange.svg?style=for-the-badge" alt="Version" /></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Changelog-Updated-emerald.svg?style=for-the-badge" alt="Changelog" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Standard-Zero_Emojis-pink.svg?style=for-the-badge" alt="Zero Emojis" /></a>
+</p>
 
 > **Resident Lovely** is an over-the-shoulder 3D action-adventure survival-joy game parodying classic survival-horror mechanics (specifically the *Resident Evil* franchise) inverted into an uncompromising aesthetic of **Maximum Happiness and Wholesomeness**.
 
 ---
 
-## ❖ Overview
+## ❖ Live Web Game Access
+
+- **Public GitHub Pages (Play in Browser)**: [https://pierreg99.github.io/resident-lovely-game/](https://pierreg99.github.io/resident-lovely-game/)
+- **Local Control Center Endpoint**: `http://localhost:8080/resident-lovely/index.html`
+
+---
+
+## ❖ Overview & Narrative
 
 Instead of bio-weapons, dark hallways, and gore:
 - **Location**: *Château de la Joie* — A grand baroque mansion filled with gold chandeliers, velvet runners, and secret confectionery chambers.
@@ -55,16 +68,48 @@ Instead of bio-weapons, dark hallways, and gore:
 
 ### Mobile Touch Controls
 - **Left Thumb**: Dynamic floating virtual analog joystick (360-degree movement).
-- **Right Thumb**: Swipe screen to orbit camera; dedicated buttons for `[AIM]`, `[JOY BLAST]`, `[EXAMINE]`, `[GUN]`, `[ITEMS]`, `[TASKS]`, and `[MAP]`.
+- **Right Thumb**: Swipe screen to orbit camera; dedicated tactile action buttons for `[AIM]`, `[JOY BLAST]`, `[EXAMINE]`, `[GUN]`, `[ITEMS]`, `[TASKS]`, and `[MAP]`.
 
 ### Desktop Controls
 - **Movement**: `W`, `A`, `S`, `D` or Arrow Keys
 - **Aim / Fire**: Right-Click to Aim, Left-Click / `Space` to Fire
 - **Weapon Slots**: `1` (Pistol), `2` (Shotgun), `3` (Mortar), `4` (Joy Beam)
+- **Cycle Weapon**: Tap `[GUN]` button or cycle numbers
 - **Interact / Examine**: `E`
 - **Inventory**: `I` or `Tab`
 - **Quest Log**: `Q`
 - **Tactical Map**: `M`
+
+---
+
+## ❖ Development Progress & Roadmap
+
+| Feature / Milestone | Target Version | Status | Progress |
+|---|---|---|---|
+| **Core 3D WebGL Engine & Controls** | v1.0.0 | COMPLETED | `[██████████] 100%` |
+| **8-Slot Inventory Grid & Combining** | v1.0.0 | COMPLETED | `[██████████] 100%` |
+| **Procedural Web Audio SFX Synth** | v1.0.0 | COMPLETED | `[██████████] 100%` |
+| **Multi-Tier Quest & Task Engine** | v1.1.0 | COMPLETED | `[██████████] 100%` |
+| **Grand Piano Harmonic Triad Puzzle** | v1.1.0 | COMPLETED | `[██████████] 100%` |
+| **4-Weapon Arsenal & 3D Ballistics** | v1.2.0 | COMPLETED | `[██████████] 100%` |
+| **Tactical Radar Mini-Map & Blueprint** | v1.2.0 | COMPLETED | `[██████████] 100%` |
+| **Destructible Balloons & Gift Boxes** | v1.2.0 | COMPLETED | `[██████████] 100%` |
+| **New Wing: Confectionery Kitchen** | v1.3.0 | IN PROGRESS | `[████░░░░░░] 40%` |
+| **Boss Encounter: Grumpy Master Chef**| v1.3.0 | IN PROGRESS | `[███░░░░░░░] 30%` |
+| **PWA Offline ServiceWorker Caching** | v1.4.0 | PLANNED | `[░░░░░░░░░░] 0%` |
+| **2-Player Co-Op Joy (WebRTC)** | v2.0.0 | PLANNED | `[░░░░░░░░░░] 0%` |
+| **WebXR Spatial / VR Mode** | v2.0.0 | PLANNED | `[░░░░░░░░░░] 0%` |
+
+For the full detailed milestone schedule, view [ROADMAP.md](ROADMAP.md).
+
+---
+
+## ❖ Documentation & Specifications
+
+- **[ROADMAP.md](ROADMAP.md)**: Future milestones, technical tasks, and progress tracking.
+- **[CHANGELOG.md](CHANGELOG.md)**: Full chronological release notes and version history.
+- **[docs/2026-08-27--resident-lovely-3d-mobile-game.md](docs/2026-08-27--resident-lovely-3d-mobile-game.md)**: Approved foundational game design spec.
+- **[docs/2026-08-27--resident-lovely-maps-and-weapons.md](docs/2026-08-27--resident-lovely-maps-and-weapons.md)**: Approved arsenal and tactical map spec.
 
 ---
 
@@ -73,14 +118,12 @@ Instead of bio-weapons, dark hallways, and gore:
 - **Engine**: Three.js (r128) via WebGL with soft shadow maps and mobile DPR capping.
 - **Audio Engine**: 100% procedural Web Audio API synthesizers (zero external audio files).
 - **Design Standard**: NEXUS PRIVÉ v6.0 glassmorphism, obsidian base (`#05070a`), cyan (`#22d3ee`), gold (`#f59e0b`), emerald (`#10b981`), magenta (`#ec4899`).
-- **Zero Emojis**: 100% vector SVG glyphs and geometric unicode symbols.
+- **Zero Emojis**: 100% vector SVG glyphs and geometric unicode symbols (`★`, `❖`, `▶`, `✔`, `•`, `◈`, `⬡`).
 - **Deployment**: Standalone zero-dependency single-file HTML5 web application.
 
 ---
 
 ## ❖ How to Run Locally
-
-Simply serve the repository folder with any static HTTP server:
 
 ```bash
 # Python 3
@@ -95,4 +138,5 @@ Open `http://localhost:8080/index.html` in your browser.
 ---
 
 ## ★ License
-MIT License. Built for Cryo Omega v3.0 & Antigravity.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.  
+Built for Cryo Omega v3.0 & Antigravity Swarm.
