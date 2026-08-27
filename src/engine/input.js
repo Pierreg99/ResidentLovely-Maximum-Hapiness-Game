@@ -112,11 +112,11 @@ export function initInput(callbacks) {
 
       if (joystickStick) joystickStick.style.transform = `translate3d(${dx}px, ${dy}px, 0px)`;
       input.moveX = dx / maxRadius;
-      input.moveY = dy / maxRadius;
+      input.moveY = -dy / maxRadius; // Up is forward (+Z)
     }
   }
 
-  // 360° Touch Swipe for Camera Yaw & Pitch Orbit
+  // 360° Touch Drag for Camera & Player Rotation
   let lookTouchId = null;
   let lastTouchX = 0;
   let lastTouchY = 0;
@@ -149,7 +149,7 @@ export function initInput(callbacks) {
       if (touch.identifier === lookTouchId) {
         const deltaX = touch.clientX - lastTouchX;
         const deltaY = touch.clientY - lastTouchY;
-        onRotateCamera(deltaX * 0.008, deltaY * 0.005);
+        onRotateCamera(deltaX * 0.007, deltaY * 0.004);
         lastTouchX = touch.clientX;
         lastTouchY = touch.clientY;
         break;

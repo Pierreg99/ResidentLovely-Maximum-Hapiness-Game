@@ -92,15 +92,15 @@ export class MinimapSystem {
       }
     });
 
-    // Player Directional Arrow
+    // Player Directional Arrow (+Z forward)
     ctx.save();
     ctx.translate(cx, cy);
-    ctx.rotate(-player.rotation);
+    ctx.rotate(player.rotation);
     ctx.fillStyle = '#22d3ee';
     ctx.beginPath();
-    ctx.moveTo(0, -6);
-    ctx.lineTo(4, 5);
-    ctx.lineTo(-4, 5);
+    ctx.moveTo(0, 6);
+    ctx.lineTo(4, -5);
+    ctx.lineTo(-4, -5);
     ctx.closePath();
     ctx.fill();
 
@@ -108,7 +108,7 @@ export class MinimapSystem {
     ctx.fillStyle = 'rgba(34, 211, 238, 0.15)';
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.arc(0, 0, 24, -Math.PI/2 - 0.5, -Math.PI/2 + 0.5);
+    ctx.arc(0, 0, 24, Math.PI/2 - 0.5, Math.PI/2 + 0.5);
     ctx.closePath();
     ctx.fill();
     ctx.restore();

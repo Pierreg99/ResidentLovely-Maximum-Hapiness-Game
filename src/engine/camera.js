@@ -4,26 +4,25 @@ export class CameraController {
   constructor() {
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.shake = 0;
-    this.viewMode = 'ots'; // 'ots' (Over-The-Shoulder), 'fixed' (Classic RE Cinematic), 'ads' (First-Person Down-The-Sights)
-    this.pitch = 0; // Vertical tilt
-    this.yaw = 0;   // Free orbit yaw offset
+    this.viewMode = 'ots'; // 'ots' (Over-The-Shoulder), 'fixed' (Classic RE Cinematic), 'ads' (First-Person ADS)
+    this.pitch = 0; // Vertical pitch tilt (-0.5 to +0.5)
 
-    // Classic Resident Evil Fixed Cinematic Camera Nodes Database per Room
+    // Classic Resident Evil Fixed Cinematic Camera Nodes per Room
     this.fixedNodes = {
       foyer: [
-        { id: 'foyer_entrance', pos: new THREE.Vector3(0, 5.8, 12.5), look: new THREE.Vector3(0, 1.4, 0), triggerZ: 4 },
-        { id: 'foyer_center', pos: new THREE.Vector3(-8.5, 6.2, 0), look: new THREE.Vector3(0, 1.4, -2), triggerZ: -1 },
-        { id: 'foyer_stairs', pos: new THREE.Vector3(7.5, 5.5, -9.5), look: new THREE.Vector3(0, 2.0, -8), triggerZ: -6 }
+        { id: 'foyer_entrance', pos: new THREE.Vector3(0, 6.5, -12), triggerZ: -4 },
+        { id: 'foyer_center', pos: new THREE.Vector3(-9.5, 5.8, 0), triggerZ: 2 },
+        { id: 'foyer_stairs', pos: new THREE.Vector3(8.5, 6.2, 8.5), triggerZ: 14 }
       ],
       library: [
-        { id: 'lib_entry', pos: new THREE.Vector3(34, 5.8, 5.5), look: new THREE.Vector3(45, 1.4, 0), triggerZ: 2 },
-        { id: 'lib_cauldron', pos: new THREE.Vector3(54, 6.2, -9.5), look: new THREE.Vector3(45, 1.4, -6), triggerZ: -4 },
-        { id: 'lib_balcony', pos: new THREE.Vector3(36, 6.5, -5), look: new THREE.Vector3(45, 1.4, 2), triggerZ: -10 }
+        { id: 'lib_entry', pos: new THREE.Vector3(35, 5.8, -6), triggerZ: -2 },
+        { id: 'lib_cauldron', pos: new THREE.Vector3(54, 6.2, 9), triggerZ: 4 },
+        { id: 'lib_balcony', pos: new THREE.Vector3(36, 6.5, 5), triggerZ: 14 }
       ],
       garden: [
-        { id: 'garden_entry', pos: new THREE.Vector3(-34, 6.0, 6.0), look: new THREE.Vector3(-45, 1.4, 0), triggerZ: 2 },
-        { id: 'garden_fountain', pos: new THREE.Vector3(-45, 5.2, -9.5), look: new THREE.Vector3(-45, 1.4, 0), triggerZ: -3 },
-        { id: 'garden_gazebo', pos: new THREE.Vector3(-55, 6.5, 4.0), look: new THREE.Vector3(-45, 1.4, -4), triggerZ: -8 }
+        { id: 'garden_entry', pos: new THREE.Vector3(-35, 6.0, -6), triggerZ: -2 },
+        { id: 'garden_fountain', pos: new THREE.Vector3(-45, 5.2, 9), triggerZ: 4 },
+        { id: 'garden_gazebo', pos: new THREE.Vector3(-55, 6.5, -4), triggerZ: 14 }
       ]
     };
 
@@ -54,23 +53,24 @@ export class CameraController {
     this.shake = Math.min(1.0, this.shake + amount);
   }
 
-  addOrbit(deltaYaw, deltaPitch) {
-    this.yaw += deltaYaw;
-    this.pitch = THREE.MathUtils.clamp(this.pitch + deltaPitch, -0.45, 0.55);
+  addPitch(deltaPitch) {
+    this.pitch = THREE.MathUtils.clamp(this.pitch + deltaPitch, -0.45, 0.45);
   }
 
   update(player, delta, currentRoom) {
     const pPos = player.group.position;
+    const pRot = player.rotation;
 
     if (this.viewMode === 'ots') {
       // 1. DYNAMIC 360° OVER-THE-SHOULDER (OTS)
-      const baseDist = player.isAiming ? 2.6 : 4.4;
-      const baseHeight = player.isAiming ? 1.7 : 2.1;
-      const sideOffset = player.isAiming ? 0.95 : 0.7;
+      // Character is modeled facing +Z. Camera sits BEHIND at -Z.
+      const baseDist = player.isAiming ? 2.4 : 4.2;
+      const baseHeight = player.isAiming ? 1.65 : 2.0;
+      const sideOffset = player.isAiming ? 0.8 : 0.65; // Right shoulder
 
-      const totalRotation = player.rotation + this.yaw;
-      const camOffset = new THREE.Vector3(sideOffset, baseHeight + this.pitch * 2, baseDist);
-      const rotatedOffset = camOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), totalRotation);
+      // Camera sits at (sideOffset, baseHeight + pitch, -baseDist) relative to player
+      const camOffset = new THREE.Vector3(sideOffset, baseHeight - this.pitch * 2.2, -baseDist);
+      const rotatedOffset = camOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), pRot);
       const targetCamPos = pPos.clone().add(rotatedOffset);
 
       // Camera Shake
@@ -80,27 +80,29 @@ export class CameraController {
         this.shake = Math.max(0, this.shake - delta * 2.0);
       }
 
-      this.camera.position.lerp(targetCamPos, 0.18);
+      this.camera.position.lerp(targetCamPos, 0.2);
 
-      const lookTarget = pPos.clone().add(new THREE.Vector3(0, 1.35 + this.pitch, 0));
-      if (player.isAiming) {
-        const aimLook = lookTarget.clone().add(new THREE.Vector3(0, 0, -6).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation));
-        this.camera.lookAt(aimLook);
-      } else {
-        this.camera.lookAt(lookTarget);
-      }
+      // Look Target: In front of the character along +Z (shoulder height)
+      const lookDist = player.isAiming ? 16 : 10;
+      const lookOffset = new THREE.Vector3(sideOffset * 0.4, 1.4 + this.pitch * 3.5, lookDist);
+      const rotatedLook = lookOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), pRot);
+      const targetLook = pPos.clone().add(rotatedLook);
+
+      this.camera.lookAt(targetLook);
+
     } else if (this.viewMode === 'fixed') {
-      // 2. CLASSIC RESIDENT EVIL FIXED CINEMATIC ANGLES
+      // 2. CLASSIC RESIDENT EVIL FIXED CINEMATIC CAMERA ANGLES
       const roomNodes = this.fixedNodes[currentRoom] || this.fixedNodes.foyer;
       let activeNode = roomNodes[0];
 
-      let roomRelativeZ = pPos.z;
-      if (currentRoom === 'library') roomRelativeZ = pPos.z - rooms.library.position.z;
-      if (currentRoom === 'garden') roomRelativeZ = pPos.z - rooms.garden.position.z;
+      let roomRelZ = pPos.z;
+      if (currentRoom === 'library') roomRelZ = pPos.z - rooms.library.position.z;
+      if (currentRoom === 'garden') roomRelZ = pPos.z - rooms.garden.position.z;
 
       for (let node of roomNodes) {
-        if (roomRelativeZ <= node.triggerZ) {
+        if (roomRelZ <= node.triggerZ) {
           activeNode = node;
+          break;
         }
       }
 
@@ -111,14 +113,15 @@ export class CameraController {
         this.shake = Math.max(0, this.shake - delta * 2.0);
       }
 
-      this.camera.position.lerp(targetCamPos, 0.08);
-      const targetLook = pPos.clone().add(new THREE.Vector3(0, 1.2, 0));
+      this.camera.position.lerp(targetCamPos, 0.1);
+      const targetLook = pPos.clone().add(new THREE.Vector3(0, 1.3, 0));
       this.camera.lookAt(targetLook);
+
     } else if (this.viewMode === 'ads') {
       // 3. FIRST-PERSON / ADS DOWN-THE-SIGHTS MODE
-      const headPos = pPos.clone().add(new THREE.Vector3(0, 1.55, 0));
-      const fwd = new THREE.Vector3(0, this.pitch, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation).normalize();
-      const eyeCamPos = headPos.clone().add(fwd.clone().multiplyScalar(0.35));
+      const headPos = pPos.clone().add(new THREE.Vector3(0, 1.55, 0.1));
+      const fwd = new THREE.Vector3(0, this.pitch, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), pRot).normalize();
+      const eyeCamPos = headPos.clone().add(fwd.clone().multiplyScalar(0.2));
 
       if (this.shake > 0) {
         eyeCamPos.x += (Math.random() - 0.5) * this.shake * 0.5;
@@ -127,7 +130,7 @@ export class CameraController {
       }
 
       this.camera.position.lerp(eyeCamPos, 0.35);
-      const aimTarget = eyeCamPos.clone().add(fwd.clone().multiplyScalar(10));
+      const aimTarget = eyeCamPos.clone().add(fwd.clone().multiplyScalar(15));
       this.camera.lookAt(aimTarget);
     }
   }

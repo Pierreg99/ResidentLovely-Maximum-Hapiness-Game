@@ -447,7 +447,7 @@ initInput({
   onToggleAim: toggleAim,
   onRotateCamera: (deltaYaw, deltaPitch = 0) => {
     player.rotation -= deltaYaw;
-    cameraController.addOrbit(-deltaYaw, deltaPitch);
+    cameraController.addPitch(deltaPitch);
   },
   onToast: showToast
 });

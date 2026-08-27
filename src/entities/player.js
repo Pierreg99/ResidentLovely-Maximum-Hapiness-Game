@@ -34,12 +34,12 @@ export function initPlayer() {
   pGroup.add(body);
   player.meshBody = body;
 
-  // Gold S.M.I.L.E. Belt Buckle
+  // Gold S.M.I.L.E. Belt Buckle (+Z Front)
   const buckle = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.46), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 }));
   buckle.position.set(0, 0.35, 0.2);
   pGroup.add(buckle);
 
-  // Tactical Pouch
+  // Tactical Pouch (+X Right Hip)
   const pouch = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.25, 0.15), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
   pouch.position.set(0.38, 0.4, 0);
   pGroup.add(pouch);
@@ -52,7 +52,7 @@ export function initPlayer() {
   pGroup.add(head);
   player.meshHead = head;
 
-  // Large Glossy Anime Eyes with Blinking Support
+  // Large Glossy Anime Eyes facing +Z Front
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0x09090b });
   const eyeHighlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
@@ -89,7 +89,7 @@ export function initPlayer() {
   starBadge.position.set(-0.25, 1.92, 0.32);
   pGroup.add(starBadge);
 
-  // 4. Bouncing Twin-Tail Hair Meshes
+  // 4. Bouncing Twin-Tail Hair Meshes (-Z Back)
   const hairMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.4 });
   const tailGeo = new THREE.ConeGeometry(0.12, 0.6, 12);
   tailGeo.rotateX(Math.PI);
@@ -106,7 +106,7 @@ export function initPlayer() {
   pGroup.add(rightTail);
   player.rightPigtail = rightTail;
 
-  // 5. Custom Mk-IV Confetti Blaster with Heart Tip
+  // 5. Custom Mk-IV Confetti Blaster with Heart Tip (+Z Forward)
   const gunMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.2 });
   const gun = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.22, 0.65), gunMat);
   gun.position.set(0.42, 1.05, 0.4);
@@ -117,10 +117,10 @@ export function initPlayer() {
   muzzleHeart.position.set(0.42, 1.05, 0.75);
   pGroup.add(muzzleHeart);
 
-  // Laser Guide Line
+  // Laser Guide Line (+Z Forward)
   const laserGeo = new THREE.BufferGeometry().setFromPoints([
     new THREE.Vector3(0, 0, 0),
-    new THREE.Vector3(0, 0, 14)
+    new THREE.Vector3(0, 0, 16)
   ]);
   const laserMat = new THREE.LineBasicMaterial({ color: 0xec4899, transparent: true, opacity: 0.85 });
   player.laserGuide = new THREE.Line(laserGeo, laserMat);
@@ -128,10 +128,10 @@ export function initPlayer() {
   player.laserGuide.visible = false;
   pGroup.add(player.laserGuide);
 
-  // Prismatic Beam Mesh
-  const beamGeo = new THREE.CylinderGeometry(0.08, 0.16, 14, 12);
+  // Prismatic Beam Mesh (+Z Forward)
+  const beamGeo = new THREE.CylinderGeometry(0.08, 0.16, 16, 12);
   beamGeo.rotateX(Math.PI / 2);
-  beamGeo.translate(0, 0, 7);
+  beamGeo.translate(0, 0, 8);
   const beamMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.75 });
   player.beamMesh = new THREE.Mesh(beamGeo, beamMat);
   player.beamMesh.position.set(0.42, 1.05, 0.78);
@@ -145,7 +145,7 @@ export function initPlayer() {
 export function performQuickTurn() {
   if (player.isQuickTurning) return;
   player.isQuickTurning = true;
-  player.quickTurnTimer = 0.25; // 250ms turn
+  player.quickTurnTimer = 0.22; // 220ms quick-turn
   player.targetRotation = player.rotation + Math.PI;
   audio.playQuickTurn();
 }
@@ -164,18 +164,19 @@ export function updatePlayer(delta, time, currentRoom) {
   // Handle 180 Quick-Turn Animation
   if (player.isQuickTurning) {
     player.quickTurnTimer -= delta;
-    player.rotation = THREE.MathUtils.lerp(player.rotation, player.targetRotation, 0.35);
+    player.rotation = THREE.MathUtils.lerp(player.rotation, player.targetRotation, 0.38);
     if (player.quickTurnTimer <= 0) {
       player.rotation = player.targetRotation;
       player.isQuickTurning = false;
     }
   }
 
+  // Movement vector (+Z is Forward, -Z is Backward, +X is Strafe Right, -X is Strafe Left)
   let moveDir = new THREE.Vector3();
-  if (input.keys['KeyW'] || input.keys['ArrowUp']) moveDir.z -= 1;
-  if (input.keys['KeyS'] || input.keys['ArrowDown']) moveDir.z += 1;
-  if (input.keys['KeyA'] || input.keys['ArrowLeft']) moveDir.x -= 1;
+  if (input.keys['KeyW'] || input.keys['ArrowUp']) moveDir.z += 1;
+  if (input.keys['KeyS'] || input.keys['ArrowDown']) moveDir.z -= 1;
   if (input.keys['KeyD'] || input.keys['ArrowRight']) moveDir.x += 1;
+  if (input.keys['KeyA'] || input.keys['ArrowLeft']) moveDir.x -= 1;
 
   if (Math.abs(input.moveX) > 0.05 || Math.abs(input.moveY) > 0.05) {
     moveDir.x += input.moveX;

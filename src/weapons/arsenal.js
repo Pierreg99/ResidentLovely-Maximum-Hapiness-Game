@@ -18,7 +18,8 @@ export function updateTargetSights(currentRoom) {
     return;
   }
 
-  const fwd = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
+  // Character faces +Z forward
+  const fwd = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
   const pPos = player.group.position;
   let closestGrump = null;
   let closestDist = 20.0;
@@ -33,8 +34,8 @@ export function updateTargetSights(currentRoom) {
     const dist = toEnemy.length();
 
     if (dist < closestDist) {
-      const angle = fwd.angleTo(toEnemy.normalize());
-      if (angle < 0.42) {
+      const angle = fwd.angleTo(toEnemy.clone().normalize());
+      if (angle < 0.45) {
         closestDist = dist;
         closestGrump = { entity: g, dist: dist.toFixed(1), name: g.type.toUpperCase() };
       }
@@ -71,7 +72,7 @@ export function launchProjectile(type, origin, dir, currentRoom) {
       new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 0.6 })
     );
     pGroup.add(dart);
-    vel.multiplyScalar(30);
+    vel.multiplyScalar(32);
     life = 1.0;
   } else if (type === 'shotgun') {
     // Iridescent Pastry Soap Bubble
@@ -80,7 +81,7 @@ export function launchProjectile(type, origin, dir, currentRoom) {
       new THREE.MeshStandardMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.75, roughness: 0.05, metalness: 0.1 })
     );
     pGroup.add(bubble);
-    vel.multiplyScalar(20);
+    vel.multiplyScalar(22);
     gravity = -1.5;
     life = 1.2;
   } else if (type === 'mortar') {
@@ -98,7 +99,7 @@ export function launchProjectile(type, origin, dir, currentRoom) {
     cherry.position.y = 0.35;
     pGroup.add(cherry);
 
-    vel.multiplyScalar(17);
+    vel.multiplyScalar(18);
     vel.y += 6.5;
     gravity = -9.8;
     life = 2.5;
@@ -112,12 +113,12 @@ export function launchProjectile(type, origin, dir, currentRoom) {
 export function triggerWeaponFire(gameState, cameraController, callbacks) {
   audio.init();
 
-  // Weapon recoil kickback animation
+  // Weapon recoil kickback animation (+Z is forward)
   player.meshGun.position.z = 0.22;
   setTimeout(() => { player.meshGun.position.z = 0.4; }, 90);
 
   // Muzzle flash point light
-  const fwd = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
+  const fwd = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
   const muzzlePos = player.group.position.clone().add(new THREE.Vector3(0.42, 1.05, 0.75).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation));
 
   muzzleLight.position.copy(muzzlePos);
