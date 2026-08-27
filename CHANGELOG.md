@@ -5,40 +5,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ---
 
+## [1.7.0] - 2026-08-27
+
+### Added
+- **Kawaii Holographic Blueprint & Master Tactical Map Engine**:
+  - Multi-level floor selector for Floor 1F (Ground Floor) and Floor 2F (Balconies & Mezzanine).
+  - High-res vector SVG blueprint displaying checkerboard rotunda, Grand Concert Piano, save gramophones, bubbling alchemical cauldron, and tiered marble fountain.
+  - Interactive room inspection: Clicking/tapping any chamber highlights its perimeter and updates real-time sector telemetry (happiness %, unresolved puzzles, Grump entity count).
+  - Live animated S.M.I.L.E. Agent beacon with expanding radar pulse rings and direction arrow.
+  - Surveillance optical feed preview with CRT scanlines and live camera badges.
+- **Master UI/UX Design System Showcase**:
+  - `~/projects/cryo-omega/design/resident-lovely/map-design-system.html` (Standalone master interactive map design system showcase).
+  - `~/projects/cryo-omega/design/resident-lovely/map-component-spec.md` (Design tokens, component specs, typography, accessibility audit).
+  - `~/projects/cryo-omega/design/resident-lovely/a11y-report.md` (WCAG 2.1 AAA Accessibility Report).
+
+---
+
+## [1.6.2] - 2026-08-27
+
+### Added
+- **Dual-Smoothing Camera Engine**:
+  - Smoothly interpolates both camera position and lookAt target (`lerp(0.18)`), eliminating all camera jitter, tilting snaps, and disorientation.
+  - Added wall collision clamping per room (`±12.2m` in Foyer, `±10.2m` in Library, `±11.2m` in Solarium).
+- **Grump Knockback & Health Bar Billboarding**:
+  - Propels hit enemies away from player along `+Z` sightline.
+  - Overhead health bars billboard dynamically towards the active camera angle.
+
+---
+
 ## [1.6.0] - 2026-08-27
 
 ### Added
-- **3-Mode Camera Engine (Classic Fixed / 360° OTS / First-Person ADS)**:
-  - **Mode 1: Dynamic 360° Over-The-Shoulder (OTS)**: Smooth third-person chase camera with 360° yaw orbit and vertical pitch tilt (±35°).
-  - **Mode 2: Classic Fixed Cinematic Camera Angles**: Authentic 1996 *Resident Evil* Spencer Mansion style with preset cinematic room vantage nodes per chamber (Front Entrance Wide, Grand Staircase Balcony, Library Mezzanine, Solarium Fountain) that dynamically cut angles based on player position zones.
-  - **Mode 3: Precision First-Person / ADS Down-the-Sights View**: Intimate first-person view aligned with Agent Joy's eye level and blaster sightline for precise confetti shooting.
-  - Instant on-the-fly toggling via `V` key or top HUD `[VIEW: OTS / FIXED / ADS]` button.
-- **Dynamic Holographic Sights & Target Lock-On**:
-  - Real-time raycasting detects closest Gloomy Grump in line-of-sight when aiming.
-  - HUD Lock-On telemetry box with target name and range measurement in meters (`[★ LOCKED: GLOOM BEAR 7.2m]`).
-  - Expanding/contracting dynamic crosshair with recoil bloom.
-- **180° Quick-Turn & Orbit Touch Controls**:
-  - Polished 180° instant turn on `Z` / `S + Space` / `[180° TURN]` touch button with dynamic camera whip and swoosh sound effect.
-  - 360° touch swipe support for both horizontal yaw and vertical pitch elevation.
-- **Master Design Document (DOCX)**:
-  - Updated `docs/Resident_Lovely_Master_Game_Design_Document.docx` with complete v1.6.0 camera architecture and targeting specifications.
+- **3-Mode Camera Engine (Classic Fixed / 360° OTS / First-Person ADS)**.
+- **Dynamic Holographic Sights & Target Lock-On**.
+- **180° Quick-Turn & Orbit Touch Controls**.
 
 ---
 
 ## [1.5.0] - 2026-08-27
 
 ### Added
-- **Volumetric God Rays & Atmospheric Shading**:
-  - Translucent additive pink light shafts projecting diagonally from the stained-glass rose window onto the Foyer floor.
-  - Floating ambient stardust motes (55 glittering particles with Brownian drift physics).
-  - High-tier crystal chandelier mesh with gold framework and hanging refractive prisms casting dynamic lighting.
-- **Baroque Architecture & Room Aesthetics**:
-  - Gilded wainscoting moldings and framed landscape paintings along chamber perimeters.
-  - Solarium tiered cascading fountain with animated rotating water ripple rings and blooming rose bushes.
-  - Rolling brass library ladder in the East Wing Library and embossed book spines.
-- **Character & Eye Animation Refinements**:
-  - Animated eye blinking timing on Agent Joy (periodic 120ms blinks every 2.5-6s).
-  - Enhanced foot-hop stride dynamics with spring-inertia twin-tail pigtails.
+- **Volumetric God Rays & Atmospheric Shading**.
+- **Baroque Architecture & Room Aesthetics**.
 
 ---
 
@@ -47,30 +55,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 ### Added
 - **Expressive Kawaii Chibi "Agent Joy" Character Model**.
 - **Squash-and-Stretch Kawaii Grump AI**.
-- **Authentic 180° Quick-Turn & 3D Item Inspection Modal**.
-- **Authentic Typewriter / Gramophone Save Dialog**.
+- **3D Item Inspection Modal & Typewriter Save Dialog**.
 - **Expanded 3-Tier Herb Alchemy**.
-
----
-
-## [1.3.0] - 2026-08-27
-
-### Added
-- **ESM Multi-Module Architecture Decoupling (15 Modules)**.
-
----
-
-## [1.2.0] - 2026-08-27
-
-### Added
-- **4-Weapon Wholesome Arsenal System & Radar Mini-Map HUD**.
-
----
-
-## [1.1.0] - 2026-08-27
-
-### Added
-- **Multi-Tier Quest & Task Engine & Procedural Baroque 3D Assets**.
 
 ---
 

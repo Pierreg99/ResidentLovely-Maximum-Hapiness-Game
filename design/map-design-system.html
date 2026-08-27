@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RESIDENT LOVELY ❖ Kawaii Holographic Map System & NEXUS PRIVÉ v6.0 Design Tokens</title>
+  <style>
+    :root {
+      --bg-obsidian: #05070a;
+      --bg-panel: rgba(10, 15, 26, 0.92);
+      --bg-card: rgba(15, 23, 42, 0.75);
+      --cyan-glow: #22d3ee;
+      --gold-accent: #f59e0b;
+      --emerald-joy: #10b981;
+      --magenta-bliss: #ec4899;
+      --purple-spark: #a855f7;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --border-cyan: rgba(34, 211, 238, 0.35);
+      --border-gold: rgba(245, 158, 11, 0.45);
+      --border-emerald: rgba(16, 185, 129, 0.4);
+      --border-magenta: rgba(236, 72, 153, 0.45);
+      --font-mono: 'SF Mono', 'Roboto Mono', 'Courier New', monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-obsidian);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 2px solid var(--border-cyan);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    h1 {
+      font-family: var(--font-mono);
+      font-size: 22px;
+      color: var(--cyan-glow);
+      letter-spacing: 1.5px;
+    }
+
+    .subtitle {
+      color: var(--gold-accent);
+      font-size: 13px;
+      font-family: var(--font-mono);
+    }
+
+    .grid-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+    }
+
+    .map-stage {
+      background: var(--bg-panel);
+      border: 1.5px solid var(--border-cyan);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(34, 211, 238, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .map-controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(5, 7, 10, 0.8);
+      border: 1px solid var(--border-cyan);
+      border-radius: 8px;
+      padding: 8px 14px;
+    }
+
+    .floor-tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-cyan);
+      color: var(--text-main);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--cyan-glow);
+      color: #05070a;
+      box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+    }
+
+    .legend-bar {
+      display: flex;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* SVG MAP STYLES */
+    #estate-blueprint-svg {
+      width: 100%;
+      height: auto;
+      background: radial-gradient(circle at center, rgba(15, 23, 42, 0.9) 0%, rgba(5, 7, 10, 0.98) 100%);
+      border: 1px solid rgba(34, 211, 238, 0.3);
+      border-radius: 8px;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9);
+    }
+
+    .room-tile {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .room-tile:hover {
+      filter: drop-shadow(0 0 10px var(--cyan-glow));
+    }
+
+    .door-node {
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .beacon-pulse {
+      animation: pulseBeacon 2s infinite ease-out;
+      transform-origin: center;
+    }
+
+    @keyframes pulseBeacon {
+      0% { r: 6; opacity: 1; }
+      100% { r: 24; opacity: 0; }
+    }
+
+    /* SIDEBAR TELEMETRY */
+    .telemetry-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .telemetry-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .card-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--gold-accent);
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+      padding-bottom: 6px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      color: var(--text-dim);
+    }
+
+    .stat-val {
+      color: var(--cyan-glow);
+      font-weight: 700;
+    }
+
+    .security-feed-box {
+      width: 100%;
+      height: 140px;
+      background: #020617;
+      border: 1px solid var(--border-cyan);
+      border-radius: 6px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .scanline-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(0deg, rgba(34, 211, 238, 0.05) 0px, rgba(34, 211, 238, 0.05) 2px, transparent 2px, transparent 4px);
+      pointer-events: none;
+    }
+
+    .cam-label {
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--emerald-joy);
+      background: rgba(0,0,0,0.7);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>❖ CHÂTEAU DE LA JOIE — MASTER BLUEPRINT SYSTEM</h1>
+        <div class="subtitle">NEXUS PRIVÉ v6.0 Standard | Multi-Layer Kawaii Tactical Radar</div>
+      </div>
+      <div style="font-family:var(--font-mono); font-size:11px; color:var(--emerald-joy);">
+        STATUS: ONLINE &bull; 60 FPS PBR
+      </div>
+    </header>
+
+    <div class="grid-layout">
+      <!-- MAP VIEWPORT -->
+      <div class="map-stage">
+        <div class="map-controls-bar">
+          <div class="floor-tabs">
+            <button class="tab-btn active" onclick="switchFloor('1F')">FLOOR 1F (GROUND)</button>
+            <button class="tab-btn" onclick="switchFloor('2F')">FLOOR 2F (MEZZANINE)</button>
+          </div>
+          <div class="legend-bar">
+            <div class="legend-item"><div class="legend-dot" style="background:#22d3ee;"></div> Agent Joy</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div> Gloom Grump</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div> Save Gramophone</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ec4899;"></div> Cauldron / Fountain</div>
+          </div>
+        </div>
+
+        <!-- VECTOR SVG BLUEPRINT -->
+        <svg id="estate-blueprint-svg" viewBox="0 0 800 500">
+          <defs>
+            <pattern id="grid-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(34, 211, 238, 0.08)" stroke-width="1"/>
+            </pattern>
+            <linearGradient id="cyan-glow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#05070a" stop-opacity="0.8"/>
+            </linearGradient>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+
+          <!-- WEST WING: SOLARIUM GARDEN -->
+          <g id="room-solarium" class="room-tile" onclick="selectRoom('garden')">
+            <rect x="50" y="100" width="200" height="300" rx="10" fill="rgba(6, 78, 59, 0.45)" stroke="#10b981" stroke-width="2.5"/>
+            <text x="150" y="140" fill="#10b981" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">WEST WING</text>
+            <text x="150" y="160" fill="#94a3b8" font-family="monospace" font-size="11" text-anchor="middle">SOLARIUM GARDEN</text>
+
+            <!-- Tiered Marble Fountain -->
+            <circle cx="150" cy="250" r="38" fill="rgba(34, 211, 238, 0.25)" stroke="#22d3ee" stroke-width="2"/>
+            <circle cx="150" cy="250" r="16" fill="#f59e0b"/>
+            <text x="150" y="254" fill="#000" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">FOUNTAIN</text>
+
+            <!-- 4 Heart Lanterns -->
+            <circle cx="150" cy="180" r="7" fill="#ec4899"/>
+            <circle cx="150" cy="320" r="7" fill="#ec4899"/>
+            <circle cx="80" cy="250" r="7" fill="#ec4899"/>
+            <circle cx="220" cy="250" r="7" fill="#ec4899"/>
+
+            <!-- Blooming Rose Bushes -->
+            <circle cx="90" cy="140" r="12" fill="#059669"/>
+            <circle cx="90" cy="140" r="5" fill="#f472b6"/>
+            <circle cx="210" cy="140" r="12" fill="#059669"/>
+            <circle cx="210" cy="140" r="5" fill="#f472b6"/>
+          </g>
+
+          <!-- WEST DOOR CONNECTOR -->
+          <g class="door-node" onclick="toggleDoor('garden')">
+            <rect id="door-garden-rect" x="250" y="235" width="50" height="30" rx="4" fill="#f43f5e"/>
+            <text id="door-garden-text" x="275" y="254" fill="#fff" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">LOCK</text>
+          </g>
+
+          <!-- CENTER: MAIN FOYER -->
+          <g id="room-foyer" class="room-tile" onclick="selectRoom('foyer')">
+            <rect x="300" y="50" width="200" height="400" rx="10" fill="rgba(30, 27, 75, 0.55)" stroke="#22d3ee" stroke-width="3"/>
+            <text x="400" y="90" fill="#22d3ee" font-family="monospace" font-size="16" font-weight="bold" text-anchor="middle">GRAND FOYER</text>
+            <text x="400" y="110" fill="#94a3b8" font-family="monospace" font-size="11" text-anchor="middle">STAINED-GLASS ROTUNDA</text>
+
+            <!-- Grand Staircase Steps -->
+            <rect x="340" y="320" width="120" height="80" rx="4" fill="rgba(131, 24, 67, 0.6)" stroke="#f59e0b" stroke-width="1.5"/>
+            <line x1="340" y1="340" x2="460" y2="340" stroke="#f59e0b" stroke-width="1"/>
+            <line x1="340" y1="360" x2="460" y2="360" stroke="#f59e0b" stroke-width="1"/>
+            <line x1="340" y1="380" x2="460" y2="380" stroke="#f59e0b" stroke-width="1"/>
+            <text x="400" y="365" fill="#f59e0b" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">GRAND STAIRS</text>
+
+            <!-- Grand Concert Piano -->
+            <rect x="420" y="160" width="45" height="35" rx="4" fill="#09090b" stroke="#f59e0b" stroke-width="1.5"/>
+            <text x="442" y="182" fill="#fff" font-family="monospace" font-size="9" font-weight="bold" text-anchor="middle">PIANO</text>
+
+            <!-- Save Station Gramophone -->
+            <circle cx="340" cy="180" r="14" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" stroke-width="2"/>
+            <text x="340" y="184" fill="#f59e0b" font-family="monospace" font-size="9" font-weight="bold" text-anchor="middle">SAVE</text>
+          </g>
+
+          <!-- EAST DOOR CONNECTOR -->
+          <g class="door-node" onclick="toggleDoor('library')">
+            <rect id="door-library-rect" x="500" y="235" width="50" height="30" rx="4" fill="#f43f5e"/>
+            <text id="door-library-text" x="525" y="254" fill="#fff" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">LOCK</text>
+          </g>
+
+          <!-- EAST WING: LIBRARY OF JOY -->
+          <g id="room-library" class="room-tile" onclick="selectRoom('library')">
+            <rect x="550" y="100" width="200" height="300" rx="10" fill="rgba(69, 26, 3, 0.45)" stroke="#f59e0b" stroke-width="2.5"/>
+            <text x="650" y="140" fill="#f59e0b" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">EAST WING</text>
+            <text x="650" y="160" fill="#94a3b8" font-family="monospace" font-size="11" text-anchor="middle">LIBRARY OF JOY</text>
+
+            <!-- Towering Bookshelves -->
+            <rect x="565" y="180" width="20" height="180" rx="3" fill="#7c2d12" stroke="#f59e0b"/>
+            <rect x="715" y="180" width="20" height="180" rx="3" fill="#7c2d12" stroke="#f59e0b"/>
+
+            <!-- Golden Alchemical Cauldron -->
+            <circle cx="650" cy="250" r="28" fill="rgba(236, 72, 153, 0.3)" stroke="#ec4899" stroke-width="2"/>
+            <circle cx="650" cy="250" r="14" fill="#ec4899"/>
+            <text x="650" y="254" fill="#fff" font-family="monospace" font-size="9" font-weight="bold" text-anchor="middle">CAULDRON</text>
+
+            <!-- Study Desk -->
+            <rect x="620" y="320" width="60" height="30" rx="4" fill="#451a03" stroke="#f59e0b"/>
+            <text x="650" y="338" fill="#94a3b8" font-family="monospace" font-size="9" text-anchor="middle">DESK</text>
+          </g>
+
+          <!-- ACTIVE PLAYER PIN & RADAR CONE -->
+          <g id="player-beacon" transform="translate(400, 260)">
+            <circle class="beacon-pulse" cx="0" cy="0" r="12" fill="none" stroke="#22d3ee" stroke-width="2"/>
+            <circle cx="0" cy="0" r="9" fill="#22d3ee" stroke="#fff" stroke-width="2"/>
+            <polygon points="0,16 6,4 -6,4" fill="#22d3ee"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- SIDEBAR TELEMETRY & ROOM DATA -->
+      <div class="telemetry-sidebar">
+        <!-- Room Info Card -->
+        <div class="telemetry-card">
+          <div class="card-title">◈ SECTOR TELEMETRY ◈</div>
+          <div class="stat-row">
+            <span class="stat-label">Active Chamber:</span>
+            <span id="tel-room-name" class="stat-val">GRAND FOYER</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Sector Happiness:</span>
+            <span id="tel-joy-val" class="stat-val" style="color:var(--emerald-joy);">85% BLISS</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Unresolved Puzzles:</span>
+            <span id="tel-puzzles" class="stat-val" style="color:var(--gold-accent);">Harmonic Triad (C-E-G)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Grump Entities:</span>
+            <span id="tel-grumps" class="stat-val">2 Plushies Present</span>
+          </div>
+        </div>
+
+        <!-- Security Camera Feed Preview -->
+        <div class="telemetry-card">
+          <div class="card-title">★ GRAMOPHONE SURVEILLANCE FEED ★</div>
+          <div class="security-feed-box">
+            <div class="scanline-layer"></div>
+            <div class="cam-label">CAM 01 &bull; REC</div>
+            <div style="font-family:var(--font-mono); font-size:11px; color:var(--cyan-glow); text-align:center;">
+              [OPTICAL FEED: FOYER ROTUNDA]<br>
+              <span style="font-size:9px; color:var(--text-dim);">CRYSTAL CHANDELIER NOMINAL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function selectRoom(room) {
+      const roomName = document.getElementById('tel-room-name');
+      const joyVal = document.getElementById('tel-joy-val');
+      const puzzles = document.getElementById('tel-puzzles');
+      const grumps = document.getElementById('tel-grumps');
+
+      if (room === 'foyer') {
+        roomName.textContent = 'GRAND FOYER';
+        joyVal.textContent = '85% BLISS';
+        puzzles.textContent = 'Harmonic Triad (C-E-G)';
+        grumps.textContent = '2 Plushies Present';
+      } else if (room === 'library') {
+        roomName.textContent = 'EAST WING LIBRARY';
+        joyVal.textContent = '50% BLISS';
+        puzzles.textContent = 'Alchemical Cauldron Brew';
+        grumps.textContent = '2 Plushies Present';
+      } else if (room === 'garden') {
+        roomName.textContent = 'SOLARIUM GARDEN';
+        joyVal.textContent = '65% BLISS';
+        puzzles.textContent = '4 Heart Lantern Ignition';
+        grumps.textContent = '1 Plush Knight Present';
+      }
+    }
+
+    function toggleDoor(door) {
+      const rect = document.getElementById(`door-${door}-rect`);
+      const txt = document.getElementById(`door-${door}-text`);
+      const isOpen = txt.textContent === 'OPEN';
+      rect.setAttribute('fill', isOpen ? '#f43f5e' : '#10b981');
+      txt.textContent = isOpen ? 'LOCK' : 'OPEN';
+    }
+
+    function switchFloor(floor) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.includes(floor));
+      });
+    }
+  </script>
+</body>
+</html>
