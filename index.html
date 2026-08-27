@@ -1,0 +1,3469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>RESIDENT LOVELY ❖ Tactical Maps & Cute Arsenal 3D</title>
+  <style>
+    :root {
+      --bg-obsidian: #05070a;
+      --bg-panel: rgba(10, 15, 26, 0.88);
+      --cyan-glow: #22d3ee;
+      --gold-accent: #f59e0b;
+      --emerald-joy: #10b981;
+      --magenta-bliss: #ec4899;
+      --purple-spark: #a855f7;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+      --border-cyan: rgba(34, 211, 238, 0.35);
+      --border-gold: rgba(245, 158, 11, 0.45);
+      --border-emerald: rgba(16, 185, 129, 0.4);
+      --border-magenta: rgba(236, 72, 153, 0.45);
+      --font-mono: 'SF Mono', 'Roboto Mono', 'Courier New', monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-obsidian);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      touch-action: none;
+    }
+
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* HUD Layer */
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: env(safe-area-inset-top, 8px) env(safe-area-inset-right, 12px) env(safe-area-inset-bottom, 12px) env(safe-area-inset-left, 12px);
+    }
+
+    /* Top Navigation & Status Bar */
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      pointer-events: auto;
+      gap: 6px;
+    }
+
+    /* Mini-Map Radar Container */
+    .minimap-card {
+      background: var(--bg-panel);
+      border: 1.5px solid var(--border-cyan);
+      border-radius: 50%;
+      width: 72px;
+      height: 72px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6), 0 0 10px rgba(34, 211, 238, 0.25);
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+    }
+
+    #minimap-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .minimap-scanline {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(34, 211, 238, 0.25) 0deg, transparent 60deg, transparent 360deg);
+      animation: radarSweep 3s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes radarSweep {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Health ECG Card */
+    .ecg-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-cyan);
+      border-radius: 8px;
+      padding: 5px 8px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ecg-svg {
+      width: 44px;
+      height: 20px;
+    }
+
+    .ecg-line {
+      fill: none;
+      stroke: var(--emerald-joy);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 120;
+      stroke-dashoffset: 120;
+      animation: ecgPulse 1.8s linear infinite;
+    }
+
+    @keyframes ecgPulse {
+      0% { stroke-dashoffset: 120; }
+      50% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -120; }
+    }
+
+    .ecg-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ecg-title {
+      font-family: var(--font-mono);
+      font-size: 7.5px;
+      letter-spacing: 0.8px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .ecg-status {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--emerald-joy);
+    }
+
+    /* Center Objective Pill */
+    .center-hud-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .room-badge {
+      background: rgba(5, 7, 10, 0.8);
+      border: 1px solid var(--border-cyan);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--cyan-glow);
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .active-quest-pill {
+      background: rgba(10, 15, 26, 0.9);
+      border: 1px solid var(--border-gold);
+      border-radius: 12px;
+      padding: 3px 8px;
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--gold-accent);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      pointer-events: auto;
+      max-width: 240px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .quest-pulse-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold-accent);
+      box-shadow: 0 0 6px var(--gold-accent);
+      animation: blink 1s infinite alternate;
+      flex-shrink: 0;
+    }
+
+    @keyframes blink {
+      from { opacity: 0.4; }
+      to { opacity: 1; }
+    }
+
+    /* Top Right Buttons */
+    .top-right-group {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .btn-hud-icon {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-accent);
+      border-radius: 6px;
+      padding: 5px 8px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+    }
+
+    /* WEAPON SELECTOR WHEEL / DOCK */
+    .weapon-dock {
+      position: absolute;
+      top: 90px;
+      right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      pointer-events: auto;
+      z-index: 20;
+    }
+
+    .weapon-slot {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      background: var(--bg-panel);
+      border: 1.5px solid rgba(148, 163, 184, 0.25);
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-family: var(--font-mono);
+      font-size: 7.5px;
+      font-weight: 700;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+      transition: all 0.15s ease;
+    }
+
+    .weapon-slot.active {
+      border-color: var(--magenta-bliss);
+      color: var(--magenta-bliss);
+      background: rgba(236, 72, 153, 0.15);
+      box-shadow: 0 0 14px rgba(236, 72, 153, 0.4);
+      transform: scale(1.08);
+    }
+
+    .weapon-svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    /* Center Crosshair Reticle */
+    #reticle-layer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .reticle-ring {
+      width: 44px;
+      height: 44px;
+      border: 1.5px solid var(--cyan-glow);
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
+      position: relative;
+    }
+
+    .reticle-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--gold-accent);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px var(--gold-accent);
+    }
+
+    /* Contextual Prompt Box */
+    #prompt-box {
+      position: absolute;
+      bottom: 24%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-panel);
+      border: 1px solid var(--gold-accent);
+      border-radius: 24px;
+      padding: 7px 16px;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold-accent);
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+      pointer-events: auto;
+      cursor: pointer;
+      animation: pulseGlow 1.5s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      from { box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); }
+      to { box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+    }
+
+    /* Toast Notification */
+    #toast-msg {
+      position: absolute;
+      top: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(5, 7, 10, 0.94);
+      border-left: 3px solid var(--cyan-glow);
+      border-right: 3px solid var(--magenta-bliss);
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-main);
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+      z-index: 100;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    }
+
+    /* Mobile Controls Layer */
+    .controls-layer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 48%;
+      pointer-events: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 12px 16px env(safe-area-inset-bottom, 14px) 16px;
+    }
+
+    #joystick-zone {
+      width: 116px;
+      height: 116px;
+      position: relative;
+      touch-action: none;
+    }
+
+    .joystick-base {
+      width: 106px;
+      height: 106px;
+      border-radius: 50%;
+      background: rgba(34, 211, 238, 0.08);
+      border: 2px solid rgba(34, 211, 238, 0.3);
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .joystick-stick {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--cyan-glow) 0%, rgba(34, 211, 238, 0.4) 100%);
+      box-shadow: 0 0 15px rgba(34, 211, 238, 0.6);
+      position: absolute;
+      top: 36px;
+      left: 36px;
+      pointer-events: none;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .action-cluster {
+      display: grid;
+      grid-template-columns: repeat(3, 48px);
+      grid-gap: 7px;
+      align-items: center;
+      justify-items: center;
+    }
+
+    .btn-action {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg-panel);
+      border: 1.5px solid var(--border-cyan);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-family: var(--font-mono);
+      font-size: 7.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      touch-action: manipulation;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.1s, border-color 0.1s;
+    }
+
+    .btn-action:active, .btn-action.active {
+      transform: scale(0.92);
+      background: rgba(34, 211, 238, 0.25);
+      border-color: var(--cyan-glow);
+      box-shadow: 0 0 16px rgba(34, 211, 238, 0.5);
+    }
+
+    .btn-action.btn-fire {
+      width: 58px;
+      height: 58px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, rgba(10, 15, 26, 0.9) 100%);
+      border-color: var(--magenta-bliss);
+      color: var(--magenta-bliss);
+      grid-column: span 3;
+      justify-self: center;
+    }
+
+    .btn-action.btn-fire:active {
+      background: var(--magenta-bliss);
+      color: #000;
+      box-shadow: 0 0 20px rgba(236, 72, 153, 0.8);
+    }
+
+    .btn-action.btn-gold {
+      border-color: var(--gold-accent);
+      color: var(--gold-accent);
+    }
+
+    .btn-action.btn-emerald {
+      border-color: var(--emerald-joy);
+      color: var(--emerald-joy);
+    }
+
+    .btn-svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* FULL MODAL PANELS (Inventory, Quests, Full Map) */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(5, 7, 10, 0.95);
+      backdrop-filter: blur(16px);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      padding: env(safe-area-inset-top, 14px) 14px env(safe-area-inset-bottom, 14px) 14px;
+      box-sizing: border-box;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-cyan);
+    }
+
+    .modal-title {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: var(--cyan-glow);
+    }
+
+    .modal-close-btn {
+      background: transparent;
+      border: 1px solid var(--border-cyan);
+      color: var(--text-main);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      cursor: pointer;
+    }
+
+    /* FULL MAP MODAL */
+    .map-blueprint-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #estate-map-svg {
+      width: 100%;
+      max-width: 480px;
+      height: auto;
+      border: 1px solid var(--border-cyan);
+      border-radius: 8px;
+      background: rgba(10, 15, 26, 0.9);
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+    }
+
+    .map-room-node {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .map-room-node:hover {
+      filter: drop-shadow(0 0 8px var(--cyan-glow));
+    }
+
+    /* INVENTORY MODAL SPECIFIC */
+    .inv-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    @media (min-width: 768px) {
+      .inv-body {
+        flex-direction: row;
+      }
+    }
+
+    .inv-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 70px);
+      gap: 6px;
+    }
+
+    .inv-slot {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1.5px solid rgba(148, 163, 184, 0.2);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .inv-slot.selected {
+      border-color: var(--cyan-glow);
+      background: rgba(34, 211, 238, 0.15);
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
+    }
+
+    .inv-slot.combine-target {
+      border-color: var(--gold-accent);
+      background: rgba(245, 158, 11, 0.2);
+      animation: pulseGold 0.8s infinite alternate;
+    }
+
+    .slot-icon {
+      width: 24px;
+      height: 24px;
+      fill: var(--cyan-glow);
+    }
+
+    .slot-qty {
+      position: absolute;
+      bottom: 2px;
+      right: 4px;
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--gold-accent);
+      font-weight: 700;
+    }
+
+    .slot-label {
+      font-size: 8px;
+      text-align: center;
+      color: var(--text-dim);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .inv-details {
+      background: rgba(10, 15, 26, 0.8);
+      border: 1px solid var(--border-cyan);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 140px;
+    }
+
+    .item-preview-header {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold-accent);
+      margin-bottom: 4px;
+    }
+
+    .item-preview-desc {
+      font-size: 10.5px;
+      line-height: 1.4;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+
+    .inv-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-inv-act {
+      flex: 1;
+      padding: 7px 8px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-cyan);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-inv-act:hover, .btn-inv-act:active {
+      background: var(--cyan-glow);
+      color: #000;
+    }
+
+    .btn-inv-act.gold {
+      border-color: var(--gold-accent);
+      color: var(--gold-accent);
+    }
+    .btn-inv-act.gold:hover, .btn-inv-act.gold:active {
+      background: var(--gold-accent);
+      color: #000;
+    }
+
+    /* QUEST LOG MODAL SPECIFIC */
+    .quest-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .quest-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-cyan);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .quest-card.completed {
+      border-color: var(--emerald-joy);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .quest-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .quest-name {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold-accent);
+    }
+
+    .quest-badge {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid var(--gold-accent);
+      color: var(--gold-accent);
+    }
+
+    .quest-badge.done {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: var(--emerald-joy);
+      color: var(--emerald-joy);
+    }
+
+    .quest-desc {
+      font-size: 10.5px;
+      color: var(--text-dim);
+      line-height: 1.35;
+    }
+
+    .quest-tasks {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 5px;
+    }
+
+    .task-item {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .task-item.checked {
+      color: var(--emerald-joy);
+      text-decoration: line-through;
+    }
+
+    /* PIANO MINI-PUZZLE MODAL */
+    #piano-modal {
+      position: absolute;
+      bottom: 15%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-panel);
+      border: 2px solid var(--gold-accent);
+      border-radius: 12px;
+      padding: 14px 18px;
+      z-index: 210;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.9), 0 0 20px rgba(245, 158, 11, 0.4);
+    }
+
+    .piano-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold-accent);
+      letter-spacing: 1px;
+    }
+
+    .piano-keys {
+      display: flex;
+      gap: 5px;
+    }
+
+    .piano-key {
+      width: 40px;
+      height: 90px;
+      background: #ffffff;
+      color: #05070a;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding-bottom: 6px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .piano-key:active {
+      transform: translateY(3px);
+      background: var(--cyan-glow);
+    }
+
+    /* DOOR TRANSITION OVERLAY */
+    #door-curtain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #05070a;
+      z-index: 300;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .door-svg {
+      width: 76px;
+      height: 96px;
+      fill: none;
+      stroke: var(--cyan-glow);
+      stroke-width: 3;
+      filter: drop-shadow(0 0 10px var(--cyan-glow));
+      animation: doorSwing 1.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes doorSwing {
+      0% { transform: perspective(400px) rotateY(0deg); }
+      100% { transform: perspective(400px) rotateY(-55deg); }
+    }
+
+    .door-text {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 2.5px;
+      color: var(--gold-accent);
+    }
+
+    /* Victory Party Banner */
+    #party-banner {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(5, 7, 10, 0.96);
+      border: 2px solid var(--magenta-bliss);
+      padding: 22px 28px;
+      border-radius: 12px;
+      text-align: center;
+      z-index: 250;
+      display: none;
+      box-shadow: 0 0 40px rgba(236, 72, 153, 0.6);
+      width: 90%;
+      max-width: 420px;
+    }
+
+    .party-title {
+      font-family: var(--font-mono);
+      font-size: 17px;
+      color: var(--magenta-bliss);
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .party-sub {
+      font-size: 11.5px;
+      color: var(--cyan-glow);
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+  </style>
+  <!-- Three.js (r128) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <!-- WebGL 3D Canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- HUD Layer -->
+  <div id="hud">
+    <div class="hud-header">
+      <!-- Radar Mini-Map (Tap to open full blueprint) -->
+      <div id="btn-minimap" class="minimap-card" title="Open Manor Blueprint (M)">
+        <canvas id="minimap-canvas" width="144" height="144"></canvas>
+        <div class="minimap-scanline"></div>
+      </div>
+
+      <!-- Vitality Joy ECG -->
+      <div class="ecg-card">
+        <svg class="ecg-svg" viewBox="0 0 100 40">
+          <path class="ecg-line" d="M 0 20 L 25 20 L 35 5 L 45 35 L 55 10 L 65 25 L 75 20 L 100 20" />
+        </svg>
+        <div class="ecg-info">
+          <span class="ecg-title">VITALITY JOY</span>
+          <span id="joy-status-val" class="ecg-status">MAX BLISS 100%</span>
+        </div>
+      </div>
+
+      <!-- Center Room Badge & Active Objective -->
+      <div class="center-hud-group">
+        <div id="room-name-display" class="room-badge">❖ CHÂTEAU FOYER</div>
+        <div id="active-quest-pill" class="active-quest-pill">
+          <div class="quest-pulse-dot"></div>
+          <span id="active-obj-text">OBJECTIVE: Inspect Grand Piano</span>
+        </div>
+      </div>
+
+      <!-- Top Right Button Group -->
+      <div class="top-right-group">
+        <button id="btn-full-map" class="btn-hud-icon">
+          <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+            <line x1="8" y1="2" x2="8" y2="18"/>
+            <line x1="16" y1="6" x2="16" y2="22"/>
+          </svg>
+          MAP
+        </button>
+
+        <button id="btn-quest-log" class="btn-hud-icon">
+          <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+          </svg>
+          TASKS
+        </button>
+      </div>
+    </div>
+
+    <!-- WEAPON SWITCHER DOCK (4 Cute Weapons) -->
+    <div class="weapon-dock">
+      <!-- 1: Confetti Pistol -->
+      <div class="weapon-slot active" data-weapon="pistol" title="Mk-IV Confetti Pistol [1]">
+        <svg class="weapon-svg" viewBox="0 0 24 24">
+          <path d="M4 8h12v4H4zM16 8l4-4v6l-4 2zM6 12v6h3v-6z"/>
+        </svg>
+        <span>PISTOL</span>
+      </div>
+
+      <!-- 2: Bubble Shotgun -->
+      <div class="weapon-slot" data-weapon="shotgun" title="Pastry Bubble Shotgun [2]">
+        <svg class="weapon-svg" viewBox="0 0 24 24">
+          <circle cx="7" cy="12" r="4"/>
+          <circle cx="15" cy="8" r="3"/>
+          <circle cx="16" cy="15" r="3"/>
+        </svg>
+        <span>BUBBLE</span>
+      </div>
+
+      <!-- 3: Pastry Mortar Cannon -->
+      <div class="weapon-slot" data-weapon="mortar" title="Confectionery Mortar [3]">
+        <svg class="weapon-svg" viewBox="0 0 24 24">
+          <path d="M3 18h18l-4-10H7z"/>
+          <circle cx="12" cy="5" r="3"/>
+        </svg>
+        <span>MORTAR</span>
+      </div>
+
+      <!-- 4: Prismatic Joy Beam -->
+      <div class="weapon-slot" data-weapon="beam" title="Prismatic Joy Beam [4]">
+        <svg class="weapon-svg" viewBox="0 0 24 24">
+          <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="3"/>
+          <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>BEAM</span>
+      </div>
+    </div>
+
+    <!-- Center Reticle -->
+    <div id="reticle-layer">
+      <div class="reticle-ring">
+        <div class="reticle-dot"></div>
+      </div>
+    </div>
+
+    <!-- Contextual Prompt Box -->
+    <div id="prompt-box">
+      <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+        <text x="12" y="16" text-anchor="middle" font-size="12" font-weight="bold" fill="currentColor">E</text>
+      </svg>
+      <span id="prompt-text">INTERACT</span>
+    </div>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast-msg">SYSTEM READY</div>
+
+    <!-- Mobile Virtual Controls -->
+    <div class="controls-layer">
+      <!-- Left Joystick Zone -->
+      <div id="joystick-zone">
+        <div class="joystick-base">
+          <div id="joystick-stick" class="joystick-stick"></div>
+        </div>
+      </div>
+
+      <!-- Right Action Cluster -->
+      <div class="action-cluster">
+        <!-- Aim Button -->
+        <button id="btn-aim" class="btn-action">
+          <svg class="btn-svg" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+            <line x1="12" y1="2" x2="12" y2="6" stroke="currentColor" stroke-width="2"/>
+            <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="2"/>
+            <line x1="2" y1="12" x2="6" y2="12" stroke="currentColor" stroke-width="2"/>
+            <line x1="18" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          AIM
+        </button>
+
+        <!-- Inventory Button -->
+        <button id="btn-inventory" class="btn-action btn-gold">
+          <svg class="btn-svg" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="8" height="8" rx="1" fill="currentColor"/>
+            <rect x="13" y="3" width="8" height="8" rx="1" fill="currentColor"/>
+            <rect x="3" y="13" width="8" height="8" rx="1" fill="currentColor"/>
+            <rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor"/>
+          </svg>
+          ITEMS
+        </button>
+
+        <!-- Examine / Interact Button -->
+        <button id="btn-interact" class="btn-action btn-emerald">
+          <svg class="btn-svg" viewBox="0 0 24 24">
+            <path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13.5h-13L12 6.5z"/>
+          </svg>
+          EXAMINE
+        </button>
+
+        <!-- Weapon Next Cycle -->
+        <button id="btn-cycle-weapon" class="btn-action">
+          <svg class="btn-svg" viewBox="0 0 24 24">
+            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+          </svg>
+          GUN
+        </button>
+
+        <!-- Audio Toggle -->
+        <button id="btn-audio-toggle" class="btn-action">
+          <svg class="btn-svg" viewBox="0 0 24 24">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+          </svg>
+          AUDIO
+        </button>
+
+        <!-- Joy Fire Trigger -->
+        <button id="btn-fire" class="btn-action btn-fire">
+          <svg class="btn-svg" style="width:26px;height:26px;" viewBox="0 0 24 24">
+            <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
+          </svg>
+          JOY BLAST
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN TACTICAL MANOR MAP MODAL -->
+  <div id="map-modal" class="modal-overlay">
+    <div class="modal-header">
+      <div class="modal-title">❖ CHÂTEAU DE LA JOIE — ARCHITECTURAL BLUEPRINT ❖</div>
+      <button id="map-close-btn" class="modal-close-btn">[X] CLOSE (ESC)</button>
+    </div>
+
+    <div class="map-blueprint-container">
+      <svg id="estate-map-svg" viewBox="0 0 400 300">
+        <!-- Grid pattern -->
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(34, 211, 238, 0.1)" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- West Wing: Solarium Garden -->
+        <g id="map-room-garden" class="map-room-node">
+          <rect x="25" y="75" width="100" height="150" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#10b981" stroke-width="2"/>
+          <text x="75" y="145" fill="#10b981" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">WEST WING</text>
+          <text x="75" y="160" fill="#94a3b8" font-family="monospace" font-size="8" text-anchor="middle">SOLARIUM GARDEN</text>
+          <!-- 4 Lantern pins -->
+          <circle cx="75" cy="100" r="3" fill="#ec4899"/>
+          <circle cx="75" cy="200" r="3" fill="#ec4899"/>
+          <circle cx="45" cy="150" r="3" fill="#ec4899"/>
+          <circle cx="105" cy="150" r="3" fill="#ec4899"/>
+        </g>
+
+        <!-- West Door Connector -->
+        <rect id="map-door-garden" x="125" y="140" width="25" height="20" fill="#f43f5e"/>
+        <text id="map-door-garden-txt" x="137" y="154" fill="#fff" font-family="monospace" font-size="8" font-weight="bold" text-anchor="middle">LOCK</text>
+
+        <!-- Center: Château Foyer -->
+        <g id="map-room-foyer" class="map-room-node">
+          <rect x="150" y="50" width="100" height="200" rx="6" fill="rgba(30, 27, 75, 0.5)" stroke="#22d3ee" stroke-width="2.5"/>
+          <text x="200" y="140" fill="#22d3ee" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">MAIN FOYER</text>
+          <text x="200" y="155" fill="#94a3b8" font-family="monospace" font-size="8" text-anchor="middle">GRAND STAIRCASE</text>
+          <!-- Gramophone Save Icon -->
+          <circle cx="175" cy="80" r="5" fill="#f59e0b"/>
+          <text x="175" y="83" fill="#000" font-family="monospace" font-size="7" font-weight="bold" text-anchor="middle">S</text>
+          <!-- Piano Icon -->
+          <rect x="220" y="90" width="14" height="10" rx="2" fill="#09090b" stroke="#f59e0b"/>
+        </g>
+
+        <!-- East Door Connector -->
+        <rect id="map-door-library" x="250" y="140" width="25" height="20" fill="#f43f5e"/>
+        <text id="map-door-library-txt" x="262" y="154" fill="#fff" font-family="monospace" font-size="8" font-weight="bold" text-anchor="middle">LOCK</text>
+
+        <!-- East Wing: Library of Joy -->
+        <g id="map-room-library" class="map-room-node">
+          <rect x="275" y="75" width="100" height="150" rx="6" fill="rgba(69, 26, 3, 0.4)" stroke="#f59e0b" stroke-width="2"/>
+          <text x="325" y="145" fill="#f59e0b" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">EAST WING</text>
+          <text x="325" y="160" fill="#94a3b8" font-family="monospace" font-size="8" text-anchor="middle">LIBRARY & CAULDRON</text>
+          <!-- Cauldron pin -->
+          <circle cx="325" cy="100" r="5" fill="#ec4899"/>
+        </g>
+
+        <!-- Player Location Marker Pin -->
+        <g id="map-player-pin" transform="translate(200, 180)">
+          <circle cx="0" cy="0" r="7" fill="#22d3ee" stroke="#fff" stroke-width="2"/>
+          <polygon points="0,-12 4,-4 -4,-4" fill="#22d3ee"/>
+        </g>
+      </svg>
+
+      <div style="display:flex; justify-content:space-around; width:100%; max-width:480px; font-family:var(--font-mono); font-size:10px; color:var(--text-dim);">
+        <div><span style="color:#f59e0b;">[S]</span> Gold Gramophone (Save)</div>
+        <div><span style="color:#ec4899;">[◈]</span> Alchemical Cauldron / Lanterns</div>
+        <div><span style="color:#22d3ee;">[▶]</span> S.M.I.L.E. Agent</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVENTORY MODAL -->
+  <div id="inventory-modal" class="modal-overlay">
+    <div class="modal-header">
+      <div class="modal-title">◈ S.M.I.L.E. AGENT INVENTORY (8 SLOTS) ◈</div>
+      <button id="inv-close-btn" class="modal-close-btn">[X] CLOSE (ESC)</button>
+    </div>
+
+    <div class="inv-body">
+      <div class="inv-grid-container" style="flex:1;">
+        <div class="inv-grid" id="inv-grid-slots"></div>
+        <div style="font-family:var(--font-mono); font-size:9.5px; color:var(--text-dim); margin-top:6px;">
+          ❖ Combine Sparkle Herb + Sweet Powder to create Mega Bliss Cupcakes!
+        </div>
+      </div>
+
+      <div class="inv-details">
+        <div>
+          <div id="item-detail-name" class="item-preview-header">SELECT AN ITEM</div>
+          <div id="item-detail-desc" class="item-preview-desc">Inspect your collected treats, keys, and happiness enhancers.</div>
+        </div>
+
+        <div class="inv-actions">
+          <button id="btn-inv-use" class="btn-inv-act">❖ USE</button>
+          <button id="btn-inv-combine" class="btn-inv-act gold">◈ COMBINE</button>
+          <button id="btn-inv-drop" class="btn-inv-act">✖ DISCARD</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUEST & TASK LOG MODAL -->
+  <div id="quest-modal" class="modal-overlay">
+    <div class="modal-header">
+      <div class="modal-title">★ CHÂTEAU MISSION & QUEST LOG ★</div>
+      <button id="quest-close-btn" class="modal-close-btn">[X] CLOSE (ESC)</button>
+    </div>
+
+    <div class="quest-list" id="quest-list-container"></div>
+  </div>
+
+  <!-- PIANO MELODY PUZZLE MODAL -->
+  <div id="piano-modal">
+    <div class="piano-title">❖ GRAND PIANO: PLAY THE HAPPINESS TRIAD ❖</div>
+    <div style="font-family:var(--font-mono);font-size:9.5px;color:var(--text-dim);">Sequence: [C] ➔ [E] ➔ [G]</div>
+    <div class="piano-keys">
+      <div class="piano-key" data-note="C">C</div>
+      <div class="piano-key" data-note="D">D</div>
+      <div class="piano-key" data-note="E">E</div>
+      <div class="piano-key" data-note="F">F</div>
+      <div class="piano-key" data-note="G">G</div>
+      <div class="piano-key" data-note="A">A</div>
+    </div>
+    <button id="piano-close-btn" class="modal-close-btn" style="margin-top:4px;">CANCEL</button>
+  </div>
+
+  <!-- Door Transition Curtain -->
+  <div id="door-curtain">
+    <svg class="door-svg" viewBox="0 0 100 140">
+      <rect x="10" y="10" width="80" height="120" rx="4" />
+      <circle cx="25" cy="70" r="6" />
+      <line x1="50" y1="10" x2="50" y2="130" stroke="currentColor" stroke-dasharray="4 4" />
+    </svg>
+    <div class="door-text">TRAVERSING CHÂTEAU CHAMBER...</div>
+  </div>
+
+  <!-- Victory Banner -->
+  <div id="party-banner">
+    <div class="party-title">★ ALL QUESTS ACCOMPLISHED! ★</div>
+    <div class="party-sub">The Gloom has vanished! The Château de la Joie is illuminated in eternal confetti bliss!</div>
+    <button id="btn-restart-party" class="modal-close-btn" style="border-color:var(--magenta-bliss);color:var(--magenta-bliss);">CONTINUE CELEBRATING</button>
+  </div>
+
+  <!-- GAME LOGIC SCRIPT -->
+  <script>
+  (function() {
+    'use strict';
+
+    // -------------------------------------------------------------
+    // PROCEDURAL AUDIO ENGINE
+    // -------------------------------------------------------------
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.beamOsc = null;
+        this.beamGain = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playPistol() {
+        if (this.muted) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(520, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1040, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+      }
+
+      playBubbleShot() {
+        if (this.muted) return;
+        this.init();
+        for (let i = 0; i < 4; i++) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(300 + i * 150, this.ctx.currentTime + i * 0.02);
+          osc.frequency.exponentialRampToValueAtTime(800 + i * 100, this.ctx.currentTime + i * 0.02 + 0.15);
+          gain.gain.setValueAtTime(0.15, this.ctx.currentTime + i * 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.02 + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + i * 0.02);
+          osc.stop(this.ctx.currentTime + i * 0.02 + 0.18);
+        }
+      }
+
+      playMortarFire() {
+        if (this.muted) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.35);
+        gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.4);
+      }
+
+      playExplosion() {
+        if (this.muted) return;
+        this.init();
+        // Joyful fireworks chord
+        const freqs = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+        freqs.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime + i * 0.02);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime + i * 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.02 + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + i * 0.02);
+          osc.stop(this.ctx.currentTime + i * 0.02 + 0.6);
+        });
+      }
+
+      startBeamSound() {
+        if (this.muted || this.beamOsc) return;
+        this.init();
+        this.beamOsc = this.ctx.createOscillator();
+        this.beamGain = this.ctx.createGain();
+        this.beamOsc.type = 'sawtooth';
+        this.beamOsc.frequency.setValueAtTime(440, this.ctx.currentTime);
+        this.beamGain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+        this.beamOsc.connect(this.beamGain);
+        this.beamGain.connect(this.ctx.destination);
+        this.beamOsc.start();
+      }
+
+      stopBeamSound() {
+        if (this.beamOsc) {
+          try {
+            this.beamGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
+            this.beamOsc.stop(this.ctx.currentTime + 0.05);
+          } catch(e) {}
+          this.beamOsc = null;
+          this.beamGain = null;
+        }
+      }
+
+      playPop() {
+        if (this.muted) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+      }
+
+      playCheer() {
+        if (this.muted) return;
+        this.init();
+        const chord = [440, 554.37, 659.25, 880, 1108.73];
+        chord.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+          gain.gain.setValueAtTime(0.25, this.ctx.currentTime + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.08 + 0.45);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + idx * 0.08);
+          osc.stop(this.ctx.currentTime + idx * 0.08 + 0.45);
+        });
+      }
+
+      playPianoNote(freq) {
+        if (this.muted) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.8);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.8);
+      }
+
+      playDoorChime() {
+        if (this.muted) return;
+        this.init();
+        const freqs = [392.00, 523.25, 659.25];
+        freqs.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime + i * 0.14);
+          gain.gain.setValueAtTime(0.25, this.ctx.currentTime + i * 0.14);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.14 + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + i * 0.14);
+          osc.stop(this.ctx.currentTime + i * 0.14 + 0.6);
+        });
+      }
+
+      playGramophone() {
+        if (this.muted) return;
+        this.init();
+        const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50, 1318.51];
+        notes.forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, this.ctx.currentTime + i * 0.12);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime + i * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.12 + 0.5);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(this.ctx.currentTime + i * 0.12);
+          osc.stop(this.ctx.currentTime + i * 0.12 + 0.5);
+        });
+      }
+
+      playLanternIgnite() {
+        if (this.muted) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.35);
+      }
+    }
+
+    const audio = new SoundEngine();
+
+    // -------------------------------------------------------------
+    // GAME STATE, ITEMS & QUESTS
+    // -------------------------------------------------------------
+    const ITEMS_DB = {
+      herb_green: {
+        id: 'herb_green',
+        name: 'SPARKLE HERB (GREEN)',
+        desc: 'A vibrant peppermint herb emitting emerald sparkles. Restores 35% Joy Vitality.',
+        type: 'consumable',
+        icon: '<circle cx="12" cy="12" r="8" fill="#10b981"/><path d="M12 4v16M4 12h16" stroke="#05070a" stroke-width="2"/>'
+      },
+      powder_red: {
+        id: 'powder_red',
+        name: 'SWEET POWDER (RED)',
+        desc: 'Concentrated strawberry sugar. Combine with Sparkle Herb to create a Mega Bliss Cupcake!',
+        type: 'material',
+        icon: '<polygon points="12 2 22 22 2 22" fill="#ec4899"/><circle cx="12" cy="15" r="3" fill="#fff"/>'
+      },
+      bliss_cupcake: {
+        id: 'bliss_cupcake',
+        name: 'MEGA BLISS CUPCAKE',
+        desc: 'Masterwork confection. Place into the Library Cauldron or consume for 100% Joy!',
+        type: 'consumable',
+        icon: '<path d="M4 14h16l-2 8H6z" fill="#f59e0b"/><circle cx="12" cy="10" r="6" fill="#ec4899"/><circle cx="12" cy="5" r="2" fill="#22d3ee"/>'
+      },
+      key_foyer: {
+        id: 'key_foyer',
+        name: 'SILVER FOYER KEY',
+        desc: 'Engraved with a smiling sun emblem. Unlocks the East Wing Library.',
+        type: 'key',
+        icon: '<circle cx="8" cy="8" r="5" fill="none" stroke="#22d3ee" stroke-width="2"/><path d="M12 12l8 8M16 16l2-2M18 18l2-2" stroke="#22d3ee" stroke-width="2"/>'
+      },
+      ribbon_gold: {
+        id: 'ribbon_gold',
+        name: 'GOLDEN SPARKLE RIBBON',
+        desc: 'Shimmering silk ribbon. Combine with Silver Foyer Key to craft the Master Ballroom Key!',
+        type: 'material',
+        icon: '<path d="M12 2l4 8-4 4-4-4zM6 14l6 8 6-8" stroke="#f59e0b" stroke-width="2" fill="none"/>'
+      },
+      key_master: {
+        id: 'key_master',
+        name: 'MASTER BALLROOM KEY',
+        desc: 'Gilded with royal confectionery gold. Unlocks the West Wing Solarium Garden!',
+        type: 'key',
+        icon: '<circle cx="8" cy="8" r="5" fill="#f59e0b"/><path d="M12 12l9 9M17 15l2 2M19 17l2 2" stroke="#f59e0b" stroke-width="2.5"/>'
+      },
+      tome_scroll: {
+        id: 'tome_scroll',
+        name: 'SCROLL OF JOY HARMONY',
+        desc: 'Ancient alchemical recipe scroll found on the Library Lectern.',
+        type: 'quest_item',
+        icon: '<rect x="4" y="4" width="16" height="16" rx="2" fill="#a855f7"/><line x1="8" y1="8" x2="16" y2="8" stroke="#fff"/><line x1="8" y1="12" x2="16" y2="12" stroke="#fff"/>'
+      }
+    };
+
+    const QUESTS = [
+      {
+        id: 'quest_piano',
+        name: 'QUEST 1: THE FOYER SONATINA',
+        desc: 'Play the harmonic triad [C-E-G] on the Grand Concert Piano to reveal the hidden Library Key.',
+        status: 'active',
+        tasks: [
+          { id: 't_inspect_piano', text: 'Approach and inspect the Grand Piano in the Foyer', done: false },
+          { id: 't_play_chords', text: 'Play the 3-Note Triad [C - E - G]', done: false },
+          { id: 't_take_key', text: 'Collect the Silver Foyer Key from the piano drawer', done: false }
+        ]
+      },
+      {
+        id: 'quest_cauldron',
+        name: 'QUEST 2: ALCHEMICAL BLISS BREW',
+        desc: 'Brew a Mega Bliss Cupcake in your inventory, then deposit it into the East Wing Cauldron.',
+        status: 'active',
+        tasks: [
+          { id: 't_unlock_lib', text: 'Unlock and enter the East Wing Library', done: false },
+          { id: 't_craft_cake', text: 'Combine Green Sparkle Herb + Red Sweet Powder', done: false },
+          { id: 't_offer_cauldron', text: 'Place Mega Bliss Cupcake into the Golden Cauldron', done: false }
+        ]
+      },
+      {
+        id: 'quest_lanterns',
+        name: 'QUEST 3: SOLARIUM HEART LANTERNS',
+        desc: 'Unlock the Solarium Garden with the Master Ballroom Key and ignite all 4 Heart Lanterns.',
+        status: 'active',
+        tasks: [
+          { id: 't_craft_master_key', text: 'Craft Master Key (Combine Foyer Key + Gold Ribbon)', done: false },
+          { id: 't_unlock_garden', text: 'Unlock and enter the West Wing Solarium Garden', done: false },
+          { id: 't_light_lanterns', text: 'Ignite all 4 Heart Lanterns around the fountain (0/4)', done: false, count: 0, max: 4 }
+        ]
+      },
+      {
+        id: 'quest_uplift',
+        name: 'QUEST 4: CHÂTEAU JOY BRIGADE',
+        desc: 'Blast and uplift all Gloomy Grumps across all rooms into dancing celebration buddies.',
+        status: 'active',
+        tasks: [
+          { id: 't_uplift_grumps', text: 'Uplift all 5 Gloomy Grump plushies (0/5)', done: false, count: 0, max: 5 },
+          { id: 't_save_gramo', text: 'Save your grand progress at the Golden Gramophone', done: false }
+        ]
+      }
+    ];
+
+    const gameState = {
+      joy: 100,
+      room: 'foyer',
+      unlockedDoors: { library: false, garden: false },
+      currentWeapon: 'pistol', // 'pistol', 'shotgun', 'mortar', 'beam'
+      inventory: [
+        { id: 'herb_green', qty: 2 },
+        { id: 'powder_red', qty: 1 },
+        { id: 'ribbon_gold', qty: 1 },
+        null, null, null, null, null
+      ],
+      selectedSlot: null,
+      combineSourceSlot: null,
+      pianoSequence: [],
+      pianoSolved: false,
+      cauldronFed: false,
+      litLanterns: [false, false, false, false],
+      grumpsUpliftedCount: 0,
+      totalGrumps: 5,
+      cameraShake: 0
+    };
+
+    // -------------------------------------------------------------
+    // THREE.JS SCENE SETUP
+    // -------------------------------------------------------------
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x05070a);
+    scene.fog = new THREE.FogExp2(0x05070a, 0.022);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    // Dynamic Lighting
+    const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.38);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xffedd5, 0.85);
+    sunLight.position.set(15, 30, 15);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
+    scene.add(sunLight);
+
+    const chandelierLight = new THREE.PointLight(0xf59e0b, 1.4, 30);
+    chandelierLight.position.set(0, 7.5, 0);
+    scene.add(chandelierLight);
+
+    // Dynamic Weapon Muzzle Flash Light
+    const muzzleLight = new THREE.PointLight(0xf59e0b, 0, 15);
+    scene.add(muzzleLight);
+
+    // Room Containers
+    const rooms = {
+      foyer: new THREE.Group(),
+      library: new THREE.Group(),
+      garden: new THREE.Group()
+    };
+    scene.add(rooms.foyer);
+    scene.add(rooms.library);
+    scene.add(rooms.garden);
+
+    // Confetti / Sparkle Particles
+    const particles = [];
+    const particleGeo = new THREE.PlaneGeometry(0.16, 0.16);
+    const confettiColors = [0x22d3ee, 0xf59e0b, 0x10b981, 0xec4899, 0xa855f7, 0xffffff];
+
+    function spawnConfetti(pos, count = 25) {
+      for (let i = 0; i < count; i++) {
+        const mat = new THREE.MeshBasicMaterial({
+          color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+          side: THREE.DoubleSide
+        });
+        const p = new THREE.Mesh(particleGeo, mat);
+        p.position.copy(pos);
+        p.position.x += (Math.random() - 0.5) * 0.4;
+        p.position.y += (Math.random() - 0.5) * 0.4 + 0.5;
+        p.position.z += (Math.random() - 0.5) * 0.4;
+
+        const vel = new THREE.Vector3(
+          (Math.random() - 0.5) * 6,
+          Math.random() * 5 + 3.5,
+          (Math.random() - 0.5) * 6
+        );
+        const rotVel = new THREE.Vector3(
+          Math.random() * 8,
+          Math.random() * 8,
+          Math.random() * 8
+        );
+        particles.push({ mesh: p, vel, rotVel, life: 1.6 });
+        scene.add(p);
+      }
+    }
+
+    // Helper: Floor
+    function createChamberFloor(w, d, color1 = 0x090d16, color2 = 0x131d31) {
+      const group = new THREE.Group();
+      const tileSize = 2;
+      const nx = Math.ceil(w / tileSize);
+      const nz = Math.ceil(d / tileSize);
+      const geo = new THREE.BoxGeometry(tileSize, 0.2, tileSize);
+      const mat1 = new THREE.MeshStandardMaterial({ color: color1, roughness: 0.3, metalness: 0.1 });
+      const mat2 = new THREE.MeshStandardMaterial({ color: color2, roughness: 0.3, metalness: 0.2 });
+
+      for (let x = -nx/2; x < nx/2; x++) {
+        for (let z = -nz/2; z < nz/2; z++) {
+          const mat = (Math.abs(x + z) % 2 === 0) ? mat1 : mat2;
+          const tile = new THREE.Mesh(geo, mat);
+          tile.position.set(x * tileSize + tileSize/2, -0.1, z * tileSize + tileSize/2);
+          tile.receiveShadow = true;
+          group.add(tile);
+        }
+      }
+      return group;
+    }
+
+    // -------------------------------------------------------------
+    // BUILD ROOMS & 3D ASSETS
+    // -------------------------------------------------------------
+
+    // --- 1. GRAND FOYER ---
+    let grandPianoMesh = null;
+
+    (function buildFoyer() {
+      const g = rooms.foyer;
+      g.add(createChamberFloor(28, 28, 0x090d16, 0x131d31));
+
+      const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.7 });
+      const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.7, roughness: 0.25 });
+      const velvetMat = new THREE.MeshStandardMaterial({ color: 0x831843, roughness: 0.8 });
+
+      // Walls
+      const backWall = new THREE.Mesh(new THREE.BoxGeometry(28, 9, 0.6), wallMat);
+      backWall.position.set(0, 4.5, -14);
+      g.add(backWall);
+
+      const frontWall = new THREE.Mesh(new THREE.BoxGeometry(28, 9, 0.6), wallMat);
+      frontWall.position.set(0, 4.5, 14);
+      g.add(frontWall);
+
+      const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.6, 9, 28), wallMat);
+      leftWall.position.set(-14, 4.5, 0);
+      g.add(leftWall);
+
+      const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.6, 9, 28), wallMat);
+      rightWall.position.set(14, 4.5, 0);
+      g.add(rightWall);
+
+      // Gold Pillars
+      for (let x of [-8, 8]) {
+        for (let z of [-8, 8]) {
+          const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.55, 9, 16), goldTrimMat);
+          pillar.position.set(x, 4.5, z);
+          pillar.castShadow = true;
+          g.add(pillar);
+        }
+      }
+
+      // Grand Staircase
+      const stairGroup = new THREE.Group();
+      for (let i = 0; i < 9; i++) {
+        const step = new THREE.Mesh(new THREE.BoxGeometry(8.5, 0.35, 0.8), goldTrimMat);
+        step.position.set(0, i * 0.35, -9.5 - i * 0.4);
+        step.receiveShadow = true;
+        stairGroup.add(step);
+
+        const runner = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.37, 0.82), velvetMat);
+        runner.position.set(0, i * 0.35, -9.5 - i * 0.4);
+        stairGroup.add(runner);
+      }
+      g.add(stairGroup);
+
+      // Grand Concert Piano
+      const pianoGroup = new THREE.Group();
+      pianoGroup.name = 'grand_piano';
+      const pianoBodyMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.15, metalness: 0.3 });
+
+      const mainBox = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.8, 3.2), pianoBodyMat);
+      mainBox.position.set(0, 1.4, 0);
+      pianoGroup.add(mainBox);
+
+      const wing = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.8, 16, 1, false, 0, Math.PI), pianoBodyMat);
+      wing.position.set(-0.6, 1.4, -0.6);
+      wing.rotation.y = Math.PI / 2;
+      pianoGroup.add(wing);
+
+      for (let pos of [[-0.9, 0.6, 1.2], [0.9, 0.6, 1.2], [0, 0.6, -1.2]]) {
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 1.2, 12), goldTrimMat);
+        leg.position.set(pos[0], pos[1], pos[2]);
+        pianoGroup.add(leg);
+      }
+
+      const keybed = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.15, 0.6), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+      keybed.position.set(0, 1.4, 1.6);
+      pianoGroup.add(keybed);
+
+      const blackKeys = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.22, 0.35), new THREE.MeshStandardMaterial({ color: 0x18181b }));
+      blackKeys.position.set(0, 1.45, 1.45);
+      pianoGroup.add(blackKeys);
+
+      const sheet = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.6), new THREE.MeshBasicMaterial({ color: 0x22d3ee, side: THREE.DoubleSide }));
+      sheet.position.set(0, 2.1, 1.3);
+      sheet.rotation.x = -0.3;
+      pianoGroup.add(sheet);
+
+      pianoGroup.position.set(6.5, 0, -4);
+      pianoGroup.rotation.y = -Math.PI / 4;
+      g.add(pianoGroup);
+      grandPianoMesh = pianoGroup;
+
+      // Golden Gramophone
+      const gramophone = new THREE.Group();
+      gramophone.name = 'gramophone_save';
+      const table = new THREE.Mesh(new THREE.CylinderGeometry(1, 1.1, 1.2, 16), goldTrimMat);
+      table.position.y = 0.6;
+      gramophone.add(table);
+
+      const horn = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.3, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85, side: THREE.DoubleSide }));
+      horn.rotation.x = Math.PI / 4;
+      horn.position.set(0, 1.85, 0.3);
+      gramophone.add(horn);
+
+      const record = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.05, 16), new THREE.MeshBasicMaterial({ color: 0x09090b }));
+      record.position.set(0, 1.25, 0);
+      gramophone.add(record);
+
+      gramophone.position.set(-8.5, 0, -8.5);
+      g.add(gramophone);
+
+      // Doors
+      const doorEast = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.2, 2.6), new THREE.MeshStandardMaterial({ color: 0xec4899, metalness: 0.4 }));
+      doorEast.position.set(13.8, 2.1, 0);
+      doorEast.name = 'door_library';
+      g.add(doorEast);
+
+      const doorWest = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.2, 2.6), new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.4 }));
+      doorWest.position.set(-13.8, 2.1, 0);
+      doorWest.name = 'door_garden';
+      g.add(doorWest);
+    })();
+
+    // --- 2. EAST WING: LIBRARY ---
+    let cauldronMesh = null;
+
+    (function buildLibrary() {
+      const g = rooms.library;
+      g.position.set(45, 0, 0);
+      g.add(createChamberFloor(24, 24, 0x1c1917, 0x292524));
+
+      const bookMat = new THREE.MeshStandardMaterial({ color: 0x7c2d12, roughness: 0.8 });
+      const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.7 });
+
+      for (let z = -8; z <= 8; z += 4) {
+        const shelfL = new THREE.Mesh(new THREE.BoxGeometry(1.0, 7.5, 3.4), bookMat);
+        shelfL.position.set(-10.5, 3.75, z);
+        g.add(shelfL);
+
+        const shelfR = new THREE.Mesh(new THREE.BoxGeometry(1.0, 7.5, 3.4), bookMat);
+        shelfR.position.set(10.5, 3.75, z);
+        g.add(shelfR);
+      }
+
+      // Golden Cauldron
+      const cauldronGroup = new THREE.Group();
+      cauldronGroup.name = 'golden_cauldron';
+
+      const stoneHearth = new THREE.Mesh(new THREE.CylinderGeometry(2, 2.2, 0.4, 16), new THREE.MeshStandardMaterial({ color: 0x44403c }));
+      stoneHearth.position.y = 0.2;
+      cauldronGroup.add(stoneHearth);
+
+      const pot = new THREE.Mesh(new THREE.SphereGeometry(1.2, 16, 16, 0, Math.PI * 2, 0, Math.PI * 0.75), goldTrimMat);
+      pot.position.y = 1.2;
+      pot.rotation.x = Math.PI;
+      cauldronGroup.add(pot);
+
+      const liquid = new THREE.Mesh(new THREE.CircleGeometry(1.0, 16), new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xec4899, emissiveIntensity: 0.6 }));
+      liquid.rotation.x = -Math.PI / 2;
+      liquid.position.y = 1.4;
+      cauldronGroup.add(liquid);
+
+      cauldronGroup.position.set(0, 0, -6);
+      g.add(cauldronGroup);
+      cauldronMesh = cauldronGroup;
+
+      // Study Desk
+      const desk = new THREE.Mesh(new THREE.BoxGeometry(4.5, 1.2, 2.5), new THREE.MeshStandardMaterial({ color: 0x451a03 }));
+      desk.position.set(0, 0.6, 3);
+      g.add(desk);
+
+      // Return Door
+      const doorFoyer = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.2, 2.6), new THREE.MeshStandardMaterial({ color: 0x22d3ee }));
+      doorFoyer.position.set(-11.8, 2.1, 0);
+      doorFoyer.name = 'door_foyer_from_lib';
+      g.add(doorFoyer);
+    })();
+
+    // --- 3. WEST WING: SOLARIUM GARDEN ---
+    const lanternMeshes = [];
+
+    (function buildGarden() {
+      const g = rooms.garden;
+      g.position.set(-45, 0, 0);
+      g.add(createChamberFloor(26, 26, 0x064e3b, 0x047857));
+
+      const glassMat = new THREE.MeshStandardMaterial({ color: 0x6ee7b7, roughness: 0.1, transparent: true, opacity: 0.35 });
+      for (let x = -10; x <= 10; x += 5) {
+        for (let z = -10; z <= 10; z += 5) {
+          const col = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.3, 8, 12), glassMat);
+          col.position.set(x, 4, z);
+          g.add(col);
+        }
+      }
+
+      // Fountain
+      const fountainBase = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.5, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x22d3ee, roughness: 0.2 }));
+      fountainBase.position.set(0, 0.4, 0);
+      g.add(fountainBase);
+
+      const fountainSpire = new THREE.Mesh(new THREE.ConeGeometry(1.6, 2.5, 16), new THREE.MeshStandardMaterial({ color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 0.4 }));
+      fountainSpire.position.set(0, 2.2, 0);
+      g.add(fountainSpire);
+
+      // 4 Heart Lanterns
+      const lanternPositions = [
+        [0, 0, -6],
+        [0, 0, 6],
+        [-6, 0, 0],
+        [6, 0, 0]
+      ];
+
+      lanternPositions.forEach((pos, idx) => {
+        const lGroup = new THREE.Group();
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 2.2, 12), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8 }));
+        post.position.y = 1.1;
+        lGroup.add(post);
+
+        const flameMesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.35), new THREE.MeshBasicMaterial({ color: 0x475569 }));
+        flameMesh.position.y = 2.4;
+        lGroup.add(flameMesh);
+
+        lGroup.position.set(pos[0], pos[1], pos[2]);
+        g.add(lGroup);
+        lanternMeshes.push({ group: lGroup, flame: flameMesh, lit: false, index: idx });
+      });
+
+      const doorFoyer2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.2, 2.6), new THREE.MeshStandardMaterial({ color: 0x22d3ee }));
+      doorFoyer2.position.set(12.8, 2.1, 0);
+      doorFoyer2.name = 'door_foyer_from_garden';
+      g.add(doorFoyer2);
+    })();
+
+    // -------------------------------------------------------------
+    // DYNAMIC ENVIRONMENTAL DESTRUCTIBLES (Balloons & Gift Boxes)
+    // -------------------------------------------------------------
+    const destructibles = [];
+
+    function spawnBalloon(pos, roomName, colorHex = 0xec4899) {
+      const bGroup = new THREE.Group();
+      bGroup.position.copy(pos);
+      bGroup.userData = { type: 'balloon', roomName, hp: 1 };
+
+      const bMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.55, 16, 16),
+        new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.2, metalness: 0.1 })
+      );
+      bMesh.position.y = 2.2;
+      bGroup.add(bMesh);
+
+      const knot = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.15, 8), new THREE.MeshBasicMaterial({ color: colorHex }));
+      knot.position.y = 1.6;
+      bGroup.add(knot);
+
+      const string = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1.6, 0)]),
+        new THREE.LineBasicMaterial({ color: 0x94a3b8 })
+      );
+      bGroup.add(string);
+
+      rooms[roomName].add(bGroup);
+      destructibles.push(bGroup);
+      return bGroup;
+    }
+
+    function spawnGiftBox(pos, roomName) {
+      const gGroup = new THREE.Group();
+      gGroup.position.copy(pos);
+      gGroup.userData = { type: 'giftbox', roomName, hp: 1 };
+
+      const box = new THREE.Mesh(
+        new THREE.BoxGeometry(0.9, 0.9, 0.9),
+        new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.4 })
+      );
+      box.position.y = 0.45;
+      gGroup.add(box);
+
+      const ribbon = new THREE.Mesh(
+        new THREE.BoxGeometry(0.95, 0.95, 0.2),
+        new THREE.MeshStandardMaterial({ color: 0xec4899 })
+      );
+      ribbon.position.y = 0.45;
+      gGroup.add(ribbon);
+
+      rooms[roomName].add(gGroup);
+      destructibles.push(gGroup);
+      return gGroup;
+    }
+
+    // Spawn Destructibles across rooms
+    spawnBalloon(new THREE.Vector3(7, 0, 7), 'foyer', 0xec4899);
+    spawnBalloon(new THREE.Vector3(-7, 0, 7), 'foyer', 0x22d3ee);
+    spawnGiftBox(new THREE.Vector3(5, 0, -8), 'foyer');
+    spawnBalloon(new THREE.Vector3(-5, 0, 5), 'library', 0xa855f7);
+    spawnGiftBox(new THREE.Vector3(4, 0, -4), 'library');
+    spawnBalloon(new THREE.Vector3(6, 0, 6), 'garden', 0x10b981);
+    spawnGiftBox(new THREE.Vector3(-6, 0, -6), 'garden');
+
+    // -------------------------------------------------------------
+    // 3D COLLECTIBLE ITEMS
+    // -------------------------------------------------------------
+    const groundItems = [];
+
+    function spawnGroundItem(itemId, pos, roomName) {
+      const group = new THREE.Group();
+      group.position.copy(pos);
+      group.userData = { itemId, roomName };
+
+      const halo = new THREE.Mesh(
+        new THREE.TorusGeometry(0.45, 0.04, 8, 24),
+        new THREE.MeshBasicMaterial({ color: 0x22d3ee, wireframe: true })
+      );
+      halo.rotation.x = Math.PI / 2;
+      group.add(halo);
+
+      const core = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.32),
+        new THREE.MeshStandardMaterial({
+          color: (itemId.includes('herb') ? 0x10b981 : (itemId.includes('key') ? 0xf59e0b : 0xec4899)),
+          emissive: 0x22d3ee,
+          emissiveIntensity: 0.4
+        })
+      );
+      core.position.y = 0.4;
+      group.add(core);
+
+      rooms[roomName].add(group);
+      groundItems.push(group);
+      return group;
+    }
+
+    spawnGroundItem('herb_green', new THREE.Vector3(7, 0.2, 6), 'foyer');
+    spawnGroundItem('powder_red', new THREE.Vector3(-7, 0.2, 6), 'foyer');
+    spawnGroundItem('tome_scroll', new THREE.Vector3(0, 1.4, 3), 'library');
+    spawnGroundItem('herb_green', new THREE.Vector3(5, 0.2, -6), 'garden');
+
+    // -------------------------------------------------------------
+    // 3D CHARACTER CONTROLLER ("Agent Joy")
+    // -------------------------------------------------------------
+    const player = {
+      group: new THREE.Group(),
+      position: new THREE.Vector3(0, 0, 8),
+      rotation: 0,
+      isAiming: false,
+      speed: 7.2,
+      meshBody: null,
+      meshGun: null,
+      laserGuide: null,
+      beamMesh: null
+    };
+
+    (function buildPlayerCharacter() {
+      const bodyMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 });
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.45, 1.4, 16), bodyMat);
+      body.position.y = 0.7;
+      body.castShadow = true;
+      player.group.add(body);
+      player.meshBody = body;
+
+      const headMat = new THREE.MeshStandardMaterial({ color: 0xffedd5 });
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.32, 16, 16), headMat);
+      head.position.y = 1.6;
+      player.group.add(head);
+
+      const beretMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee });
+      const beret = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.15, 16), beretMat);
+      beret.position.set(0, 1.85, -0.05);
+      beret.rotation.z = 0.15;
+      player.group.add(beret);
+
+      // Weapon model
+      const gunMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8 });
+      const gun = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.25, 0.7), gunMat);
+      gun.position.set(0.45, 1.1, 0.4);
+      player.group.add(gun);
+      player.meshGun = gun;
+
+      // Laser guide line
+      const laserGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(0, 0, 12)
+      ]);
+      const laserMat = new THREE.LineBasicMaterial({ color: 0xec4899, transparent: true, opacity: 0.8 });
+      player.laserGuide = new THREE.Line(laserGeo, laserMat);
+      player.laserGuide.position.set(0.45, 1.1, 0.7);
+      player.laserGuide.visible = false;
+      player.group.add(player.laserGuide);
+
+      // Prismatic Joy Beam Continuous Mesh
+      const beamGeo = new THREE.CylinderGeometry(0.08, 0.15, 12, 12);
+      beamGeo.rotateX(Math.PI / 2);
+      beamGeo.translate(0, 0, 6);
+      const beamMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.75 });
+      player.beamMesh = new THREE.Mesh(beamGeo, beamMat);
+      player.beamMesh.position.set(0.45, 1.1, 0.7);
+      player.beamMesh.visible = false;
+      player.group.add(player.beamMesh);
+
+      player.group.position.copy(player.position);
+      scene.add(player.group);
+    })();
+
+    // -------------------------------------------------------------
+    // 3D ENEMY GRUMP VARIANTS
+    // -------------------------------------------------------------
+    const grumps = [];
+
+    function createGrump(pos, roomName, type = 'bear') {
+      const gGroup = new THREE.Group();
+      gGroup.position.copy(pos);
+
+      let furMat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.8 });
+      let bodyMesh;
+
+      if (type === 'bear') {
+        bodyMesh = new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 16), furMat);
+        bodyMesh.position.y = 0.65;
+        gGroup.add(bodyMesh);
+
+        const ear1 = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 12), furMat);
+        ear1.position.set(0.45, 1.2, 0);
+        gGroup.add(ear1);
+        const ear2 = ear1.clone();
+        ear2.position.set(-0.45, 1.2, 0);
+        gGroup.add(ear2);
+      } else if (type === 'specter') {
+        furMat = new THREE.MeshStandardMaterial({ color: 0xa855f7, transparent: true, opacity: 0.75 });
+        bodyMesh = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.5, 16), furMat);
+        bodyMesh.position.y = 0.9;
+        bodyMesh.rotation.x = Math.PI;
+        gGroup.add(bodyMesh);
+      } else if (type === 'knight') {
+        furMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.7 });
+        bodyMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 1.4, 16), furMat);
+        bodyMesh.position.y = 0.7;
+        gGroup.add(bodyMesh);
+
+        const helm = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), furMat);
+        helm.position.y = 1.6;
+        gGroup.add(helm);
+      }
+
+      // Overhead Joy Health Bar
+      const barBg = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.15), new THREE.MeshBasicMaterial({ color: 0x111827 }));
+      barBg.position.y = 1.8;
+      gGroup.add(barBg);
+
+      const barFill = new THREE.Mesh(new THREE.PlaneGeometry(0.01, 0.12), new THREE.MeshBasicMaterial({ color: 0xec4899 }));
+      barFill.position.set(-0.58, 1.8, 0.01);
+      gGroup.add(barFill);
+
+      // Giant Bubble Trap Mesh (Hidden by default)
+      const bubbleTrap = new THREE.Mesh(
+        new THREE.SphereGeometry(1.2, 16, 16),
+        new THREE.MeshStandardMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.45, roughness: 0.1 })
+      );
+      bubbleTrap.position.y = 0.8;
+      bubbleTrap.visible = false;
+      gGroup.add(bubbleTrap);
+
+      const grumpObj = {
+        group: gGroup,
+        roomName,
+        type,
+        happiness: 0,
+        isDancing: false,
+        isBubbleTrapped: false,
+        bubbleTrap,
+        furMat,
+        barFill
+      };
+
+      rooms[roomName].add(gGroup);
+      grumps.push(grumpObj);
+      return grumpObj;
+    }
+
+    createGrump(new THREE.Vector3(-4, 0, 0), 'foyer', 'bear');
+    createGrump(new THREE.Vector3(3, 0, 4), 'foyer', 'specter');
+    createGrump(new THREE.Vector3(-4, 0, -4), 'library', 'specter');
+    createGrump(new THREE.Vector3(5, 0, 5), 'library', 'knight');
+    createGrump(new THREE.Vector3(0, 0, -4), 'garden', 'knight');
+
+    // -------------------------------------------------------------
+    // PHYSICAL 3D PROJECTILE SIMULATION
+    // -------------------------------------------------------------
+    const projectiles = [];
+
+    function launchProjectile(type, origin, dir) {
+      const pGroup = new THREE.Group();
+      pGroup.position.copy(origin);
+
+      let vel = dir.clone();
+      let gravity = 0;
+      let life = 2.0;
+      let blastRadius = 0;
+
+      if (type === 'pistol') {
+        const dart = new THREE.Mesh(
+          new THREE.SphereGeometry(0.12, 8, 8),
+          new THREE.MeshBasicMaterial({ color: 0xf59e0b })
+        );
+        pGroup.add(dart);
+        vel.multiplyScalar(28);
+        life = 1.0;
+      } else if (type === 'shotgun') {
+        const bubble = new THREE.Mesh(
+          new THREE.SphereGeometry(0.22, 12, 12),
+          new THREE.MeshStandardMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.7, roughness: 0.1 })
+        );
+        pGroup.add(bubble);
+        vel.multiplyScalar(18);
+        gravity = -2.0;
+        life = 1.2;
+      } else if (type === 'mortar') {
+        const cake = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.35, 0.4, 0.4, 12),
+          new THREE.MeshStandardMaterial({ color: 0xec4899 })
+        );
+        pGroup.add(cake);
+        vel.multiplyScalar(16);
+        vel.y += 6.0; // Upward mortar arc
+        gravity = -9.8;
+        life = 2.5;
+        blastRadius = 5.0;
+      }
+
+      scene.add(pGroup);
+      projectiles.push({ mesh: pGroup, vel, gravity, life, type, blastRadius, roomName: gameState.room });
+    }
+
+    // -------------------------------------------------------------
+    // WEAPON FIRING & SELECTION SYSTEM
+    // -------------------------------------------------------------
+    function setWeapon(wType) {
+      gameState.currentWeapon = wType;
+      document.querySelectorAll('.weapon-slot').forEach(slot => {
+        slot.classList.toggle('active', slot.getAttribute('data-weapon') === wType);
+      });
+      audio.playPop();
+      showToast(`EQUIPPED: ${wType.toUpperCase()}`);
+
+      // Stop beam if switching away
+      if (wType !== 'beam') {
+        player.beamMesh.visible = false;
+        audio.stopBeamSound();
+      }
+    }
+
+    document.querySelectorAll('.weapon-slot').forEach(slot => {
+      slot.addEventListener('click', () => {
+        setWeapon(slot.getAttribute('data-weapon'));
+      });
+    });
+
+    const weaponOrder = ['pistol', 'shotgun', 'mortar', 'beam'];
+    function cycleWeapon() {
+      const curIdx = weaponOrder.indexOf(gameState.currentWeapon);
+      const nextIdx = (curIdx + 1) % weaponOrder.length;
+      setWeapon(weaponOrder[nextIdx]);
+    }
+
+    document.getElementById('btn-cycle-weapon').addEventListener('click', cycleWeapon);
+
+    function triggerJoyBlast() {
+      audio.init();
+
+      // Gun recoil kickback
+      player.meshGun.position.z = 0.2;
+      setTimeout(() => { player.meshGun.position.z = 0.4; }, 100);
+
+      // Muzzle flash point light
+      const fwd = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
+      const muzzlePos = player.group.position.clone().add(new THREE.Vector3(0.45, 1.1, 0.7).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation));
+
+      muzzleLight.position.copy(muzzlePos);
+      muzzleLight.color.setHex(gameState.currentWeapon === 'mortar' ? 0xec4899 : (gameState.currentWeapon === 'shotgun' ? 0x22d3ee : 0xf59e0b));
+      muzzleLight.intensity = 3.0;
+      setTimeout(() => { muzzleLight.intensity = 0; }, 80);
+
+      spawnConfetti(muzzlePos, 15);
+
+      if (gameState.currentWeapon === 'pistol') {
+        audio.playPistol();
+        launchProjectile('pistol', muzzlePos, fwd);
+      } else if (gameState.currentWeapon === 'shotgun') {
+        audio.playBubbleShot();
+        // Spread 5 pellets
+        for (let i = -2; i <= 2; i++) {
+          const spreadDir = fwd.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), i * 0.12);
+          launchProjectile('shotgun', muzzlePos, spreadDir);
+        }
+      } else if (gameState.currentWeapon === 'mortar') {
+        audio.playMortarFire();
+        launchProjectile('mortar', muzzlePos, fwd);
+        gameState.cameraShake = 0.4;
+      } else if (gameState.currentWeapon === 'beam') {
+        // Continuous Prismatic Joy Beam
+        player.beamMesh.visible = true;
+        audio.startBeamSound();
+
+        // Raycast beam against grumps and destructibles
+        checkBeamHits(muzzlePos, fwd);
+
+        setTimeout(() => {
+          player.beamMesh.visible = false;
+          audio.stopBeamSound();
+        }, 350);
+      }
+    }
+
+    function checkBeamHits(origin, dir) {
+      grumps.forEach(g => {
+        if (g.roomName !== gameState.room || g.isDancing) return;
+
+        let worldGrumpPos = g.group.position.clone();
+        if (g.roomName === 'library') worldGrumpPos.add(rooms.library.position);
+        if (g.roomName === 'garden') worldGrumpPos.add(rooms.garden.position);
+
+        const toGrump = worldGrumpPos.clone().sub(origin);
+        const dist = toGrump.length();
+
+        if (dist < 12) {
+          const angle = dir.angleTo(toGrump.normalize());
+          if (angle < 0.35) {
+            upliftGrump(g, 30);
+            spawnConfetti(worldGrumpPos, 15);
+          }
+        }
+      });
+
+      destructibles.forEach(d => {
+        if (d.userData.roomName !== gameState.room) return;
+        let worldDPos = d.position.clone();
+        if (d.userData.roomName === 'library') worldDPos.add(rooms.library.position);
+        if (d.userData.roomName === 'garden') worldDPos.add(rooms.garden.position);
+
+        if (origin.distanceTo(worldDPos) < 12) {
+          const angle = dir.angleTo(worldDPos.clone().sub(origin).normalize());
+          if (angle < 0.35) {
+            popDestructible(d);
+          }
+        }
+      });
+    }
+
+    function popDestructible(d) {
+      const idx = destructibles.indexOf(d);
+      if (idx !== -1) {
+        audio.playPop();
+        let worldPos = d.position.clone();
+        if (d.userData.roomName === 'library') worldPos.add(rooms.library.position);
+        if (d.userData.roomName === 'garden') worldPos.add(rooms.garden.position);
+
+        spawnConfetti(worldPos, 30);
+        rooms[d.userData.roomName].remove(d);
+        destructibles.splice(idx, 1);
+
+        // Drop random treat
+        const dropId = Math.random() > 0.5 ? 'herb_green' : 'powder_red';
+        spawnGroundItem(dropId, d.position.clone().setY(0.2), d.userData.roomName);
+        showToast('★ DESTRUCTIBLE POPPED! TREAT DROPPED! ★');
+      }
+    }
+
+    function upliftGrump(grump, amount = 35) {
+      grump.happiness = Math.min(100, grump.happiness + amount);
+
+      // Knockback kick
+      const knockVec = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation).multiplyScalar(0.4);
+      grump.group.position.add(knockVec);
+
+      // Update UI bar
+      grump.barFill.geometry.dispose();
+      grump.barFill.geometry = new THREE.PlaneGeometry((grump.happiness / 100) * 1.15, 0.12);
+      grump.barFill.position.x = -0.58 + (grump.happiness / 100) * 0.575;
+
+      if (grump.happiness >= 100 && !grump.isDancing) {
+        grump.isDancing = true;
+        grump.furMat.color.setHex(0xf59e0b);
+        gameState.grumpsUpliftedCount++;
+        audio.playCheer();
+        showToast('★ GRUMP UPLIFTED! SPREADING CHEER! ★');
+
+        const q4 = QUESTS.find(q => q.id === 'quest_uplift');
+        if (q4) {
+          const t = q4.tasks[0];
+          t.count = gameState.grumpsUpliftedCount;
+          t.text = `Uplift all 5 Gloomy Grump plushies (${t.count}/5)`;
+          if (t.count >= 5) {
+            t.done = true;
+            checkAllQuestsDone();
+          }
+          renderQuestLogUI();
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // INTERACTIVE RADAR MINI-MAP & BLUEPRINT MODAL
+    // -------------------------------------------------------------
+    const minimapCanvas = document.getElementById('minimap-canvas');
+    const minimapCtx = minimapCanvas.getContext('2d');
+    const mapModal = document.getElementById('map-modal');
+
+    function drawMinimap() {
+      const ctx = minimapCtx;
+      const w = minimapCanvas.width;
+      const h = minimapCanvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const scale = 3.5;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Background grid
+      ctx.fillStyle = '#05070a';
+      ctx.fillRect(0, 0, w, h);
+
+      // Room bounds (relative to player)
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
+      ctx.lineWidth = 1.5;
+      const pPos = player.group.position;
+
+      let roomOffset = new THREE.Vector3(0, 0, 0);
+      if (gameState.room === 'library') roomOffset = rooms.library.position;
+      if (gameState.room === 'garden') roomOffset = rooms.garden.position;
+
+      const rx = cx - (pPos.x - roomOffset.x) * scale;
+      const ry = cy - (pPos.z - roomOffset.z) * scale;
+      const rSize = 26 * scale;
+      ctx.strokeRect(rx - rSize/2, ry - rSize/2, rSize, rSize);
+
+      // Grump Blips
+      grumps.forEach(g => {
+        if (g.roomName === gameState.room) {
+          const gx = cx + (g.group.position.x - (pPos.x - roomOffset.x)) * scale;
+          const gy = cy + (g.group.position.z - (pPos.z - roomOffset.z)) * scale;
+
+          ctx.fillStyle = g.isDancing ? '#f59e0b' : '#3b82f6';
+          ctx.beginPath();
+          ctx.arc(gx, gy, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // Item & Destructible Blips
+      destructibles.forEach(d => {
+        if (d.userData.roomName === gameState.room) {
+          const dx = cx + (d.position.x - (pPos.x - roomOffset.x)) * scale;
+          const dy = cy + (d.position.z - (pPos.z - roomOffset.z)) * scale;
+          ctx.fillStyle = '#ec4899';
+          ctx.beginPath();
+          ctx.arc(dx, dy, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // Player Arrow at center
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(-player.rotation);
+      ctx.fillStyle = '#22d3ee';
+      ctx.beginPath();
+      ctx.moveTo(0, -6);
+      ctx.lineTo(4, 5);
+      ctx.lineTo(-4, 5);
+      ctx.closePath();
+      ctx.fill();
+
+      // Vision cone
+      ctx.fillStyle = 'rgba(34, 211, 238, 0.15)';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, 24, -Math.PI/2 - 0.5, -Math.PI/2 + 0.5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function toggleFullMap() {
+      audio.playPop();
+      const isOpen = mapModal.style.display === 'flex';
+      mapModal.style.display = isOpen ? 'none' : 'flex';
+      if (!isOpen) {
+        updateFullMapUI();
+      }
+    }
+
+    function updateFullMapUI() {
+      // Update door lock visuals
+      const dLib = document.getElementById('map-door-library');
+      const dLibTxt = document.getElementById('map-door-library-txt');
+      if (gameState.unlockedDoors.library) {
+        dLib.setAttribute('fill', '#10b981');
+        dLibTxt.textContent = 'OPEN';
+      }
+
+      const dGarden = document.getElementById('map-door-garden');
+      const dGardenTxt = document.getElementById('map-door-garden-txt');
+      if (gameState.unlockedDoors.garden) {
+        dGarden.setAttribute('fill', '#10b981');
+        dGardenTxt.textContent = 'OPEN';
+      }
+
+      // Update Player Pin on map
+      const pin = document.getElementById('map-player-pin');
+      if (gameState.room === 'foyer') pin.setAttribute('transform', 'translate(200, 150)');
+      if (gameState.room === 'library') pin.setAttribute('transform', 'translate(325, 150)');
+      if (gameState.room === 'garden') pin.setAttribute('transform', 'translate(75, 150)');
+    }
+
+    document.getElementById('btn-minimap').addEventListener('click', toggleFullMap);
+    document.getElementById('btn-full-map').addEventListener('click', toggleFullMap);
+    document.getElementById('map-close-btn').addEventListener('click', toggleFullMap);
+
+    // -------------------------------------------------------------
+    // INPUT MATRIX & VIRTUAL CONTROLS
+    // -------------------------------------------------------------
+    const input = { moveX: 0, moveY: 0, keys: {} };
+
+    window.addEventListener('keydown', (e) => {
+      audio.init();
+      input.keys[e.code] = true;
+      if (e.code === 'KeyI' || e.code === 'Tab') {
+        e.preventDefault();
+        toggleInventory();
+      }
+      if (e.code === 'KeyQ') toggleQuestLog();
+      if (e.code === 'KeyM') toggleFullMap();
+      if (e.code === 'KeyE') handleContextInteract();
+      if (e.code === 'Space') triggerJoyBlast();
+      if (e.code === 'Digit1') setWeapon('pistol');
+      if (e.code === 'Digit2') setWeapon('shotgun');
+      if (e.code === 'Digit3') setWeapon('mortar');
+      if (e.code === 'Digit4') setWeapon('beam');
+    });
+
+    window.addEventListener('keyup', (e) => {
+      input.keys[e.code] = false;
+    });
+
+    // Touch Joystick
+    const joystickZone = document.getElementById('joystick-zone');
+    const joystickStick = document.getElementById('joystick-stick');
+    let joystickTouchId = null;
+    let joystickOrigin = { x: 0, y: 0 };
+
+    joystickZone.addEventListener('touchstart', (e) => {
+      audio.init();
+      const touch = e.changedTouches[0];
+      joystickTouchId = touch.identifier;
+      const rect = joystickZone.getBoundingClientRect();
+      joystickOrigin = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      updateJoystick(touch.clientX, touch.clientY);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (joystickTouchId === null) return;
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === joystickTouchId) {
+          updateJoystick(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+          break;
+        }
+      }
+    }, { passive: false });
+
+    function resetJoystick() {
+      joystickTouchId = null;
+      input.moveX = 0;
+      input.moveY = 0;
+      joystickStick.style.transform = `translate3d(0px, 0px, 0px)`;
+    }
+
+    window.addEventListener('touchend', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === joystickTouchId) {
+          resetJoystick();
+          break;
+        }
+      }
+    });
+
+    window.addEventListener('touchcancel', resetJoystick);
+
+    function updateJoystick(clientX, clientY) {
+      const maxRadius = 42;
+      let dx = clientX - joystickOrigin.x;
+      let dy = clientY - joystickOrigin.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist > maxRadius) {
+        dx = (dx / dist) * maxRadius;
+        dy = (dy / dist) * maxRadius;
+      }
+
+      joystickStick.style.transform = `translate3d(${dx}px, ${dy}px, 0px)`;
+      input.moveX = dx / maxRadius;
+      input.moveY = dy / maxRadius;
+    }
+
+    // Touch Look Swipe
+    let lookTouchId = null;
+    let lastTouchX = 0;
+
+    window.addEventListener('touchstart', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        if (touch.clientX > window.innerWidth * 0.45 && !e.target.closest('.action-cluster') && !e.target.closest('.weapon-dock') && !e.target.closest('.modal-overlay') && !e.target.closest('#piano-modal')) {
+          if (lookTouchId === null) {
+            lookTouchId = touch.identifier;
+            lastTouchX = touch.clientX;
+          }
+        }
+      }
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (lookTouchId === null) return;
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const touch = e.changedTouches[i];
+        if (touch.identifier === lookTouchId) {
+          const deltaX = touch.clientX - lastTouchX;
+          player.rotation -= deltaX * 0.007;
+          lastTouchX = touch.clientX;
+          break;
+        }
+      }
+    });
+
+    window.addEventListener('touchend', (e) => {
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        if (e.changedTouches[i].identifier === lookTouchId) {
+          lookTouchId = null;
+          break;
+        }
+      }
+    });
+
+    // Buttons
+    const btnAim = document.getElementById('btn-aim');
+    const btnFire = document.getElementById('btn-fire');
+    const btnInteract = document.getElementById('btn-interact');
+    const btnInventory = document.getElementById('btn-inventory');
+    const btnAudioToggle = document.getElementById('btn-audio-toggle');
+    const btnQuestLog = document.getElementById('btn-quest-log');
+    const activeQuestPill = document.getElementById('active-quest-pill');
+    const reticleLayer = document.getElementById('reticle-layer');
+    const promptBox = document.getElementById('prompt-box');
+
+    btnAim.addEventListener('click', () => {
+      audio.init();
+      player.isAiming = !player.isAiming;
+      btnAim.classList.toggle('active', player.isAiming);
+      player.laserGuide.visible = player.isAiming;
+      reticleLayer.style.opacity = player.isAiming ? '1' : '0';
+    });
+
+    btnFire.addEventListener('click', triggerJoyBlast);
+    btnInteract.addEventListener('click', handleContextInteract);
+    promptBox.addEventListener('click', handleContextInteract);
+    btnInventory.addEventListener('click', toggleInventory);
+    btnQuestLog.addEventListener('click', toggleQuestLog);
+    activeQuestPill.addEventListener('click', toggleQuestLog);
+
+    btnAudioToggle.addEventListener('click', () => {
+      audio.init();
+      audio.muted = !audio.muted;
+      showToast(audio.muted ? 'AUDIO MUTED' : 'AUDIO ACTIVE');
+    });
+
+    // -------------------------------------------------------------
+    // QUESTS & TASKS MANAGEMENT
+    // -------------------------------------------------------------
+    const questModal = document.getElementById('quest-modal');
+    const questListContainer = document.getElementById('quest-list-container');
+    const activeObjText = document.getElementById('active-obj-text');
+
+    function toggleQuestLog() {
+      audio.playPop();
+      const isOpen = questModal.style.display === 'flex';
+      questModal.style.display = isOpen ? 'none' : 'flex';
+      if (!isOpen) renderQuestLogUI();
+    }
+
+    document.getElementById('quest-close-btn').addEventListener('click', toggleQuestLog);
+
+    function renderQuestLogUI() {
+      questListContainer.innerHTML = '';
+      QUESTS.forEach(q => {
+        const isDone = q.tasks.every(t => t.done);
+        const card = document.createElement('div');
+        card.className = 'quest-card' + (isDone ? ' completed' : '');
+        card.innerHTML = `
+          <div class="quest-card-header">
+            <span class="quest-name">${q.name}</span>
+            <span class="quest-badge ${isDone ? 'done' : ''}">${isDone ? 'COMPLETED ✔' : 'IN PROGRESS'}</span>
+          </div>
+          <div class="quest-desc">${q.desc}</div>
+          <div class="quest-tasks">
+            ${q.tasks.map(t => `
+              <div class="task-item ${t.done ? 'checked' : ''}">
+                <span>${t.done ? '✔' : '•'}</span>
+                <span>${t.text}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        questListContainer.appendChild(card);
+      });
+      updateActiveObjectiveBanner();
+    }
+
+    function updateActiveObjectiveBanner() {
+      for (let q of QUESTS) {
+        for (let t of q.tasks) {
+          if (!t.done) {
+            activeObjText.textContent = `OBJECTIVE: ${t.text}`;
+            return;
+          }
+        }
+      }
+      activeObjText.textContent = '★ ALL OBJECTIVES COMPLETE! GRAND PARTY UNLOCKED!';
+    }
+
+    function checkAllQuestsDone() {
+      const allDone = QUESTS.every(q => q.tasks.every(t => t.done));
+      if (allDone) {
+        setTimeout(() => {
+          document.getElementById('party-banner').style.display = 'block';
+          audio.playCheer();
+        }, 1000);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // PIANO PUZZLE (Quest 1)
+    // -------------------------------------------------------------
+    const pianoModal = document.getElementById('piano-modal');
+    const pianoCloseBtn = document.getElementById('piano-close-btn');
+
+    function openPianoPuzzle() {
+      audio.playPop();
+      pianoModal.style.display = 'flex';
+      gameState.pianoSequence = [];
+      const q1 = QUESTS.find(q => q.id === 'quest_piano');
+      if (q1) {
+        q1.tasks[0].done = true;
+        renderQuestLogUI();
+      }
+    }
+
+    pianoCloseBtn.addEventListener('click', () => { pianoModal.style.display = 'none'; });
+
+    const noteFreqs = { 'C': 261.63, 'D': 293.66, 'E': 329.63, 'F': 349.23, 'G': 392.00, 'A': 440.00 };
+
+    document.querySelectorAll('.piano-key').forEach(key => {
+      key.addEventListener('click', () => {
+        const note = key.getAttribute('data-note');
+        audio.playPianoNote(noteFreqs[note]);
+        gameState.pianoSequence.push(note);
+        if (gameState.pianoSequence.length > 3) gameState.pianoSequence.shift();
+
+        if (gameState.pianoSequence.join('-') === 'C-E-G' && !gameState.pianoSolved) {
+          gameState.pianoSolved = true;
+          audio.playCheer();
+          showToast('★ HARMONIC TRIAD PLAYED! PIANO DRAWER OPENED! ★');
+          pianoModal.style.display = 'none';
+          spawnGroundItem('key_foyer', new THREE.Vector3(6.5, 1.5, -2.5), 'foyer');
+
+          const q1 = QUESTS.find(q => q.id === 'quest_piano');
+          if (q1) {
+            q1.tasks[1].done = true;
+            renderQuestLogUI();
+          }
+        }
+      });
+    });
+
+    // -------------------------------------------------------------
+    // CONTEXTUAL INTERACTIONS & ROOM TRANSITIONS
+    // -------------------------------------------------------------
+    let currentInteractable = null;
+
+    function checkContextualInteractions() {
+      currentInteractable = null;
+      const pPos = player.group.position;
+      const promptText = document.getElementById('prompt-text');
+
+      for (let i = 0; i < groundItems.length; i++) {
+        const item = groundItems[i];
+        if (item.userData.roomName === gameState.room) {
+          let itemWorldPos = item.position.clone();
+          if (gameState.room === 'library') itemWorldPos.add(rooms.library.position);
+          if (gameState.room === 'garden') itemWorldPos.add(rooms.garden.position);
+
+          if (pPos.distanceTo(itemWorldPos) < 2.2) {
+            const dbItem = ITEMS_DB[item.userData.itemId];
+            currentInteractable = { type: 'item', index: i, itemMesh: item, data: dbItem };
+            promptText.textContent = `TAKE ${dbItem.name}`;
+            promptBox.style.display = 'flex';
+            return;
+          }
+        }
+      }
+
+      if (gameState.room === 'foyer') {
+        if (pPos.distanceTo(new THREE.Vector3(6.5, 0, -4)) < 3.2) {
+          currentInteractable = { type: 'piano' };
+          promptText.textContent = 'EXAMINE & PLAY GRAND PIANO';
+          promptBox.style.display = 'flex';
+          return;
+        }
+        if (pPos.distanceTo(new THREE.Vector3(-8.5, 0, -8.5)) < 2.8) {
+          currentInteractable = { type: 'save' };
+          promptText.textContent = 'SAVE GAME AT GOLD GRAMOPHONE';
+          promptBox.style.display = 'flex';
+          return;
+        }
+        if (pPos.distanceTo(new THREE.Vector3(13.5, 0, 0)) < 2.8) {
+          currentInteractable = { type: 'door_library' };
+          promptText.textContent = gameState.unlockedDoors.library ? 'ENTER EAST WING LIBRARY' : 'LOCKED: REQUIRES FOYER KEY';
+          promptBox.style.display = 'flex';
+          return;
+        }
+        if (pPos.distanceTo(new THREE.Vector3(-13.5, 0, 0)) < 2.8) {
+          currentInteractable = { type: 'door_garden' };
+          promptText.textContent = gameState.unlockedDoors.garden ? 'ENTER SOLARIUM GARDEN' : 'LOCKED: REQUIRES MASTER KEY';
+          promptBox.style.display = 'flex';
+          return;
+        }
+      }
+
+      if (gameState.room === 'library') {
+        const cauldronPos = rooms.library.position.clone().add(new THREE.Vector3(0, 0, -6));
+        if (pPos.distanceTo(cauldronPos) < 3.0) {
+          currentInteractable = { type: 'cauldron' };
+          promptText.textContent = gameState.cauldronFed ? 'ALCHEMICAL CAULDRON: RADIATING BLISS' : 'PLACE MEGA BLISS CUPCAKE IN CAULDRON';
+          promptBox.style.display = 'flex';
+          return;
+        }
+        const exitPos = rooms.library.position.clone().add(new THREE.Vector3(-11.5, 0, 0));
+        if (pPos.distanceTo(exitPos) < 2.8) {
+          currentInteractable = { type: 'door_foyer_from_lib' };
+          promptText.textContent = 'RETURN TO FOYER';
+          promptBox.style.display = 'flex';
+          return;
+        }
+      }
+
+      if (gameState.room === 'garden') {
+        for (let l of lanternMeshes) {
+          const lPos = rooms.garden.position.clone().add(l.group.position);
+          if (pPos.distanceTo(lPos) < 2.4) {
+            currentInteractable = { type: 'lantern', lantern: l };
+            promptText.textContent = l.lit ? 'HEART LANTERN (BURNING WITH JOY)' : 'IGNITE HEART LANTERN WITH JOY';
+            promptBox.style.display = 'flex';
+            return;
+          }
+        }
+        const exitPos2 = rooms.garden.position.clone().add(new THREE.Vector3(12.5, 0, 0));
+        if (pPos.distanceTo(exitPos2) < 2.8) {
+          currentInteractable = { type: 'door_foyer_from_garden' };
+          promptText.textContent = 'RETURN TO FOYER';
+          promptBox.style.display = 'flex';
+          return;
+        }
+      }
+
+      promptBox.style.display = 'none';
+    }
+
+    function handleContextInteract() {
+      if (!currentInteractable) return;
+
+      if (currentInteractable.type === 'item') {
+        const added = addItemToInventory(currentInteractable.data.id, 1);
+        if (added) {
+          audio.playPop();
+          showToast(`OBTAINED: ${currentInteractable.data.name}`);
+          if (currentInteractable.data.id === 'key_foyer') {
+            const q1 = QUESTS.find(q => q.id === 'quest_piano');
+            if (q1) {
+              q1.tasks[2].done = true;
+              renderQuestLogUI();
+            }
+          }
+          rooms[currentInteractable.itemMesh.userData.roomName].remove(currentInteractable.itemMesh);
+          groundItems.splice(currentInteractable.index, 1);
+          currentInteractable = null;
+          promptBox.style.display = 'none';
+        } else {
+          showToast('INVENTORY FULL (8/8 SLOTS)');
+        }
+        return;
+      }
+
+      if (currentInteractable.type === 'piano') { openPianoPuzzle(); return; }
+
+      if (currentInteractable.type === 'cauldron') {
+        if (gameState.cauldronFed) {
+          showToast('THE CAULDRON IS ALREADY RADIATING PURE JOY!');
+          return;
+        }
+        const cupcakeIdx = gameState.inventory.findIndex(s => s && s.id === 'bliss_cupcake');
+        if (cupcakeIdx !== -1) {
+          consumeSlot(cupcakeIdx);
+          gameState.cauldronFed = true;
+          audio.playCheer();
+          spawnConfetti(rooms.library.position.clone().add(new THREE.Vector3(0, 2, -6)), 40);
+          showToast('★ CAULDRON ACTIVATED WITH MEGA BLISS CUPCAKE! ★');
+          const q2 = QUESTS.find(q => q.id === 'quest_cauldron');
+          if (q2) {
+            q2.tasks[2].done = true;
+            checkAllQuestsDone();
+            renderQuestLogUI();
+          }
+        } else {
+          showToast('CRAFT A MEGA BLISS CUPCAKE IN INVENTORY FIRST!');
+        }
+        return;
+      }
+
+      if (currentInteractable.type === 'lantern') {
+        const l = currentInteractable.lantern;
+        if (!l.lit) {
+          l.lit = true;
+          l.flame.material.color.setHex(0xec4899);
+          audio.playLanternIgnite();
+          spawnConfetti(rooms.garden.position.clone().add(l.group.position).add(new THREE.Vector3(0, 2.5, 0)), 20);
+          const q3 = QUESTS.find(q => q.id === 'quest_lanterns');
+          if (q3) {
+            const t = q3.tasks[2];
+            t.count = (t.count || 0) + 1;
+            t.text = `Ignite all 4 Heart Lanterns around the fountain (${t.count}/4)`;
+            if (t.count >= 4) {
+              t.done = true;
+              audio.playCheer();
+              checkAllQuestsDone();
+            }
+            renderQuestLogUI();
+          }
+          showToast(`★ HEART LANTERN IGNITED! (${q3.tasks[2].count}/4) ★`);
+        }
+        return;
+      }
+
+      if (currentInteractable.type === 'save') {
+        audio.playGramophone();
+        saveGame();
+        showToast('PROGRESS SAVED TO GOLD GRAMOPHONE');
+        const q4 = QUESTS.find(q => q.id === 'quest_uplift');
+        if (q4) {
+          q4.tasks[1].done = true;
+          checkAllQuestsDone();
+          renderQuestLogUI();
+        }
+        return;
+      }
+
+      if (currentInteractable.type === 'door_library') {
+        if (gameState.unlockedDoors.library) {
+          changeRoom('library', rooms.library.position.clone().add(new THREE.Vector3(-9, 0, 0)));
+        } else {
+          const keyIdx = gameState.inventory.findIndex(slot => slot && slot.id === 'key_foyer');
+          if (keyIdx !== -1) {
+            gameState.unlockedDoors.library = true;
+            audio.playDoorChime();
+            showToast('UNLOCKED EAST WING WITH FOYER KEY!');
+            const q2 = QUESTS.find(q => q.id === 'quest_cauldron');
+            if (q2) {
+              q2.tasks[0].done = true;
+              renderQuestLogUI();
+            }
+            changeRoom('library', rooms.library.position.clone().add(new THREE.Vector3(-9, 0, 0)));
+          } else {
+            showToast('DOOR IS LOCKED. SOLVE THE PIANO SONATINA FOR THE KEY.');
+          }
+        }
+        return;
+      }
+
+      if (currentInteractable.type === 'door_garden') {
+        if (gameState.unlockedDoors.garden) {
+          changeRoom('garden', rooms.garden.position.clone().add(new THREE.Vector3(10, 0, 0)));
+        } else {
+          const keyIdx = gameState.inventory.findIndex(slot => slot && slot.id === 'key_master');
+          if (keyIdx !== -1) {
+            gameState.unlockedDoors.garden = true;
+            audio.playDoorChime();
+            showToast('UNLOCKED SOLARIUM WITH MASTER BALLROOM KEY!');
+            const q3 = QUESTS.find(q => q.id === 'quest_lanterns');
+            if (q3) {
+              q3.tasks[1].done = true;
+              renderQuestLogUI();
+            }
+            changeRoom('garden', rooms.garden.position.clone().add(new THREE.Vector3(10, 0, 0)));
+          } else {
+            showToast('LOCKED! CRAFT MASTER KEY BY COMBINING FOYER KEY + GOLD RIBBON.');
+          }
+        }
+        return;
+      }
+
+      if (currentInteractable.type === 'door_foyer_from_lib') {
+        changeRoom('foyer', new THREE.Vector3(11, 0, 0));
+        return;
+      }
+
+      if (currentInteractable.type === 'door_foyer_from_garden') {
+        changeRoom('foyer', new THREE.Vector3(-11, 0, 0));
+        return;
+      }
+    }
+
+    const doorCurtain = document.getElementById('door-curtain');
+    const roomNameDisplay = document.getElementById('room-name-display');
+
+    function changeRoom(newRoom, targetSpawnPos) {
+      audio.playDoorChime();
+      doorCurtain.style.display = 'flex';
+
+      setTimeout(() => {
+        gameState.room = newRoom;
+        player.group.position.copy(targetSpawnPos);
+
+        if (newRoom === 'foyer') roomNameDisplay.textContent = '❖ CHÂTEAU FOYER';
+        if (newRoom === 'library') roomNameDisplay.textContent = '❖ EAST WING LIBRARY';
+        if (newRoom === 'garden') roomNameDisplay.textContent = '❖ SOLARIUM GARDEN';
+
+        setTimeout(() => {
+          doorCurtain.style.display = 'none';
+        }, 450);
+      }, 650);
+    }
+
+    // -------------------------------------------------------------
+    // INVENTORY MODAL
+    // -------------------------------------------------------------
+    const invModal = document.getElementById('inventory-modal');
+    const invGridSlots = document.getElementById('inv-grid-slots');
+    const itemDetailName = document.getElementById('item-detail-name');
+    const itemDetailDesc = document.getElementById('item-detail-desc');
+    const btnInvUse = document.getElementById('btn-inv-use');
+    const btnInvCombine = document.getElementById('btn-inv-combine');
+    const btnInvDrop = document.getElementById('btn-inv-drop');
+
+    function toggleInventory() {
+      audio.playPop();
+      const isOpen = invModal.style.display === 'flex';
+      invModal.style.display = isOpen ? 'none' : 'flex';
+      if (!isOpen) renderInventoryUI();
+    }
+
+    document.getElementById('inv-close-btn').addEventListener('click', toggleInventory);
+
+    function addItemToInventory(itemId, qty = 1) {
+      for (let i = 0; i < gameState.inventory.length; i++) {
+        if (gameState.inventory[i] && gameState.inventory[i].id === itemId) {
+          gameState.inventory[i].qty += qty;
+          return true;
+        }
+      }
+      for (let i = 0; i < gameState.inventory.length; i++) {
+        if (gameState.inventory[i] === null) {
+          gameState.inventory[i] = { id: itemId, qty };
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function renderInventoryUI() {
+      invGridSlots.innerHTML = '';
+      gameState.inventory.forEach((slot, index) => {
+        const slotEl = document.createElement('div');
+        slotEl.className = 'inv-slot' + (gameState.selectedSlot === index ? ' selected' : '') + (gameState.combineSourceSlot === index ? ' combine-target' : '');
+
+        if (slot) {
+          const item = ITEMS_DB[slot.id];
+          slotEl.innerHTML = `
+            <svg class="slot-icon" viewBox="0 0 24 24">${item.icon}</svg>
+            <div class="slot-label">${item.name}</div>
+            ${slot.qty > 1 ? `<span class="slot-qty">x${slot.qty}</span>` : ''}
+          `;
+        } else {
+          slotEl.innerHTML = `<span style="color:var(--text-dim);font-size:9px;">EMPTY</span>`;
+        }
+
+        slotEl.addEventListener('click', () => { selectInventorySlot(index); });
+        invGridSlots.appendChild(slotEl);
+      });
+      updateItemDetailsPanel();
+    }
+
+    function selectInventorySlot(index) {
+      audio.playPop();
+      if (gameState.combineSourceSlot !== null) {
+        if (gameState.combineSourceSlot === index) {
+          gameState.combineSourceSlot = null;
+          showToast('COMBINE CANCELLED');
+        } else {
+          executeCombine(gameState.combineSourceSlot, index);
+          gameState.combineSourceSlot = null;
+        }
+        renderInventoryUI();
+        return;
+      }
+      gameState.selectedSlot = index;
+      renderInventoryUI();
+    }
+
+    function updateItemDetailsPanel() {
+      const slot = gameState.selectedSlot !== null ? gameState.inventory[gameState.selectedSlot] : null;
+      if (slot) {
+        const item = ITEMS_DB[slot.id];
+        itemDetailName.textContent = item.name;
+        itemDetailDesc.textContent = item.desc;
+        btnInvUse.disabled = false;
+        btnInvCombine.disabled = false;
+        btnInvDrop.disabled = false;
+      } else {
+        itemDetailName.textContent = 'SELECT AN ITEM';
+        itemDetailDesc.textContent = 'Inspect your collected treats, keys, and happiness enhancers.';
+        btnInvUse.disabled = true;
+        btnInvCombine.disabled = true;
+        btnInvDrop.disabled = true;
+      }
+    }
+
+    btnInvUse.addEventListener('click', () => {
+      if (gameState.selectedSlot === null) return;
+      const slot = gameState.inventory[gameState.selectedSlot];
+      if (!slot) return;
+
+      const item = ITEMS_DB[slot.id];
+      if (item.type === 'consumable') {
+        audio.playCheer();
+        gameState.joy = Math.min(100, gameState.joy + 40);
+        showToast(`CONSUMED ${item.name}! JOY RESTORED.`);
+        slot.qty--;
+        if (slot.qty <= 0) gameState.inventory[gameState.selectedSlot] = null;
+        updateVitalityHUD();
+        renderInventoryUI();
+      } else {
+        showToast(`${item.name} CANNOT BE CONSUMED DIRECTLY.`);
+      }
+    });
+
+    btnInvCombine.addEventListener('click', () => {
+      if (gameState.selectedSlot === null) return;
+      const slot = gameState.inventory[gameState.selectedSlot];
+      if (!slot) return;
+      gameState.combineSourceSlot = gameState.selectedSlot;
+      showToast('SELECT SECOND ITEM TO COMBINE WITH');
+      renderInventoryUI();
+    });
+
+    btnInvDrop.addEventListener('click', () => {
+      if (gameState.selectedSlot === null) return;
+      const slot = gameState.inventory[gameState.selectedSlot];
+      if (!slot) return;
+      showToast(`DISCARDED ${ITEMS_DB[slot.id].name}`);
+      gameState.inventory[gameState.selectedSlot] = null;
+      gameState.selectedSlot = null;
+      renderInventoryUI();
+    });
+
+    function executeCombine(idx1, idx2) {
+      const item1 = gameState.inventory[idx1];
+      const item2 = gameState.inventory[idx2];
+      if (!item1 || !item2) return;
+
+      const ids = [item1.id, item2.id].sort().join('+');
+
+      if (ids === 'herb_green+powder_red') {
+        consumeSlot(idx1);
+        consumeSlot(idx2);
+        addItemToInventory('bliss_cupcake', 1);
+        audio.playCheer();
+        showToast('★ CRAFTED: MEGA BLISS CUPCAKE! ★');
+        const q2 = QUESTS.find(q => q.id === 'quest_cauldron');
+        if (q2) {
+          q2.tasks[1].done = true;
+          renderQuestLogUI();
+        }
+        return;
+      }
+
+      if (ids === 'key_foyer+ribbon_gold') {
+        consumeSlot(idx1);
+        consumeSlot(idx2);
+        addItemToInventory('key_master', 1);
+        audio.playCheer();
+        showToast('★ CRAFTED: MASTER BALLROOM KEY! ★');
+        const q3 = QUESTS.find(q => q.id === 'quest_lanterns');
+        if (q3) {
+          q3.tasks[0].done = true;
+          renderQuestLogUI();
+        }
+        return;
+      }
+      showToast('THESE ITEMS CANNOT BE COMBINED.');
+    }
+
+    function consumeSlot(idx) {
+      if (!gameState.inventory[idx]) return;
+      gameState.inventory[idx].qty--;
+      if (gameState.inventory[idx].qty <= 0) gameState.inventory[idx] = null;
+    }
+
+    function updateVitalityHUD() {
+      const joyVal = document.getElementById('joy-status-val');
+      if (gameState.joy >= 80) {
+        joyVal.textContent = `MAX BLISS ${gameState.joy}%`;
+        joyVal.style.color = 'var(--emerald-joy)';
+      } else if (gameState.joy >= 40) {
+        joyVal.textContent = `CHEERFUL ${gameState.joy}%`;
+        joyVal.style.color = 'var(--cyan-glow)';
+      } else {
+        joyVal.textContent = `GRUMPY ${gameState.joy}%`;
+        joyVal.style.color = 'var(--gold-accent)';
+      }
+    }
+
+    // -------------------------------------------------------------
+    // PERSISTENCE & TOASTS
+    // -------------------------------------------------------------
+    function saveGame() {
+      const savePayload = {
+        joy: gameState.joy,
+        room: gameState.room,
+        unlockedDoors: gameState.unlockedDoors,
+        inventory: gameState.inventory,
+        grumpsUpliftedCount: gameState.grumpsUpliftedCount,
+        pianoSolved: gameState.pianoSolved,
+        cauldronFed: gameState.cauldronFed,
+        litLanterns: lanternMeshes.map(l => l.lit),
+        quests: QUESTS
+      };
+      localStorage.setItem('resident_lovely_save_v3', JSON.stringify(savePayload));
+    }
+
+    function loadGame() {
+      const data = localStorage.getItem('resident_lovely_save_v3');
+      if (data) {
+        try {
+          const p = JSON.parse(data);
+          gameState.joy = p.joy || 100;
+          gameState.room = p.room || 'foyer';
+          gameState.unlockedDoors = p.unlockedDoors || { library: false, garden: false };
+          gameState.inventory = p.inventory || gameState.inventory;
+          gameState.grumpsUpliftedCount = p.grumpsUpliftedCount || 0;
+          gameState.pianoSolved = p.pianoSolved || false;
+          gameState.cauldronFed = p.cauldronFed || false;
+
+          if (p.litLanterns) {
+            p.litLanterns.forEach((isLit, i) => {
+              if (lanternMeshes[i] && isLit) {
+                lanternMeshes[i].lit = true;
+                lanternMeshes[i].flame.material.color.setHex(0xec4899);
+              }
+            });
+          }
+
+          if (p.quests) {
+            p.quests.forEach((savedQ, qIdx) => {
+              if (QUESTS[qIdx]) QUESTS[qIdx].tasks = savedQ.tasks;
+            });
+          }
+          updateVitalityHUD();
+          renderQuestLogUI();
+        } catch(e) { console.error(e); }
+      }
+    }
+
+    const toastMsg = document.getElementById('toast-msg');
+    let toastTimeout = null;
+
+    function showToast(text) {
+      toastMsg.textContent = text;
+      toastMsg.style.opacity = '1';
+      toastMsg.style.transform = 'translate(-50%, 0)';
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toastMsg.style.opacity = '0';
+        toastMsg.style.transform = 'translate(-50%, -10px)';
+      }, 3000);
+    }
+
+    document.getElementById('btn-restart-party').addEventListener('click', () => {
+      document.getElementById('party-banner').style.display = 'none';
+      showToast('KEEP SPREADING MAXIMUM HAPPINESS ACROSS THE WORLD!');
+    });
+
+    // -------------------------------------------------------------
+    // MAIN LOOP (60 FPS Mobile Target)
+    // -------------------------------------------------------------
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = Math.min(clock.getDelta(), 0.1);
+      const time = clock.getElapsedTime();
+
+      // 1. Move Player
+      let moveDir = new THREE.Vector3();
+      if (input.keys['KeyW'] || input.keys['ArrowUp']) moveDir.z -= 1;
+      if (input.keys['KeyS'] || input.keys['ArrowDown']) moveDir.z += 1;
+      if (input.keys['KeyA'] || input.keys['ArrowLeft']) moveDir.x -= 1;
+      if (input.keys['KeyD'] || input.keys['ArrowRight']) moveDir.x += 1;
+
+      if (Math.abs(input.moveX) > 0.05 || Math.abs(input.moveY) > 0.05) {
+        moveDir.x += input.moveX;
+        moveDir.z += input.moveY;
+      }
+
+      if (moveDir.lengthSq() > 0.001) {
+        moveDir.normalize();
+        const rotatedMove = moveDir.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
+        player.position.addScaledVector(rotatedMove, player.speed * delta);
+
+        const roomBounds = 12.5;
+        let roomCenter = new THREE.Vector3(0, 0, 0);
+        if (gameState.room === 'library') roomCenter = rooms.library.position;
+        if (gameState.room === 'garden') roomCenter = rooms.garden.position;
+
+        player.position.x = THREE.MathUtils.clamp(player.position.x, roomCenter.x - roomBounds, roomCenter.x + roomBounds);
+        player.position.z = THREE.MathUtils.clamp(player.position.z, roomCenter.z - roomBounds, roomCenter.z + roomBounds);
+        player.meshBody.position.y = 0.7 + Math.sin(time * 12) * 0.05;
+      } else {
+        player.meshBody.position.y = 0.7;
+      }
+
+      player.group.position.copy(player.position);
+      player.group.rotation.y = player.rotation;
+
+      // 2. Camera + Recoil Shake
+      const camOffset = player.isAiming ? new THREE.Vector3(1.0, 1.8, 2.5) : new THREE.Vector3(0.8, 2.2, 4.5);
+      const rotatedOffset = camOffset.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
+      const targetCamPos = player.position.clone().add(rotatedOffset);
+
+      if (gameState.cameraShake > 0) {
+        targetCamPos.x += (Math.random() - 0.5) * gameState.cameraShake;
+        targetCamPos.y += (Math.random() - 0.5) * gameState.cameraShake;
+        gameState.cameraShake = Math.max(0, gameState.cameraShake - delta * 2.0);
+      }
+
+      camera.position.lerp(targetCamPos, 0.15);
+
+      const lookTarget = player.position.clone().add(new THREE.Vector3(0, 1.3, 0));
+      if (player.isAiming) {
+        const aimLook = lookTarget.clone().add(new THREE.Vector3(0, 0, -5).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation));
+        camera.lookAt(aimLook);
+      } else {
+        camera.lookAt(lookTarget);
+      }
+
+      // 3. Update 3D Projectiles
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const p = projectiles[i];
+        p.vel.y += p.gravity * delta;
+        p.mesh.position.addScaledVector(p.vel, delta);
+        p.life -= delta;
+
+        // Collision with Grumps
+        let hit = false;
+        grumps.forEach(g => {
+          if (g.roomName !== p.roomName || g.isDancing) return;
+          let worldGrumpPos = g.group.position.clone();
+          if (g.roomName === 'library') worldGrumpPos.add(rooms.library.position);
+          if (g.roomName === 'garden') worldGrumpPos.add(rooms.garden.position);
+
+          if (p.mesh.position.distanceTo(worldGrumpPos.clone().add(new THREE.Vector3(0, 0.8, 0))) < 1.2) {
+            hit = true;
+            if (p.type === 'shotgun') {
+              // Bubble trap
+              g.bubbleTrap.visible = true;
+              g.group.position.y += 0.4;
+              upliftGrump(g, 45);
+            } else if (p.type === 'mortar') {
+              audio.playExplosion();
+              spawnConfetti(p.mesh.position, 60);
+              upliftGrump(g, 70);
+            } else {
+              upliftGrump(g, 35);
+            }
+          }
+        });
+
+        // Collision with Destructibles
+        destructibles.forEach(d => {
+          if (d.userData.roomName !== p.roomName) return;
+          let worldDPos = d.position.clone();
+          if (d.userData.roomName === 'library') worldDPos.add(rooms.library.position);
+          if (d.userData.roomName === 'garden') worldDPos.add(rooms.garden.position);
+
+          if (p.mesh.position.distanceTo(worldDPos.clone().add(new THREE.Vector3(0, 1.0, 0))) < 1.2) {
+            hit = true;
+            popDestructible(d);
+          }
+        });
+
+        // Mortar AOE blast
+        if (p.type === 'mortar' && (p.mesh.position.y <= 0.2 || hit)) {
+          audio.playExplosion();
+          spawnConfetti(p.mesh.position, 60);
+          grumps.forEach(g => {
+            if (g.roomName === p.roomName && !g.isDancing) {
+              let wPos = g.group.position.clone();
+              if (g.roomName === 'library') wPos.add(rooms.library.position);
+              if (g.roomName === 'garden') wPos.add(rooms.garden.position);
+              if (p.mesh.position.distanceTo(wPos) < p.blastRadius) {
+                upliftGrump(g, 60);
+              }
+            }
+          });
+          hit = true;
+        }
+
+        if (hit || p.life <= 0) {
+          scene.remove(p.mesh);
+          projectiles.splice(i, 1);
+        }
+      }
+
+      // 4. Update Grumps
+      grumps.forEach(g => {
+        if (g.isDancing) {
+          g.group.position.y = Math.abs(Math.sin(time * 6)) * 0.5;
+          g.group.rotation.y += delta * 3.5;
+        } else {
+          g.group.position.y = Math.sin(time * 2 + g.group.position.x) * 0.1;
+        }
+      });
+
+      // 5. Update Floating Balloons
+      destructibles.forEach(d => {
+        if (d.userData.type === 'balloon') {
+          d.position.y = Math.sin(time * 2 + d.position.x) * 0.15;
+        }
+      });
+
+      // 6. Update Ground Items
+      groundItems.forEach(item => {
+        item.rotation.y += delta * 1.5;
+        item.position.y = 0.2 + Math.sin(time * 3 + item.position.x) * 0.08;
+      });
+
+      // 7. Update Confetti Particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.vel.y -= 9.8 * delta;
+        p.mesh.position.addScaledVector(p.vel, delta);
+        p.mesh.rotation.x += p.rotVel.x * delta;
+        p.mesh.rotation.y += p.rotVel.y * delta;
+        p.life -= delta;
+        if (p.life <= 0) {
+          scene.remove(p.mesh);
+          particles.splice(i, 1);
+        }
+      }
+
+      // 8. Radar Mini-Map Render
+      drawMinimap();
+
+      // 9. Interaction Proximity
+      checkContextualInteractions();
+
+      // 10. Render
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    });
+
+    loadGame();
+    renderQuestLogUI();
+    animate();
+    showToast('❖ ARSENAL OF JOY & TACTICAL MAP ACTIVE ❖');
+
+  })();
+  </script>
+</body>
+</html>
