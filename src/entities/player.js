@@ -14,13 +14,16 @@ export const player = {
   blinkTimer: 0,
   speed: 7.4,
   meshBody: null,
-  meshHead: null,
+  headGroup: new THREE.Group(),
   meshGun: null,
   eyes: [],
   leftPigtail: null,
   rightPigtail: null,
   laserGuide: null,
-  beamMesh: null
+  beamMesh: null,
+  setHeadVisibility: function(visible) {
+    if (this.headGroup) this.headGroup.visible = visible;
+  }
 };
 
 export function initPlayer() {
@@ -44,13 +47,15 @@ export function initPlayer() {
   pouch.position.set(0.38, 0.4, 0);
   pGroup.add(pouch);
 
-  // 2. Kawaii Chibi Head
+  // 2. Head Group (Can be culled in ADS First-Person Mode)
+  const hGroup = player.headGroup;
+  pGroup.add(hGroup);
+
   const headMat = new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.45 });
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 20), headMat);
   head.position.y = 1.55;
   head.castShadow = true;
-  pGroup.add(head);
-  player.meshHead = head;
+  hGroup.add(head);
 
   // Large Glossy Anime Eyes facing +Z Front
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0x09090b });
@@ -60,22 +65,22 @@ export function initPlayer() {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), eyeMat);
     eye.scale.set(1, 1.3, 0.4);
     eye.position.set(x, 1.58, 0.38);
-    pGroup.add(eye);
+    hGroup.add(eye);
     player.eyes.push(eye);
 
     // Specular Star Highlight
     const h1 = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), eyeHighlightMat);
     h1.position.set(x - 0.03, 1.62, 0.42);
-    pGroup.add(h1);
+    hGroup.add(h1);
 
     const h2 = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), eyeHighlightMat);
     h2.position.set(x + 0.03, 1.54, 0.42);
-    pGroup.add(h2);
+    hGroup.add(h2);
 
     // Rosy Pink Blush Cheeks
     const blush = new THREE.Mesh(new THREE.CircleGeometry(0.075, 12), new THREE.MeshBasicMaterial({ color: 0xf472b6, transparent: true, opacity: 0.75 }));
     blush.position.set(x * 1.5, 1.46, 0.39);
-    pGroup.add(blush);
+    hGroup.add(blush);
   }
 
   // 3. Cyan S.M.I.L.E. Beret with Star Badge
@@ -83,11 +88,11 @@ export function initPlayer() {
   const beret = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.48, 0.16, 18), beretMat);
   beret.position.set(0, 1.88, -0.05);
   beret.rotation.z = 0.12;
-  pGroup.add(beret);
+  hGroup.add(beret);
 
   const starBadge = new THREE.Mesh(new THREE.OctahedronGeometry(0.08), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 }));
   starBadge.position.set(-0.25, 1.92, 0.32);
-  pGroup.add(starBadge);
+  hGroup.add(starBadge);
 
   // 4. Bouncing Twin-Tail Hair Meshes (-Z Back)
   const hairMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.4 });
@@ -97,25 +102,26 @@ export function initPlayer() {
   const leftTail = new THREE.Mesh(tailGeo, hairMat);
   leftTail.position.set(-0.42, 1.55, -0.15);
   leftTail.rotation.z = -0.3;
-  pGroup.add(leftTail);
+  hGroup.add(leftTail);
   player.leftPigtail = leftTail;
 
   const rightTail = new THREE.Mesh(tailGeo, hairMat);
   rightTail.position.set(0.42, 1.55, -0.15);
   rightTail.rotation.z = 0.3;
-  pGroup.add(rightTail);
+  hGroup.add(rightTail);
   player.rightPigtail = rightTail;
 
   // 5. Custom Mk-IV Confetti Blaster with Heart Tip (+Z Forward)
+  const gunGroup = new THREE.Group();
+  gunGroup.position.set(0.42, 1.05, 0.4);
+
   const gunMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.2 });
   const gun = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.22, 0.65), gunMat);
-  gun.position.set(0.42, 1.05, 0.4);
-  pGroup.add(gun);
-  player.meshGun = gun;
+  gunGroup.add(gun);
 
   const muzzleHeart = new THREE.Mesh(new THREE.OctahedronGeometry(0.09), new THREE.MeshStandardMaterial({ color: 0xec4899 }));
-  muzzleHeart.position.set(0.42, 1.05, 0.75);
-  pGroup.add(muzzleHeart);
+  muzzleHeart.position.set(0, 0, 0.35);
+  gunGroup.add(muzzleHeart);
 
   // Laser Guide Line (+Z Forward)
   const laserGeo = new THREE.BufferGeometry().setFromPoints([
@@ -124,9 +130,9 @@ export function initPlayer() {
   ]);
   const laserMat = new THREE.LineBasicMaterial({ color: 0xec4899, transparent: true, opacity: 0.85 });
   player.laserGuide = new THREE.Line(laserGeo, laserMat);
-  player.laserGuide.position.set(0.42, 1.05, 0.78);
+  player.laserGuide.position.set(0, 0, 0.38);
   player.laserGuide.visible = false;
-  pGroup.add(player.laserGuide);
+  gunGroup.add(player.laserGuide);
 
   // Prismatic Beam Mesh (+Z Forward)
   const beamGeo = new THREE.CylinderGeometry(0.08, 0.16, 16, 12);
@@ -134,9 +140,12 @@ export function initPlayer() {
   beamGeo.translate(0, 0, 8);
   const beamMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.75 });
   player.beamMesh = new THREE.Mesh(beamGeo, beamMat);
-  player.beamMesh.position.set(0.42, 1.05, 0.78);
+  player.beamMesh.position.set(0, 0, 0.38);
   player.beamMesh.visible = false;
-  pGroup.add(player.beamMesh);
+  gunGroup.add(player.beamMesh);
+
+  pGroup.add(gunGroup);
+  player.meshGun = gunGroup;
 
   pGroup.position.copy(player.position);
   scene.add(pGroup);
@@ -150,7 +159,7 @@ export function performQuickTurn() {
   audio.playQuickTurn();
 }
 
-export function updatePlayer(delta, time, currentRoom) {
+export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
   // Eye Blinking Logic
   player.blinkTimer -= delta;
   if (player.blinkTimer <= 0) {
@@ -169,6 +178,13 @@ export function updatePlayer(delta, time, currentRoom) {
       player.rotation = player.targetRotation;
       player.isQuickTurning = false;
     }
+  }
+
+  // Pitch weapon when aiming
+  if (player.isAiming && player.meshGun) {
+    player.meshGun.rotation.x = -cameraPitch * 0.8;
+  } else if (player.meshGun) {
+    player.meshGun.rotation.x = 0;
   }
 
   // Movement vector (+Z is Forward, -Z is Backward, +X is Strafe Right, -X is Strafe Left)
@@ -198,7 +214,7 @@ export function updatePlayer(delta, time, currentRoom) {
 
     // Kawaii foot-hop and hair bounce physics
     player.meshBody.position.y = 0.65 + Math.abs(Math.sin(time * 14)) * 0.08;
-    player.meshHead.position.y = 1.55 + Math.abs(Math.sin(time * 14)) * 0.08;
+    player.headGroup.position.y = Math.abs(Math.sin(time * 14)) * 0.08;
 
     if (player.leftPigtail && player.rightPigtail) {
       player.leftPigtail.rotation.x = Math.sin(time * 14) * 0.32;
@@ -206,7 +222,7 @@ export function updatePlayer(delta, time, currentRoom) {
     }
   } else {
     player.meshBody.position.y = 0.65;
-    player.meshHead.position.y = 1.55;
+    player.headGroup.position.y = 0;
     if (player.leftPigtail && player.rightPigtail) {
       player.leftPigtail.rotation.x = Math.sin(time * 3) * 0.08;
       player.rightPigtail.rotation.x = Math.sin(time * 3) * 0.08;

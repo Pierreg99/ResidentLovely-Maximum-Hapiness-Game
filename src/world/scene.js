@@ -1,6 +1,7 @@
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070a);
-scene.fog = new THREE.FogExp2(0x05070a, 0.02);
+// Clean Linear Fog that preserves room clarity across all wings
+scene.fog = new THREE.Fog(0x05070a, 35, 95);
 
 export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -8,7 +9,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1;
+renderer.toneMappingExposure = 1.25;
 
 const container = document.getElementById('canvas-container');
 container.appendChild(renderer.domElement);
@@ -18,11 +19,12 @@ window.addEventListener('resize', () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 });
 
-// Dynamic Ambient & Directional Lighting
-const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.42);
+// Dynamic Ambient Light
+const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.65);
 scene.add(ambientLight);
 
-const sunLight = new THREE.DirectionalLight(0xffedd5, 0.9);
+// Primary Directional Sun Light
+export const sunLight = new THREE.DirectionalLight(0xffedd5, 1.1);
 sunLight.position.set(15, 32, 15);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.width = 1024;
@@ -30,12 +32,20 @@ sunLight.shadow.mapSize.height = 1024;
 sunLight.shadow.bias = -0.0005;
 scene.add(sunLight);
 
-// Chandelier PointLight with Warm Crystal Radiance
-export const chandelierLight = new THREE.PointLight(0xf59e0b, 1.6, 32);
-chandelierLight.position.set(0, 7.5, 0);
-scene.add(chandelierLight);
+// Dedicated Wing Point Lights for Balanced PBR Illumination
+export const foyerLight = new THREE.PointLight(0xf59e0b, 1.8, 30);
+foyerLight.position.set(0, 7.5, 0);
+scene.add(foyerLight);
 
-// Multi-Tier Crystal Chandelier Mesh
+export const libraryLight = new THREE.PointLight(0xf59e0b, 2.0, 32);
+libraryLight.position.set(45, 7.0, 0);
+scene.add(libraryLight);
+
+export const gardenLight = new THREE.PointLight(0x10b981, 2.2, 34);
+gardenLight.position.set(-45, 7.5, 0);
+scene.add(gardenLight);
+
+// Multi-Tier Crystal Chandelier Mesh in Foyer
 (function buildChandelier() {
   const g = new THREE.Group();
   g.position.set(0, 8.2, 0);
@@ -74,7 +84,7 @@ scene.add(chandelierLight);
   const rayMat = new THREE.MeshBasicMaterial({
     color: 0xec4899,
     transparent: true,
-    opacity: 0.12,
+    opacity: 0.14,
     side: THREE.DoubleSide,
     blending: THREE.AdditiveBlending,
     depthWrite: false
@@ -90,15 +100,15 @@ scene.add(muzzleLight);
 
 // Ambient Floating Stardust Motes System
 const stardustMotes = [];
-const moteGeo = new THREE.OctahedronGeometry(0.05);
-const moteMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.6 });
+const moteGeo = new THREE.OctahedronGeometry(0.06);
+const moteMat = new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.65 });
 
-for (let i = 0; i < 55; i++) {
+for (let i = 0; i < 60; i++) {
   const mote = new THREE.Mesh(moteGeo, moteMat);
   mote.position.set(
-    (Math.random() - 0.5) * 26,
+    (Math.random() - 0.5) * 28,
     Math.random() * 7 + 0.5,
-    (Math.random() - 0.5) * 26
+    (Math.random() - 0.5) * 28
   );
   stardustMotes.push({
     mesh: mote,
@@ -109,12 +119,28 @@ for (let i = 0; i < 55; i++) {
   scene.add(mote);
 }
 
-export function updateStardust(time) {
-  stardustMotes.forEach(m => {
+export function updateStardust(time, currentRoom) {
+  let roomCenterX = 0;
+  if (currentRoom === 'library') roomCenterX = 45;
+  if (currentRoom === 'garden') roomCenterX = -45;
+
+  stardustMotes.forEach((m, idx) => {
     m.mesh.position.y = m.baseY + Math.sin(time * m.speed + m.phase) * 0.35;
     m.mesh.rotation.x += 0.01;
     m.mesh.rotation.y += 0.015;
   });
+}
+
+export function updateSceneLighting(currentRoom) {
+  if (currentRoom === 'foyer') {
+    sunLight.position.set(15, 32, 15);
+    scene.fog.near = 35;
+    scene.fog.far = 95;
+  } else if (currentRoom === 'library') {
+    sunLight.position.set(55, 32, 15);
+  } else if (currentRoom === 'garden') {
+    sunLight.position.set(-35, 32, 15);
+  }
 }
 
 // Confetti & Star Sparkle Particle System

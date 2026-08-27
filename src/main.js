@@ -1,4 +1,4 @@
-import { scene, renderer, updateParticles, spawnConfetti, updateStardust } from './world/scene.js';
+import { scene, renderer, updateParticles, spawnConfetti, updateStardust, updateSceneLighting } from './world/scene.js';
 import { rooms, initRooms, lanternMeshes, groundItems, spawnGroundItem, updateGroundItems } from './world/rooms.js';
 import { destructibles, initDestructibles, updateDestructibles } from './world/destructibles.js';
 import { player, initPlayer, updatePlayer, performQuickTurn } from './entities/player.js';
@@ -184,6 +184,8 @@ function changeRoom(newRoom, targetSpawnPos) {
     if (newRoom === 'foyer') roomNameDisplay.textContent = '❖ CHÂTEAU FOYER';
     if (newRoom === 'library') roomNameDisplay.textContent = '❖ EAST WING LIBRARY';
     if (newRoom === 'garden') roomNameDisplay.textContent = '❖ SOLARIUM GARDEN';
+
+    updateSceneLighting(newRoom);
 
     setTimeout(() => {
       if (doorCurtain) doorCurtain.style.display = 'none';
@@ -472,7 +474,7 @@ function animate() {
   const delta = Math.min(clock.getDelta(), 0.1);
   const time = clock.getElapsedTime();
 
-  updatePlayer(delta, time, gameState.room);
+  updatePlayer(delta, time, gameState.room, cameraController.pitch);
   cameraController.update(player, delta, gameState.room);
   updateProjectiles(delta, gameState, {
     onToast: showToast,
@@ -494,7 +496,7 @@ function animate() {
   updateDestructibles(time);
   updateGroundItems(delta, time);
   updateParticles(delta);
-  updateStardust(time);
+  updateStardust(time, gameState.room);
   updateTargetSights(gameState.room);
 
   minimapSystem.render(player, grumps, destructibles);
@@ -504,4 +506,4 @@ function animate() {
 }
 
 animate();
-showToast('❖ RESIDENT LOVELY CAMERA & SIGHTS ACTIVE ❖');
+showToast('❖ RESIDENT LOVELY v1.6.1 CAMERA & GRAPHICS CALIBRATED ❖');

@@ -3,7 +3,10 @@ import { audio } from './audio.js';
 export const input = {
   moveX: 0,
   moveY: 0,
-  keys: {}
+  keys: {},
+  isMouseDown: false,
+  lastMouseX: 0,
+  lastMouseY: 0
 };
 
 export function initInput(callbacks) {
@@ -54,6 +57,39 @@ export function initInput(callbacks) {
   window.addEventListener('keyup', (e) => {
     input.keys[e.code] = false;
   });
+
+  // Desktop Mouse Look Navigation on Canvas
+  const canvasContainer = document.getElementById('canvas-container');
+  if (canvasContainer) {
+    canvasContainer.addEventListener('mousedown', (e) => {
+      audio.init();
+      if (e.button === 0) { // Left-click drag look
+        input.isMouseDown = true;
+        input.lastMouseX = e.clientX;
+        input.lastMouseY = e.clientY;
+      } else if (e.button === 2) { // Right-click aim toggle
+        e.preventDefault();
+        onToggleAim();
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!input.isMouseDown) return;
+      const deltaX = e.clientX - input.lastMouseX;
+      const deltaY = e.clientY - input.lastMouseY;
+      onRotateCamera(deltaX * 0.005, deltaY * 0.003);
+      input.lastMouseX = e.clientX;
+      input.lastMouseY = e.clientY;
+    });
+
+    window.addEventListener('mouseup', (e) => {
+      if (e.button === 0) {
+        input.isMouseDown = false;
+      }
+    });
+
+    canvasContainer.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
 
   // Touch Virtual Joystick
   const joystickZone = document.getElementById('joystick-zone');
