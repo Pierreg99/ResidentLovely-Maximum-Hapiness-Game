@@ -1,8 +1,8 @@
 # RESIDENT LOVELY ❖ DEVELOPMENT ROADMAP & PROGRESS
 
-**Current Release**: `v1.2.0 (Arsenal of Joy & Tactical Maps)`  
+**Current Release**: `v1.3.0 (ESM Multi-Module Architecture)`  
 **Standard**: NEXUS PRIVÉ v6.0 | Zero-Emoji Enforcement  
-**Engine**: Three.js WebGL + Web Audio Synthesizer  
+**Engine**: Three.js WebGL + Web Audio Synthesizer (Modular ESM)  
 
 ---
 
@@ -23,9 +23,10 @@
 | **Interactive Estate Architectural Blueprint** | v1.2.0 | COMPLETED | `[██████████] 100%` |
 | **Destructible Floating Balloons & Gift Boxes** | v1.2.0 | COMPLETED | `[██████████] 100%` |
 | **Camera Recoil Shake & Muzzle Flash Lighting** | v1.2.0 | COMPLETED | `[██████████] 100%` |
-| **New Wing: Confectionery Kitchen & Ballroom Vault**| v1.3.0 | IN PROGRESS | `[████░░░░░░] 40%` |
-| **Boss Encounter: The Grumpy Master Chef** | v1.3.0 | IN PROGRESS | `[███░░░░░░░] 30%` |
-| **PWA ServiceWorker Offline Asset Caching** | v1.4.0 | PLANNED | `[░░░░░░░░░░] 0%` |
+| **ESM Multi-Module Architecture Decoupling** | v1.3.0 | COMPLETED | `[██████████] 100%` |
+| **New Wing: Confectionery Kitchen & Ballroom Vault**| v1.4.0 | IN PROGRESS | `[████░░░░░░] 40%` |
+| **Boss Encounter: The Grumpy Master Chef** | v1.4.0 | IN PROGRESS | `[███░░░░░░░] 30%` |
+| **PWA ServiceWorker Offline Asset Caching** | v1.5.0 | PLANNED | `[░░░░░░░░░░] 0%` |
 | **Multiplayer 2-Player Co-Op Joy (WebRTC)** | v2.0.0 | PLANNED | `[░░░░░░░░░░] 0%` |
 | **WebXR Immersive Spatial / VR Support** | v2.0.0 | PLANNED | `[░░░░░░░░░░] 0%` |
 
@@ -60,17 +61,22 @@
 - [x] Fullscreen Estate Blueprint map with dynamic lock states (Red/Green) and player marker.
 - [x] Destructible Floating Balloons and Gilded Gift Boxes with treat drops.
 
-### Phase 4: Boss Battles & Secret Wings (v1.3.0) ❖ [IN PROGRESS]
+### Phase 4: Modular ESM Architecture Refactor (v1.3.0) ✔
+- [x] Decouple single `index.html` into `src/` modules: `main.js`, `engine/`, `world/`, `entities/`, `weapons/`, `systems/`.
+- [x] Separate `css/style.css` stylesheet for NEXUS PRIVÉ v6.0 tokens.
+- [x] Modular test verification and 60 FPS performance validation.
+
+### Phase 5: Boss Battles & Secret Wings (v1.4.0) ❖ [IN PROGRESS]
 - [ ] Expansion wing: *The Grand Confectionery Kitchen*.
 - [ ] Boss fight encounter: *The Grumpy Master Chef* (multi-phase happiness battle).
 - [ ] New weapon: *Triple-Scoop Ice Cream Launcher*.
 - [ ] Time-Attack "Joy Rush" speedrun challenge mode.
 
-### Phase 5: PWA & Performance Polish (v1.4.0) ◈ [PLANNED]
+### Phase 6: PWA & Performance Polish (v1.5.0) ◈ [PLANNED]
 - [ ] PWA Web App Manifest and offline ServiceWorker caching.
 - [ ] 120 FPS high-refresh rate display optimization.
 - [ ] Custom keybinding and touch layout reconfiguration menu.
 
-### Phase 6: Co-Op Multiplayer & WebXR (v2.0.0) ◈ [PLANNED]
+### Phase 7: Co-Op Multiplayer & WebXR (v2.0.0) ◈ [PLANNED]
 - [ ] Peer-to-peer 2-player co-op happiness missions via WebRTC DataChannels.
 - [ ] WebXR headset support for immersive virtual reality exploration of Château de la Joie.

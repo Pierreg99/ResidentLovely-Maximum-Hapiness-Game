@@ -5,6 +5,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ---
 
+## [1.3.0] - 2026-08-27
+
+### Added
+- **ESM Multi-Module Architecture**:
+  - Decoupled monolithic `index.html` into clean, maintainable ECMAScript Modules:
+    - `src/main.js`: Game loop coordinator, animation lifecycle, and subsystem integration.
+    - `src/engine/audio.js`: Synthesized Web Audio API sound engine (zero audio asset dependencies).
+    - `src/engine/input.js`: Touch virtual joystick, look swipe, keyboard fallback, and action bindings.
+    - `src/engine/camera.js`: Over-the-shoulder chase camera, aim zoom, and screen trauma shake.
+    - `src/world/scene.js`: Three.js scene, dynamic lighting, soft shadows, and confetti particle pool.
+    - `src/world/rooms.js`: Procedural room builders (Foyer, Library, Solarium Garden) and ground items.
+    - `src/world/destructibles.js`: Floating balloons & gilded gift boxes with pop and fracture physics.
+    - `src/entities/player.js`: 3D Player Character ("Agent Joy") model, movement physics, and laser guide.
+    - `src/entities/grump.js`: Grump AI variants (Gloom Bear, Sighing Specter, Gilded Knight) and celebration states.
+    - `src/weapons/arsenal.js`: 4-weapon system, 3D ballistic projectile simulation, and beam collision.
+    - `src/systems/inventory.js`: 8-slot inventory grid, item database, combine recipes, and ECG joy monitor.
+    - `src/systems/quests.js`: Multi-tier quest engine, task progress tracking, and mini-HUD banner.
+    - `src/systems/minimap.js`: 360-degree rotating radar mini-map canvas and estate blueprint modal.
+    - `src/systems/persistence.js`: Save and load system snapshotting to `localStorage`.
+  - `css/style.css`: Dedicated stylesheet for NEXUS PRIVÉ tokens, HUD layout, and modal glassmorphism.
+
+---
+
 ## [1.2.0] - 2026-08-27
 
 ### Added
