@@ -1,4 +1,4 @@
-const CACHE_NAME = 'resident-lovely-v2.0-cache';
+const CACHE_NAME = 'resident-lovely-v3.5.0-cache';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ const ASSETS_TO_CACHE = [
   './src/entities/player.js',
   './src/entities/grump.js',
   './src/entities/boss.js',
+  './src/entities/companion.js',
   './src/weapons/arsenal.js',
   './src/world/scene.js',
   './src/world/rooms.js',
