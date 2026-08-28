@@ -14,9 +14,14 @@ export class CameraController {
       library: { minX: 34.0, maxX: 56.0, minZ: -10.2, maxZ: 10.2, minY: 0.9, maxY: 7.2, center: new THREE.Vector3(45, 0, 0) },
       garden: { minX: -56.0, maxX: -34.0, minZ: -11.2, maxZ: 11.2, minY: 0.9, maxY: 7.8, center: new THREE.Vector3(-45, 0, 0) },
       greenhouse: { minX: -11.5, maxX: 11.5, minZ: 33.5, maxZ: 56.5, minY: 0.9, maxY: 9.0, center: new THREE.Vector3(0, 0, 45) },
+      dining: { minX: 34.0, maxX: 56.0, minZ: 33.5, maxZ: 56.5, minY: 0.9, maxY: 8.5, center: new THREE.Vector3(45, 0, 45) },
+      gallery: { minX: -56.0, maxX: -34.0, minZ: 33.5, maxZ: 56.5, minY: 0.9, maxY: 8.5, center: new THREE.Vector3(-45, 0, 45) },
       observatory: { minX: 34.0, maxX: 56.0, minZ: -10.5, maxZ: 10.5, minY: 12.8, maxY: 20.0, center: new THREE.Vector3(45, 12, 0) },
       clocktower: { minX: -56.0, maxX: -34.0, minZ: -10.5, maxZ: 10.5, minY: 12.8, maxY: 20.0, center: new THREE.Vector3(-45, 12, 0) },
-      lab: { minX: -11.5, maxX: 11.5, minZ: -56.5, maxZ: -33.5, minY: -13.2, maxY: -6.0, center: new THREE.Vector3(0, -14, -45) }
+      mastersuite: { minX: -11.5, maxX: 11.5, minZ: 33.5, maxZ: 56.5, minY: 12.8, maxY: 20.0, center: new THREE.Vector3(0, 12, 45) },
+      ballroom: { minX: -12.5, maxX: 12.5, minZ: -56.5, maxZ: -33.5, minY: 12.8, maxY: 20.0, center: new THREE.Vector3(0, 12, -45) },
+      lab: { minX: -11.5, maxX: 11.5, minZ: -56.5, maxZ: -33.5, minY: -13.2, maxY: -6.0, center: new THREE.Vector3(0, -14, -45) },
+      crypt: { minX: -12.5, maxX: 12.5, minZ: -56.5, maxZ: -33.5, minY: -27.2, maxY: -20.0, center: new THREE.Vector3(0, -28, -45) }
     };
 
     // Classic Resident Evil Fixed Cinematic Camera Nodes per Room
@@ -28,17 +33,23 @@ export class CameraController {
       ],
       library: [
         { id: 'lib_entry', pos: new THREE.Vector3(36.5, 5.2, -5.0), triggerZ: -2 },
-        { id: 'lib_cauldron', pos: new THREE.Vector3(52.5, 5.5, 8.0), triggerZ: 4 },
-        { id: 'lib_balcony', pos: new THREE.Vector3(37.5, 5.8, 4.0), triggerZ: 14 }
+        { id: 'lib_cauldron', pos: new THREE.Vector3(52.5, 5.5, 8.0), triggerZ: 4 }
       ],
       garden: [
         { id: 'garden_entry', pos: new THREE.Vector3(-36.5, 5.5, -5.0), triggerZ: -2 },
-        { id: 'garden_fountain', pos: new THREE.Vector3(-45.0, 4.8, 8.0), triggerZ: 4 },
-        { id: 'garden_gazebo', pos: new THREE.Vector3(-53.5, 5.8, -3.0), triggerZ: 14 }
+        { id: 'garden_fountain', pos: new THREE.Vector3(-45.0, 4.8, 8.0), triggerZ: 4 }
       ],
       greenhouse: [
         { id: 'gh_entry', pos: new THREE.Vector3(0, 4.5, 36.0), triggerZ: 40 },
         { id: 'gh_pavilion', pos: new THREE.Vector3(7.5, 5.5, 48.0), triggerZ: 50 }
+      ],
+      dining: [
+        { id: 'din_entry', pos: new THREE.Vector3(37.5, 5.5, 38.0), triggerZ: 40 },
+        { id: 'din_table', pos: new THREE.Vector3(52.5, 5.5, 50.0), triggerZ: 50 }
+      ],
+      gallery: [
+        { id: 'gal_entry', pos: new THREE.Vector3(-37.5, 5.5, 38.0), triggerZ: 40 },
+        { id: 'gal_art', pos: new THREE.Vector3(-52.5, 5.5, 50.0), triggerZ: 50 }
       ],
       observatory: [
         { id: 'obs_entry', pos: new THREE.Vector3(37.5, 16.5, -5.0), triggerZ: -2 },
@@ -48,9 +59,19 @@ export class CameraController {
         { id: 'clock_entry', pos: new THREE.Vector3(-37.5, 16.5, -5.0), triggerZ: -2 },
         { id: 'clock_pendulum', pos: new THREE.Vector3(-52.5, 17.5, 6.0), triggerZ: 4 }
       ],
+      mastersuite: [
+        { id: 'master_entry', pos: new THREE.Vector3(0, 16.5, 38.0), triggerZ: 40 }
+      ],
+      ballroom: [
+        { id: 'ball_entry', pos: new THREE.Vector3(0, 16.5, -38.0), triggerZ: -40 }
+      ],
       lab: [
         { id: 'lab_entry', pos: new THREE.Vector3(0, -9.5, -36.0), triggerZ: -40 },
         { id: 'lab_dynamo', pos: new THREE.Vector3(-7.5, -8.5, -48.0), triggerZ: -50 }
+      ],
+      crypt: [
+        { id: 'crypt_entry', pos: new THREE.Vector3(0, -23.5, -38.0), triggerZ: -40 },
+        { id: 'crypt_boss', pos: new THREE.Vector3(0, -22.5, -50.0), triggerZ: -48 }
       ]
     };
 

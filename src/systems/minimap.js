@@ -107,6 +107,31 @@ export class MinimapSystem {
       if (joy) joy.textContent = this.gameState.dynamoActive ? '100% BLISS' : '45% BLISS';
       if (quest) quest.textContent = this.gameState.dynamoActive ? 'Joy Dynamo Online ✔' : 'Insert Dynamo Core';
       if (grump) grump.textContent = '2 Chemist Grumps';
+    } else if (room === 'dining') {
+      if (title) title.textContent = 'GRAND BANQUET DINING HALL (1F)';
+      if (joy) joy.textContent = '90% BLISS';
+      if (quest) quest.textContent = 'Feast Table Banquet Inspection';
+      if (grump) grump.textContent = '1 Hungry Bear';
+    } else if (room === 'gallery') {
+      if (title) title.textContent = 'HALL OF WHOLESOME PORTRAITS (1F)';
+      if (joy) joy.textContent = '95% BLISS';
+      if (quest) quest.textContent = 'Stained Glass Sconce Tour';
+      if (grump) grump.textContent = '1 Art Critic Grump';
+    } else if (room === 'mastersuite') {
+      if (title) title.textContent = 'ROYAL VELVET MASTER SUITE (2F)';
+      if (joy) joy.textContent = '100% BLISS';
+      if (quest) quest.textContent = 'Royal Velvet Rest & Solarium Terrace';
+      if (grump) grump.textContent = '1 Slumbering Plushie';
+    } else if (room === 'ballroom') {
+      if (title) title.textContent = 'GRAND CRYSTAL BALLROOM (2F)';
+      if (joy) joy.textContent = '100% BLISS';
+      if (quest) quest.textContent = 'Starlight Disco Chandelier Dance';
+      if (grump) grump.textContent = '2 Waltz Dancers';
+    } else if (room === 'crypt') {
+      if (title) title.textContent = 'WHISPERING CRYPT OF JOY (B2)';
+      if (joy) joy.textContent = 'FINAL BOSS ARENA';
+      if (quest) quest.textContent = '★ UPLIFT GRAND GLOOM BEHEMOTH ★';
+      if (grump) grump.textContent = '★ BOSS: GLOOM BEHEMOTH ★';
     }
   }
 

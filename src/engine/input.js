@@ -245,12 +245,35 @@ export function initInput(callbacks) {
     });
   });
 
-  const btnAudio = document.getElementById('btn-audio-toggle');
-  if (btnAudio) {
-    btnAudio.addEventListener('click', () => {
-      audio.init();
-      audio.muted = !audio.muted;
-      callbacks.onToast(audio.muted ? 'AUDIO MUTED' : 'AUDIO ACTIVE');
-    });
+  // Gamepad Polling Loop
+  let prevPadButtons = {};
+
+  function pollGamepad() {
+    const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+    const pad = gamepads[0] || gamepads[1];
+    if (pad) {
+      // Left Analog Stick Movement
+      if (Math.abs(pad.axes[0]) > 0.15) input.moveX = pad.axes[0];
+      if (Math.abs(pad.axes[1]) > 0.15) input.moveY = -pad.axes[1];
+
+      // Right Analog Stick Camera Look
+      if (Math.abs(pad.axes[2]) > 0.15 || Math.abs(pad.axes[3]) > 0.15) {
+        onRotateCamera(pad.axes[2] * 0.04, pad.axes[3] * 0.02);
+      }
+
+      // Buttons
+      if (pad.buttons[0]?.pressed && !prevPadButtons[0]) onContextInteract();
+      if (pad.buttons[1]?.pressed && !prevPadButtons[1]) onQuickTurn();
+      if (pad.buttons[2]?.pressed && !prevPadButtons[2]) onFire();
+      if (pad.buttons[3]?.pressed && !prevPadButtons[3]) onToggleInventory();
+      if (pad.buttons[5]?.pressed && !prevPadButtons[5]) onCycleWeapon();
+      if (pad.buttons[6]?.pressed && !prevPadButtons[6]) onToggleAim();
+      if (pad.buttons[7]?.pressed && !prevPadButtons[7]) onFire();
+      if (pad.buttons[9]?.pressed && !prevPadButtons[9]) onToggleFullMap();
+
+      pad.buttons.forEach((b, idx) => { prevPadButtons[idx] = b.pressed; });
+    }
+    requestAnimationFrame(pollGamepad);
   }
+  requestAnimationFrame(pollGamepad);
 }

@@ -49,6 +49,14 @@ export const greenhouseLight = new THREE.PointLight(0x34d399, 2.2, 34);
 greenhouseLight.position.set(0, 7.5, 45);
 scene.add(greenhouseLight);
 
+export const diningLight = new THREE.PointLight(0xf59e0b, 2.2, 34);
+diningLight.position.set(45, 7.5, 45);
+scene.add(diningLight);
+
+export const galleryLight = new THREE.PointLight(0xec4899, 2.2, 34);
+galleryLight.position.set(-45, 7.5, 45);
+scene.add(galleryLight);
+
 export const observatoryLight = new THREE.PointLight(0x38bdf8, 2.2, 34);
 observatoryLight.position.set(45, 18.0, 0);
 scene.add(observatoryLight);
@@ -57,9 +65,21 @@ export const clocktowerLight = new THREE.PointLight(0xf59e0b, 2.2, 34);
 clocktowerLight.position.set(-45, 18.0, 0);
 scene.add(clocktowerLight);
 
+export const mastersuiteLight = new THREE.PointLight(0xa855f7, 2.2, 34);
+mastersuiteLight.position.set(0, 18.0, 45);
+scene.add(mastersuiteLight);
+
+export const ballroomLight = new THREE.PointLight(0x38bdf8, 2.4, 36);
+ballroomLight.position.set(0, 18.0, -45);
+scene.add(ballroomLight);
+
 export const labLight = new THREE.PointLight(0x06b6d4, 2.4, 36);
 labLight.position.set(0, -8.0, -45);
 scene.add(labLight);
+
+export const cryptLight = new THREE.PointLight(0x22d3ee, 2.6, 38);
+cryptLight.position.set(0, -22.0, -45);
+scene.add(cryptLight);
 
 // Multi-Tier Crystal Chandelier Mesh in Foyer
 (function buildChandelier() {

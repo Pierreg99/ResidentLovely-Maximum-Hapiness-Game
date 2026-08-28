@@ -3,6 +3,7 @@ import { rooms, initRooms, lanternMeshes, groundItems, spawnGroundItem, updateGr
 import { destructibles, initDestructibles, updateDestructibles } from './world/destructibles.js';
 import { player, initPlayer, updatePlayer, performQuickTurn } from './entities/player.js';
 import { grumps, initGrumps, updateGrumps } from './entities/grump.js';
+import { initBoss, bossInstance } from './entities/boss.js';
 import { triggerWeaponFire, updateProjectiles, updateTargetSights } from './weapons/arsenal.js';
 import { audio } from './engine/audio.js';
 import { CameraController } from './engine/camera.js';
@@ -90,6 +91,7 @@ initRooms();
 initDestructibles();
 initPlayer();
 initGrumps();
+initBoss();
 
 // Weapon selection handler
 const weaponOrder = ['pistol', 'shotgun', 'mortar', 'beam'];
@@ -195,9 +197,18 @@ function changeRoom(newRoom, targetSpawnPos) {
     if (newRoom === 'library') roomNameDisplay.textContent = '❖ EAST WING LIBRARY';
     if (newRoom === 'garden') roomNameDisplay.textContent = '❖ SOLARIUM GARDEN';
     if (newRoom === 'greenhouse') roomNameDisplay.textContent = '❖ COURTYARD TEA GREENHOUSE';
+    if (newRoom === 'dining') roomNameDisplay.textContent = '❖ GRAND BANQUET DINING HALL';
+    if (newRoom === 'gallery') roomNameDisplay.textContent = '❖ HALL OF WHOLESOME PORTRAITS';
     if (newRoom === 'observatory') roomNameDisplay.textContent = '❖ CELESTIAL OBSERVATORY (2F)';
     if (newRoom === 'clocktower') roomNameDisplay.textContent = '❖ CLOCKTOWER SWEET SUITE (2F)';
+    if (newRoom === 'mastersuite') roomNameDisplay.textContent = '❖ ROYAL VELVET MASTER SUITE (2F)';
+    if (newRoom === 'ballroom') roomNameDisplay.textContent = '❖ GRAND CRYSTAL BALLROOM (2F)';
     if (newRoom === 'lab') roomNameDisplay.textContent = '❖ SUBTERRANEAN SUGAR LAB (B1)';
+    if (newRoom === 'crypt') roomNameDisplay.textContent = '❖ WHISPERING CRYPT OF JOY (B2)';
+
+    audio.updateBGMRoom(newRoom);
+    const bossHud = document.getElementById('boss-health-bar');
+    if (bossHud) bossHud.style.display = (newRoom === 'crypt') ? 'block' : 'none';
 
     updateSceneLighting(newRoom);
 
@@ -773,6 +784,9 @@ function animate() {
     }
   });
   updateGrumps(delta, time, cameraController.camera);
+  if (bossInstance && gameState.room === 'crypt') {
+    bossInstance.update(delta, time, player.group.position);
+  }
   updateDestructibles(time);
   updateGroundItems(delta, time);
   updateParticles(delta);

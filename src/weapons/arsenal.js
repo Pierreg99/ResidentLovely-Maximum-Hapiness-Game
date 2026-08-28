@@ -2,6 +2,7 @@ import { scene, muzzleLight, spawnConfetti } from '../world/scene.js';
 import { rooms } from '../world/rooms.js';
 import { destructibles, popDestructible } from '../world/destructibles.js';
 import { grumps, upliftGrump } from '../entities/grump.js';
+import { bossInstance } from '../entities/boss.js';
 import { player } from '../entities/player.js';
 import { audio } from '../engine/audio.js';
 
@@ -177,6 +178,14 @@ function checkBeamHits(origin, dir, gameState, callbacks) {
     }
   });
 
+  if (bossInstance && gameState.room === 'crypt' && !bossInstance.isDefeated) {
+    const bossPos = rooms.crypt.position.clone().add(bossInstance.group.position).add(new THREE.Vector3(0, 2.4, 0));
+    if (origin.distanceTo(bossPos) < 18) {
+      bossInstance.takeDamage(25, gameState, callbacks);
+      spawnConfetti(bossPos, 30);
+    }
+  }
+
   destructibles.forEach(d => {
     if (d.userData.roomName !== gameState.room) return;
     let worldDPos = getEntityWorldPos(d.userData.roomName, d.position);
@@ -219,6 +228,16 @@ export function updateProjectiles(delta, gameState, callbacks) {
         }
       }
     });
+
+    if (bossInstance && p.roomName === 'crypt' && !bossInstance.isDefeated) {
+      const bossPos = rooms.crypt.position.clone().add(bossInstance.group.position).add(new THREE.Vector3(0, 2.4, 0));
+      if (p.mesh.position.distanceTo(bossPos) < 2.8) {
+        hit = true;
+        const dmg = p.type === 'mortar' ? 60 : (p.type === 'shotgun' ? 30 : 15);
+        bossInstance.takeDamage(dmg, gameState, callbacks);
+        spawnConfetti(p.mesh.position, 35);
+      }
+    }
 
     destructibles.forEach(d => {
       if (d.userData.roomName !== p.roomName) return;

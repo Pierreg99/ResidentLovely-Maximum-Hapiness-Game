@@ -269,6 +269,59 @@ export class SoundEngine {
     osc.start();
     osc.stop(this.ctx.currentTime + 0.35);
   }
+
+  // --- Dynamic Adaptive Web Audio BGM System ---
+  startBGM(roomName = 'foyer') {
+    if (this.bgmTimer) return;
+    this.init();
+    this.currentBgmRoom = roomName;
+    this.bgmStep = 0;
+
+    const bgmScales = {
+      foyer: [261.63, 329.63, 392.00, 523.25, 392.00, 329.63],
+      library: [293.66, 349.23, 440.00, 587.33, 440.00, 349.23],
+      garden: [329.63, 415.30, 493.88, 659.25, 493.88, 415.30],
+      greenhouse: [349.23, 440.00, 523.25, 698.46, 523.25, 440.00],
+      observatory: [493.88, 587.33, 739.99, 987.77, 739.99, 587.33],
+      clocktower: [392.00, 493.88, 587.33, 783.99, 587.33, 493.88],
+      lab: [220.00, 261.63, 329.63, 440.00, 329.63, 261.63],
+      crypt: [164.81, 196.00, 246.94, 329.63, 246.94, 196.00],
+      dining: [261.63, 329.63, 392.00, 523.25, 659.25, 523.25],
+      gallery: [293.66, 369.99, 440.00, 587.33, 440.00, 369.99],
+      mastersuite: [329.63, 392.00, 493.88, 659.25, 493.88, 392.00],
+      ballroom: [392.00, 493.88, 587.33, 783.99, 987.77, 783.99]
+    };
+
+    this.bgmTimer = setInterval(() => {
+      if (this.muted || !this.ctx) return;
+      const scale = bgmScales[this.currentBgmRoom] || bgmScales.foyer;
+      const freq = scale[this.bgmStep % scale.length];
+      this.bgmStep++;
+
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = (this.currentBgmRoom === 'observatory' || this.currentBgmRoom === 'ballroom') ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.35);
+    }, 280);
+  }
+
+  updateBGMRoom(roomName) {
+    this.currentBgmRoom = roomName;
+    if (!this.bgmTimer) this.startBGM(roomName);
+  }
+
+  stopBGM() {
+    if (this.bgmTimer) {
+      clearInterval(this.bgmTimer);
+      this.bgmTimer = null;
+    }
+  }
 }
 
 export const audio = new SoundEngine();
