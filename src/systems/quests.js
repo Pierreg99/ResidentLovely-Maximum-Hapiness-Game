@@ -57,13 +57,54 @@ export const QUESTS = [
     ]
   },
   {
-    id: 'quest_uplift',
-    name: 'QUEST 6: CHÂTEAU JOY BRIGADE',
-    desc: 'Blast and uplift all Gloomy Grumps across all 7 estate wings into dancing celebration buddies.',
+    id: 'quest_dining',
+    name: 'QUEST 6: ROYAL CONFECTIONERY BANQUET',
+    desc: 'Tour the Grand Dining Banquet Hall and inspect the tiered feast table and golden candelabras.',
     status: 'active',
     tasks: [
-      { id: 't_uplift_grumps', text: 'Uplift all 10 Gloomy Grump plushies (0/10)', done: false, count: 0, max: 10 },
-      { id: 't_save_gramo', text: 'Save your grand progress at the Golden Gramophone', done: false }
+      { id: 't_enter_dining', text: 'Enter the Grand Banquet Dining Hall (1F)', done: false },
+      { id: 't_inspect_feast', text: 'Sample the Royal Confectionery Feast Platter', done: false }
+    ]
+  },
+  {
+    id: 'quest_gallery',
+    name: 'QUEST 7: GALLERY PORTRAIT RESTORATION',
+    desc: 'Visit the Hall of Wholesome Portraits and examine the master portraits of S.M.I.L.E. Agents.',
+    status: 'active',
+    tasks: [
+      { id: 't_enter_gallery', text: 'Enter the Hall of Wholesome Portraits (1F)', done: false },
+      { id: 't_view_portraits', text: 'Inspect the 5 illuminated S.M.I.L.E. Agent Masterworks', done: false }
+    ]
+  },
+  {
+    id: 'quest_mastersuite',
+    name: 'QUEST 8: ROYAL VELVET MASTER SUITE',
+    desc: 'Ascend to the Royal Velvet Master Suite (2F North) and step out onto the Solarium Terrace.',
+    status: 'active',
+    tasks: [
+      { id: 't_enter_suite', text: 'Enter the Royal Velvet Master Suite (2F)', done: false },
+      { id: 't_rest_canopy', text: 'Relax at the Royal Canopy Bed to restore maximum Joy', done: false }
+    ]
+  },
+  {
+    id: 'quest_ballroom',
+    name: 'QUEST 9: CRYSTAL BALLROOM WALTZ',
+    desc: 'Enter the Grand Crystal Ballroom (2F South) and activate the spinning Starlight Disco Chandelier.',
+    status: 'active',
+    tasks: [
+      { id: 't_enter_ballroom', text: 'Enter the Grand Crystal Ballroom (2F)', done: false },
+      { id: 't_spin_disco', text: 'Activate the Starlight Disco Chandelier', done: false }
+    ]
+  },
+  {
+    id: 'quest_boss',
+    name: 'QUEST 10: THE GRAND GLOOM BEHEMOTH UPLIFT',
+    desc: 'Descend to B2 Whispering Crypt of Joy and uplift the colossal Grand Gloom Behemoth into eternal celebration!',
+    status: 'active',
+    tasks: [
+      { id: 't_descend_crypt', text: 'Descend through the B1 Lab staircase into B2 Crypt Arena', done: false },
+      { id: 't_boss_uplift', text: 'Uplift the Grand Gloom Behemoth Boss (0/300 HP)', done: false },
+      { id: 't_spread_joy', text: 'Spread eternal happiness across the entire Château de la Joie', done: false }
     ]
   }
 ];
@@ -74,7 +115,8 @@ export class QuestSystem {
     this.questListContainer = document.getElementById('quest-list-container');
     this.activeObjText = document.getElementById('active-obj-text');
 
-    document.getElementById('quest-close-btn').addEventListener('click', () => this.toggle());
+    const closeBtn = document.getElementById('quest-close-btn');
+    if (closeBtn) closeBtn.addEventListener('click', () => this.toggle());
   }
 
   toggle() {
@@ -85,7 +127,9 @@ export class QuestSystem {
   }
 
   render() {
+    if (!this.questListContainer) return;
     this.questListContainer.innerHTML = '';
+
     QUESTS.forEach(q => {
       const isDone = q.tasks.every(t => t.done);
       const card = document.createElement('div');
@@ -98,8 +142,8 @@ export class QuestSystem {
         <div class="quest-desc">${q.desc}</div>
         <div class="quest-tasks">
           ${q.tasks.map(t => `
-            <div class="task-item ${t.done ? 'checked' : ''}">
-              <span>${t.done ? '✔' : '•'}</span>
+            <div class="quest-task-item ${t.done ? 'task-done' : ''}">
+              <span class="task-check">${t.done ? '✔' : '○'}</span>
               <span>${t.text}</span>
             </div>
           `).join('')}
@@ -107,28 +151,26 @@ export class QuestSystem {
       `;
       this.questListContainer.appendChild(card);
     });
-    this.updateActiveBanner();
-  }
 
-  updateActiveBanner() {
-    for (let q of QUESTS) {
-      for (let t of q.tasks) {
-        if (!t.done) {
-          this.activeObjText.textContent = `OBJECTIVE: ${t.text}`;
-          return;
-        }
+    const activeQ = QUESTS.find(q => !q.tasks.every(t => t.done));
+    if (activeQ) {
+      const activeTask = activeQ.tasks.find(t => !t.done);
+      if (this.activeObjText && activeTask) {
+        this.activeObjText.textContent = `★ ${activeTask.text.toUpperCase()}`;
+      }
+    } else {
+      if (this.activeObjText) {
+        this.activeObjText.textContent = '★ ALL 10 MASTER QUESTS ACCOMPLISHED! ★';
       }
     }
-    this.activeObjText.textContent = '★ ALL OBJECTIVES COMPLETE! GRAND PARTY UNLOCKED!';
   }
 
   checkAllDone() {
-    const allDone = QUESTS.every(q => q.tasks.every(t => t.done));
-    if (allDone) {
-      setTimeout(() => {
-        document.getElementById('party-banner').style.display = 'block';
-        audio.playCheer();
-      }, 1000);
+    const allFinished = QUESTS.every(q => q.tasks.every(t => t.done));
+    if (allFinished) {
+      const banner = document.getElementById('party-banner');
+      if (banner) banner.style.display = 'flex';
+      audio.playCheer();
     }
   }
 }

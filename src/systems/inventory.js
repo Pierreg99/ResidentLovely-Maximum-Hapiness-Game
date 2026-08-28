@@ -98,6 +98,34 @@ export const ITEMS_DB = {
     desc: 'Ultra-luxurious confection granting permanent maximum joy vitality and glowing sparkle aura.',
     type: 'consumable',
     icon: '<path d="M4 14h16l-2 8H6z" fill="#f59e0b"/><circle cx="12" cy="9" r="7" fill="#a855f7"/><polygon points="12 2 14 7 9 7" fill="#22d3ee"/>'
+  },
+  diary_page_1: {
+    id: 'diary_page_1',
+    name: 'CHÂTEAU DIARY: THE GRAND ROTUNDA',
+    desc: '"Welcome, Agent of S.M.I.L.E. The Château de la Joie was constructed to harbor eternal laughter. If gloom appears, play the C-E-G sonatina."',
+    type: 'lore',
+    icon: '<rect x="4" y="3" width="16" height="18" rx="2" fill="#1e293b" stroke="#22d3ee"/><line x1="7" y1="7" x2="17" y2="7" stroke="#22d3ee"/><line x1="7" y1="11" x2="17" y2="11" stroke="#94a3b8"/><line x1="7" y1="15" x2="14" y2="15" stroke="#94a3b8"/>'
+  },
+  diary_page_2: {
+    id: 'diary_page_2',
+    name: 'CHÂTEAU DIARY: ALCHEMY OF SWEETS',
+    desc: '"A sprinkle of red strawberry powder with emerald sparkle herb creates cupcakes capable of purifying even the deepest sullenness."',
+    type: 'lore',
+    icon: '<rect x="4" y="3" width="16" height="18" rx="2" fill="#1e293b" stroke="#f59e0b"/><line x1="7" y1="7" x2="17" y2="7" stroke="#f59e0b"/><line x1="7" y1="11" x2="17" y2="11" stroke="#94a3b8"/><line x1="7" y1="15" x2="14" y2="15" stroke="#94a3b8"/>'
+  },
+  diary_page_3: {
+    id: 'diary_page_3',
+    name: 'CHÂTEAU DIARY: THE 4 LANTERNS',
+    desc: '"The Solarium Garden holds 4 heart lanterns. When all four glow in magenta bliss, the stardust gates to the celestial realm awaken."',
+    type: 'lore',
+    icon: '<rect x="4" y="3" width="16" height="18" rx="2" fill="#1e293b" stroke="#10b981"/><line x1="7" y1="7" x2="17" y2="7" stroke="#10b981"/><line x1="7" y1="11" x2="17" y2="11" stroke="#94a3b8"/><line x1="7" y1="15" x2="14" y2="15" stroke="#94a3b8"/>'
+  },
+  diary_page_4: {
+    id: 'diary_page_4',
+    name: 'CHÂTEAU DIARY: GLOOM BEHEMOTH LORE',
+    desc: '"Deep below in the Whispering Crypt sleeps the Grand Gloom Behemoth. He is not evil, just lonely. A direct beam of concentrated joy will restore his smile!"',
+    type: 'lore',
+    icon: '<rect x="4" y="3" width="16" height="18" rx="2" fill="#1e293b" stroke="#ec4899"/><line x1="7" y1="7" x2="17" y2="7" stroke="#ec4899"/><line x1="7" y1="11" x2="17" y2="11" stroke="#94a3b8"/><line x1="7" y1="15" x2="14" y2="15" stroke="#94a3b8"/>'
   }
 };
 
