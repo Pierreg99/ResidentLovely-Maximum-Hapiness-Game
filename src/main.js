@@ -4,6 +4,7 @@ import { destructibles, initDestructibles, updateDestructibles } from './world/d
 import { player, initPlayer, updatePlayer, performQuickTurn } from './entities/player.js';
 import { grumps, initGrumps, updateGrumps } from './entities/grump.js';
 import { initBoss, bossInstance } from './entities/boss.js';
+import { companionSquad } from './entities/companion.js';
 import { triggerWeaponFire, updateProjectiles, updateTargetSights } from './weapons/arsenal.js';
 import { audio } from './engine/audio.js';
 import { CameraController } from './engine/camera.js';
@@ -757,6 +758,14 @@ if (btnRestart) {
 loadGame(gameState, lanternMeshes, QUESTS, inventorySystem, questSystem);
 questSystem.render();
 
+window.__petCompanion = (idx) => {
+  companionSquad.petCompanion(idx, { onToast: showToast });
+};
+
+window.__feedCompanion = (idx) => {
+  companionSquad.feedCupcake(idx, inventorySystem, { onToast: showToast });
+};
+
 // Main Animation & Render Loop
 const clock = new THREE.Clock();
 
@@ -767,6 +776,7 @@ function animate() {
 
   updatePlayer(delta, time, gameState.room, cameraController.pitch);
   cameraController.update(player, delta, gameState.room);
+  companionSquad.update(delta, time, gameState.room);
   updateProjectiles(delta, gameState, {
     onToast: showToast,
     onGrumpUplifted: () => {

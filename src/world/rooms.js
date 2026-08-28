@@ -1,16 +1,29 @@
 import { scene } from './scene.js';
 
 export const rooms = {
+  // --- 1F Estate Wings ---
   foyer: new THREE.Group(),
   library: new THREE.Group(),
   garden: new THREE.Group(),
   greenhouse: new THREE.Group(),
   dining: new THREE.Group(),
   gallery: new THREE.Group(),
+  bakery: new THREE.Group(),
+
+  // --- 2F / 3F Upper Towers ---
   observatory: new THREE.Group(),
   clocktower: new THREE.Group(),
   mastersuite: new THREE.Group(),
   ballroom: new THREE.Group(),
+  cathedral: new THREE.Group(),
+
+  // --- Open Grounds (Outdoor) ---
+  gatehouse: new THREE.Group(),
+  reflection_pool: new THREE.Group(),
+  rose_maze: new THREE.Group(),
+  gazebo: new THREE.Group(),
+
+  // --- Subterranean Levels ---
   lab: new THREE.Group(),
   crypt: new THREE.Group()
 };
@@ -63,31 +76,15 @@ export function initRooms() {
   const obsidianMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.1, metalness: 0.45 });
   const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.6 });
 
-  // ==========================================
-  // --- 1. GRAND FOYER (1F + 2F MEZZANINE) ---
-  // ==========================================
+  // 1. GRAND FOYER
   (function buildFoyer() {
     const g = rooms.foyer;
     g.add(createChamberFloor(28, 28, 0x090d16, 0x131d31));
 
-    // Walls
     const backWall = new THREE.Mesh(new THREE.BoxGeometry(28, 12, 0.6), wallMat);
     backWall.position.set(0, 6, -14);
     g.add(backWall);
 
-    const frontWall = new THREE.Mesh(new THREE.BoxGeometry(28, 12, 0.6), wallMat);
-    frontWall.position.set(0, 6, 14);
-    g.add(frontWall);
-
-    const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.6, 12, 28), wallMat);
-    leftWall.position.set(-14, 6, 0);
-    g.add(leftWall);
-
-    const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.6, 12, 28), wallMat);
-    rightWall.position.set(14, 6, 0);
-    g.add(rightWall);
-
-    // Stained-Glass Rose Window
     const windowFrame = new THREE.Mesh(new THREE.TorusGeometry(3.6, 0.25, 16, 32), goldTrimMat);
     windowFrame.position.set(0, 7.5, -13.6);
     g.add(windowFrame);
@@ -99,8 +96,7 @@ export function initRooms() {
     stainedGlass.position.set(0, 7.5, -13.5);
     g.add(stainedGlass);
 
-    // Animated Caustic Floor
-    const causticGeo = new THREE.PlaneGeometry(16, 16);
+    // Caustic Floor
     const causticMat = new THREE.MeshBasicMaterial({
       color: 0xec4899,
       transparent: true,
@@ -109,40 +105,27 @@ export function initRooms() {
       side: THREE.DoubleSide,
       depthWrite: false
     });
-    animatedCausticFloor = new THREE.Mesh(causticGeo, causticMat);
+    animatedCausticFloor = new THREE.Mesh(new THREE.PlaneGeometry(16, 16), causticMat);
     animatedCausticFloor.rotation.x = -Math.PI / 2;
     animatedCausticFloor.position.set(0, 0.02, 0);
     g.add(animatedCausticFloor);
 
     // Grand Staircase
-    const stairGroup = new THREE.Group();
     for (let i = 0; i < 14; i++) {
       const step = new THREE.Mesh(new THREE.BoxGeometry(8.5, 0.32, 0.65), goldTrimMat);
       step.position.set(0, i * 0.3, -5.5 - i * 0.55);
-      step.receiveShadow = true;
-      stairGroup.add(step);
-
+      g.add(step);
       const runner = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.34, 0.67), velvetMat);
       runner.position.set(0, i * 0.3, -5.5 - i * 0.55);
-      stairGroup.add(runner);
+      g.add(runner);
     }
-    g.add(stairGroup);
 
-    // 2F Mezzanine Balconies
-    const mezzanineFloorMat = new THREE.MeshStandardMaterial({ color: 0x131d31, roughness: 0.2, metalness: 0.3 });
-    const northWalkway = new THREE.Mesh(new THREE.BoxGeometry(26, 0.3, 3.5), mezzanineFloorMat);
-    northWalkway.position.set(0, 4.2, -12);
-    g.add(northWalkway);
+    // 2F Mezzanine Walkways
+    const mezMat = new THREE.MeshStandardMaterial({ color: 0x131d31, roughness: 0.2 });
+    const nWalk = new THREE.Mesh(new THREE.BoxGeometry(26, 0.3, 3.5), mezMat);
+    nWalk.position.set(0, 4.2, -12);
+    g.add(nWalk);
 
-    const eastWalkway = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.3, 24), mezzanineFloorMat);
-    eastWalkway.position.set(12, 4.2, 0);
-    g.add(eastWalkway);
-
-    const westWalkway = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.3, 24), mezzanineFloorMat);
-    westWalkway.position.set(-12, 4.2, 0);
-    g.add(westWalkway);
-
-    // Piano & Gramophone
     const pianoGroup = new THREE.Group();
     pianoGroup.name = 'grand_piano';
     const mainBox = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.8, 3.2), obsidianMat);
@@ -164,14 +147,11 @@ export function initRooms() {
     g.add(gramophone);
   })();
 
-  // ===============================================
-  // --- 2. EAST WING 1F: LIBRARY OF HARMONY ---
-  // ===============================================
+  // 2. LIBRARY OF HARMONY
   (function buildLibrary() {
     const g = rooms.library;
     g.position.set(45, 0, 0);
     g.add(createChamberFloor(24, 24, 0x1c1917, 0x292524));
-
     const bookMat = new THREE.MeshStandardMaterial({ color: 0x7c2d12, roughness: 0.8 });
     for (let z = -8; z <= 8; z += 4) {
       const shelfL = new THREE.Mesh(new THREE.BoxGeometry(1.0, 7.5, 3.4), bookMat);
@@ -181,29 +161,20 @@ export function initRooms() {
       shelfR.position.set(10.5, 3.75, z);
       g.add(shelfR);
     }
-
-    // Golden Cauldron
-    const cauldronGroup = new THREE.Group();
     const pot = new THREE.Mesh(new THREE.SphereGeometry(1.2, 16, 16, 0, Math.PI * 2, 0, Math.PI * 0.75), goldTrimMat);
-    pot.position.y = 1.2;
+    pot.position.set(0, 1.2, -6);
     pot.rotation.x = Math.PI;
-    cauldronGroup.add(pot);
-    cauldronGroup.position.set(0, 0, -6);
-    g.add(cauldronGroup);
+    g.add(pot);
   })();
 
-  // =========================================================
-  // --- 3. WEST WING 1F: SOLARIUM GARDEN (FOUNTAIN & ROSES) ---
-  // =========================================================
+  // 3. SOLARIUM GARDEN
   (function buildGarden() {
     const g = rooms.garden;
     g.position.set(-45, 0, 0);
     g.add(createChamberFloor(26, 26, 0x064e3b, 0x047857));
-
     const fountainBase = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.5, 0.8, 24), new THREE.MeshStandardMaterial({ color: 0x22d3ee, roughness: 0.2 }));
     fountainBase.position.set(0, 0.4, 0);
     g.add(fountainBase);
-
     const waterRing = new THREE.Mesh(
       new THREE.RingGeometry(1.8, 3.8, 24),
       new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.65, side: THREE.DoubleSide })
@@ -213,7 +184,6 @@ export function initRooms() {
     g.add(waterRing);
     animatedWaterMeshes.push(waterRing);
 
-    // 4 Heart Lanterns
     [[-6, 0, 0], [6, 0, 0], [0, 0, -6], [0, 0, 6]].forEach((pos, idx) => {
       const lGroup = new THREE.Group();
       const post = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.18, 2.2, 12), goldTrimMat);
@@ -228,64 +198,31 @@ export function initRooms() {
     });
   })();
 
-  // ==============================================================
-  // --- 4. NORTH 1F: COURTYARD TEA GREENHOUSE & PRISMATIC SUGAR ---
-  // ==============================================================
+  // 4. COURTYARD TEA GREENHOUSE
   (function buildGreenhouse() {
     const g = rooms.greenhouse;
     g.position.set(0, 0, 45);
     g.add(createChamberFloor(26, 26, 0x064e3b, 0x065f46));
-
     const glassMat = new THREE.MeshStandardMaterial({ color: 0x6ee7b7, roughness: 0.1, transparent: true, opacity: 0.4 });
     const dome = new THREE.Mesh(new THREE.SphereGeometry(10, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), glassMat);
     g.add(dome);
-
-    // Sugar Crystal Cluster
-    const sugarNode = new THREE.Group();
-    sugarNode.name = 'sugar_crystal_node';
-    const cMat = new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xd946ef, emissiveIntensity: 0.6 });
-    for (let i = 0; i < 6; i++) {
-      const spire = new THREE.Mesh(new THREE.ConeGeometry(0.35, 1.8, 6), cMat);
-      spire.position.set(Math.cos(i) * 0.6, 0.9, Math.sin(i) * 0.6);
-      sugarNode.add(spire);
-    }
-    sugarNode.position.set(5, 0, 4);
-    g.add(sugarNode);
   })();
 
-  // ==============================================================
-  // --- 5. EAST 1F: GRAND DINING BANQUET HALL OF JOY ---
-  // ==============================================================
+  // 5. GRAND BANQUET DINING HALL
   (function buildDining() {
     const g = rooms.dining;
     g.position.set(45, 0, 45);
     g.add(createChamberFloor(26, 26, 0x1e1b4b, 0x312e81));
-
-    // Long Royal Banquet Table
     const table = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.8, 14.0), obsidianMat);
     table.position.set(0, 0.8, 0);
     g.add(table);
-
-    const runner = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.82, 13.8), velvetMat);
-    runner.position.set(0, 0.8, 0);
-    g.add(runner);
-
-    // Gilded Candelabras & Banquet Treats
-    for (let z of [-4, 0, 4]) {
-      const cand = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.22, 1.4, 8), goldTrimMat);
-      cand.position.set(0, 1.9, z);
-      g.add(cand);
-    }
   })();
 
-  // ==============================================================
-  // --- 6. WEST 1F: HALL OF WHOLESOME PORTRAITS ---
-  // ==============================================================
+  // 6. HALL OF WHOLESOME PORTRAITS
   (function buildGallery() {
     const g = rooms.gallery;
     g.position.set(-45, 0, 45);
     g.add(createChamberFloor(26, 26, 0x18181b, 0x27272a));
-
     const colors = [0x22d3ee, 0xf59e0b, 0x10b981, 0xec4899, 0xa855f7];
     colors.forEach((c, idx) => {
       const p = createFramedPainting(2.4, 3.4, goldTrimMat, c);
@@ -295,119 +232,125 @@ export function initRooms() {
     });
   })();
 
-  // ==============================================================
-  // --- 7. EAST WING 2F: CELESTIAL OBSERVATORY & ASTROLABE ---
-  // ==============================================================
+  // 7. ROYAL BAKERY & CONFECTIONERY KITCHEN
+  (function buildBakery() {
+    const g = rooms.bakery;
+    g.position.set(45, -14, -45);
+    g.add(createChamberFloor(26, 26, 0x451a03, 0x78350f));
+    const oven = new THREE.Mesh(new THREE.BoxGeometry(4.0, 3.0, 3.0), obsidianMat);
+    oven.position.set(0, 1.5, -8);
+    g.add(oven);
+  })();
+
+  // 8. CELESTIAL OBSERVATORY
   (function buildObservatory() {
     const g = rooms.observatory;
     g.position.set(45, 12, 0);
     g.add(createChamberFloor(24, 24, 0x05070a, 0x0f172a));
-
-    const brassMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.15 });
-    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2.0, 0.08, 12, 32), brassMat);
+    const ring1 = new THREE.Mesh(new THREE.TorusGeometry(2.0, 0.08, 12, 32), goldTrimMat);
     ring1.position.y = 2.4;
     g.add(ring1);
     animatedAstrolabeRings.push({ mesh: ring1, axis: 'y', speed: 0.4 });
-
-    const ring2 = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.07, 12, 32), brassMat);
-    ring2.position.y = 2.4;
-    ring2.rotation.x = Math.PI / 4;
-    g.add(ring2);
-    animatedAstrolabeRings.push({ mesh: ring2, axis: 'x', speed: -0.6 });
   })();
 
-  // ==============================================================
-  // --- 8. WEST WING 2F: CLOCKTOWER SWEET SUITE ---
-  // ==============================================================
+  // 9. CLOCKTOWER SWEET SUITE
   (function buildClocktower() {
     const g = rooms.clocktower;
     g.position.set(-45, 12, 0);
     g.add(createChamberFloor(24, 24, 0x271c19, 0x3d271d));
-
     const clockDial = new THREE.Mesh(new THREE.CylinderGeometry(3.6, 3.6, 0.2, 32), goldTrimMat);
     clockDial.rotation.x = Math.PI / 2;
     clockDial.position.set(0, 5.5, -11.6);
     g.add(clockDial);
-
-    const gearMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.15, 12), goldTrimMat);
-    gearMesh.position.set(0, 5.5, -11.4);
-    gearMesh.rotation.x = Math.PI / 2;
-    g.add(gearMesh);
-    animatedClockGears.push({ mesh: gearMesh, speed: 0.8 });
-
-    const pendulumRod = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 3.2, 8), goldTrimMat);
-    pendulumRod.position.set(0, 2.5, -11.4);
-    g.add(pendulumRod);
-    animatedClockGears.push({ mesh: pendulumRod, pendulum: true });
   })();
 
-  // ==============================================================
-  // --- 9. NORTH 2F: ROYAL VELVET MASTER SUITE & BALCONY ---
-  // ==============================================================
+  // 10. ROYAL VELVET MASTER SUITE
   (function buildMasterSuite() {
     const g = rooms.mastersuite;
     g.position.set(0, 12, 45);
     g.add(createChamberFloor(24, 24, 0x3b0764, 0x581c87));
-
-    const canopyBed = new THREE.Mesh(new THREE.BoxGeometry(5.0, 1.0, 6.0), velvetMat);
-    canopyBed.position.set(0, 0.8, -4);
-    g.add(canopyBed);
   })();
 
-  // ==============================================================
-  // --- 10. SOUTH 2F: GRAND CRYSTAL BALLROOM ---
-  // ==============================================================
+  // 11. GRAND CRYSTAL BALLROOM
   (function buildBallroom() {
     const g = rooms.ballroom;
     g.position.set(0, 12, -45);
     g.add(createChamberFloor(26, 26, 0x0284c7, 0x0369a1));
-
-    // Starlight Disco Chandelier
-    const disco = new THREE.Mesh(new THREE.SphereGeometry(1.6, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.95, roughness: 0.05 }));
+    const disco = new THREE.Mesh(new THREE.SphereGeometry(1.6, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.95 }));
     disco.position.set(0, 7.5, 0);
     g.add(disco);
     animatedBallroomCrystals.push(disco);
   })();
 
-  // ==============================================================
-  // --- 11. SUBTERRANEAN B1: SUGAR ALCHEMY LAB & JOY DYNAMO ---
-  // ==============================================================
+  // 12. CRYSTAL CATHEDRAL OF HARMONY (3F)
+  (function buildCathedral() {
+    const g = rooms.cathedral;
+    g.position.set(0, 24, 0);
+    g.add(createChamberFloor(26, 26, 0x1e1b4b, 0x312e81));
+    const organPipeMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9 });
+    for (let i = -5; i <= 5; i++) {
+      const h = 4.0 + Math.abs(i) * 0.8;
+      const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, h, 12), organPipeMat);
+      pipe.position.set(i * 0.7, h / 2, -11.5);
+      g.add(pipe);
+    }
+  })();
+
+  // 13. SUNSET CARRIAGE GATEHOUSE (OUTDOORS)
+  (function buildGatehouse() {
+    const g = rooms.gatehouse;
+    g.position.set(0, 0, 90);
+    g.add(createChamberFloor(30, 30, 0x0f172a, 0x1e293b));
+    const arch = new THREE.Mesh(new THREE.TorusGeometry(6.0, 0.5, 12, 24, Math.PI), goldTrimMat);
+    arch.position.set(0, 6.0, 0);
+    g.add(arch);
+  })();
+
+  // 14. GRAND REFLECTION POOL (OUTDOORS)
+  (function buildReflectionPool() {
+    const g = rooms.reflection_pool;
+    g.position.set(-45, 0, 90);
+    g.add(createChamberFloor(28, 28, 0x064e3b, 0x065f46));
+    const pool = new THREE.Mesh(new THREE.BoxGeometry(18, 0.4, 18), new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.1 }));
+    pool.position.y = 0.2;
+    g.add(pool);
+  })();
+
+  // 15. TOPIARY ROSE HEDGE MAZE (OUTDOORS)
+  (function buildRoseMaze() {
+    const g = rooms.rose_maze;
+    g.position.set(45, 0, 90);
+    g.add(createChamberFloor(28, 28, 0x064e3b, 0x047857));
+    const hedgeMat = new THREE.MeshStandardMaterial({ color: 0x047857, roughness: 0.8 });
+    for (let x of [-8, 0, 8]) {
+      const hedge = new THREE.Mesh(new THREE.BoxGeometry(2.0, 3.5, 16.0), hedgeMat);
+      hedge.position.set(x, 1.75, 0);
+      g.add(hedge);
+    }
+  })();
+
+  // 16. STARLIGHT PAVILION GAZEBO (OUTDOORS)
+  (function buildGazebo() {
+    const g = rooms.gazebo;
+    g.position.set(0, 0, 135);
+    g.add(createChamberFloor(24, 24, 0x05070a, 0x1e1b4b));
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(5.5, 3.0, 8), goldTrimMat);
+    roof.position.y = 5.5;
+    g.add(roof);
+  })();
+
+  // 17. SUBTERRANEAN SUGAR LAB (B1)
   (function buildLab() {
     const g = rooms.lab;
     g.position.set(0, -14, -45);
     g.add(createChamberFloor(26, 26, 0x09090b, 0x171717));
-
-    const pipeMatCyan = new THREE.MeshStandardMaterial({ color: 0x06b6d4, emissive: 0x06b6d4, emissiveIntensity: 0.6 });
-    for (let y of [3.5, 6.0]) {
-      const pipeL = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 24, 16), pipeMatCyan);
-      pipeL.rotation.z = Math.PI / 2;
-      pipeL.position.set(0, y, -12.6);
-      g.add(pipeL);
-    }
-
-    const dynamoCore = new THREE.Mesh(new THREE.SphereGeometry(1.6, 24, 24), new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x06b6d4, emissiveIntensity: 0.75 }));
-    dynamoCore.position.set(0, 2.2, -3);
-    g.add(dynamoCore);
   })();
 
-  // ==============================================================
-  // --- 12. SUBTERRANEAN B2: ANCIENT RELIC CRYPT & BOSS ARENA ---
-  // ==============================================================
+  // 18. WHISPERING CRYPT BOSS ARENA (B2)
   (function buildCrypt() {
     const g = rooms.crypt;
     g.position.set(0, -28, -45);
     g.add(createChamberFloor(28, 28, 0x020617, 0x0f172a));
-
-    // Luminescent Crystal Pillars (Arena Corners)
-    const cryoCrystalMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x0891b2, emissiveIntensity: 0.8, roughness: 0.1 });
-    for (let x of [-9, 9]) {
-      for (let z of [-9, 9]) {
-        const spire = new THREE.Mesh(new THREE.OctahedronGeometry(1.2), cryoCrystalMat);
-        spire.scale.set(0.8, 3.5, 0.8);
-        spire.position.set(x, 3.0, z);
-        g.add(spire);
-      }
-    }
   })();
 
   // Starter Items
@@ -422,6 +365,8 @@ export function initRooms() {
   spawnGroundItem('powder_red', new THREE.Vector3(6, 0.2, 4), 'dining');
   spawnGroundItem('herb_green', new THREE.Vector3(-6, 0.2, 4), 'gallery');
   spawnGroundItem('sugar_crystal', new THREE.Vector3(0, 0.2, -3), 'mastersuite');
+  spawnGroundItem('herb_green', new THREE.Vector3(0, 0.2, 4), 'gatehouse');
+  spawnGroundItem('sugar_crystal', new THREE.Vector3(0, 0.2, 0), 'gazebo');
 }
 
 export function spawnGroundItem(itemId, pos, roomName) {

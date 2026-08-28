@@ -1,6 +1,7 @@
 import { rooms } from '../world/rooms.js';
 import { audio } from '../engine/audio.js';
 import { player } from './player.js';
+import { companionSquad } from './companion.js';
 
 export const grumps = [];
 
@@ -237,8 +238,9 @@ export function upliftGrump(grump, amount, gameState, callbacks) {
     grump.stars.forEach(s => { s.visible = true; });
 
     gameState.grumpsUpliftedCount++;
+    companionSquad.addCompanion(grump);
     audio.playCheer();
-    if (callbacks.onToast) callbacks.onToast('★ GRUMP UPLIFTED! SPREADING CHEER! ★');
+    if (callbacks.onToast) callbacks.onToast('★ GRUMP UPLIFTED! JOINED JOY PARADE! ★');
     if (callbacks.onGrumpUplifted) callbacks.onGrumpUplifted();
   }
 }
