@@ -1,4 +1,4 @@
-import { scene, renderer, updateParticles, spawnConfetti, updateStardust, updateSceneLighting } from './world/scene.js';
+import { scene, renderer, updateParticles, spawnConfetti, updateStardust, updatePetals, updateSceneLighting } from './world/scene.js';
 import { rooms, initRooms, lanternMeshes, groundItems, spawnGroundItem, updateGroundItems } from './world/rooms.js';
 import { destructibles, initDestructibles, updateDestructibles } from './world/destructibles.js';
 import { player, initPlayer, updatePlayer, performQuickTurn } from './entities/player.js';
@@ -801,6 +801,7 @@ function animate() {
   updateGroundItems(delta, time);
   updateParticles(delta);
   updateStardust(time, gameState.room);
+  updatePetals(delta, time);
   updateTargetSights(gameState.room);
 
   minimapSystem.render(player, grumps, destructibles);

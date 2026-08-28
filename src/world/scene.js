@@ -1,7 +1,7 @@
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070a);
 // Clean Linear Fog that preserves room clarity across all wings
-scene.fog = new THREE.Fog(0x05070a, 35, 95);
+scene.fog = new THREE.Fog(0x05070a, 35, 110);
 
 export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -12,7 +12,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.25;
 
 const container = document.getElementById('canvas-container');
-container.appendChild(renderer.domElement);
+if (container) container.appendChild(renderer.domElement);
 
 window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -32,7 +32,7 @@ sunLight.shadow.mapSize.height = 1024;
 sunLight.shadow.bias = -0.0005;
 scene.add(sunLight);
 
-// Dedicated Wing Point Lights for Balanced PBR Illumination
+// --- Dedicated Wing Point Lights for Balanced PBR Illumination ---
 export const foyerLight = new THREE.PointLight(0xf59e0b, 1.8, 32);
 foyerLight.position.set(0, 7.5, 0);
 scene.add(foyerLight);
@@ -73,6 +73,26 @@ export const ballroomLight = new THREE.PointLight(0x38bdf8, 2.4, 36);
 ballroomLight.position.set(0, 18.0, -45);
 scene.add(ballroomLight);
 
+export const cathedralLight = new THREE.PointLight(0xf59e0b, 2.5, 38);
+cathedralLight.position.set(0, 30.0, 0);
+scene.add(cathedralLight);
+
+export const gatehouseLight = new THREE.PointLight(0xf59e0b, 2.2, 36);
+gatehouseLight.position.set(0, 8.0, 90);
+scene.add(gatehouseLight);
+
+export const reflectionLight = new THREE.PointLight(0x38bdf8, 2.2, 36);
+reflectionLight.position.set(-45, 8.0, 90);
+scene.add(reflectionLight);
+
+export const mazeLight = new THREE.PointLight(0x10b981, 2.2, 36);
+mazeLight.position.set(45, 8.0, 90);
+scene.add(mazeLight);
+
+export const gazeboLight = new THREE.PointLight(0xec4899, 2.2, 36);
+gazeboLight.position.set(0, 8.0, 135);
+scene.add(gazeboLight);
+
 export const labLight = new THREE.PointLight(0x06b6d4, 2.4, 36);
 labLight.position.set(0, -8.0, -45);
 scene.add(labLight);
@@ -80,6 +100,68 @@ scene.add(labLight);
 export const cryptLight = new THREE.PointLight(0x22d3ee, 2.6, 38);
 cryptLight.position.set(0, -22.0, -45);
 scene.add(cryptLight);
+
+// --- Procedural Dynamic Sunset Skybox & Celestial Dome ---
+export let sunsetSkyDome = null;
+(function buildSunsetSkyDome() {
+  const domeGeo = new THREE.SphereGeometry(320, 32, 24);
+  const domeMat = new THREE.MeshBasicMaterial({
+    color: 0x1e1b4b,
+    side: THREE.BackSide,
+    depthWrite: false
+  });
+  sunsetSkyDome = new THREE.Mesh(domeGeo, domeMat);
+  scene.add(sunsetSkyDome);
+})();
+
+// --- Cherry Blossom Pastel Petal Wind Particles ---
+export const petalParticles = [];
+const petalGroup = new THREE.Group();
+scene.add(petalGroup);
+
+(function initPetals() {
+  const petalMat = new THREE.MeshStandardMaterial({
+    color: 0xf472b6,
+    emissive: 0xec4899,
+    emissiveIntensity: 0.35,
+    roughness: 0.6,
+    side: THREE.DoubleSide
+  });
+
+  for (let i = 0; i < 80; i++) {
+    const mesh = new THREE.Mesh(new THREE.CircleGeometry(0.12, 6), petalMat);
+    mesh.position.set(
+      (Math.random() - 0.5) * 120,
+      1.0 + Math.random() * 12,
+      (Math.random() - 0.5) * 120 + 60
+    );
+    mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+    petalGroup.add(mesh);
+    petalParticles.push({
+      mesh,
+      speedX: -0.8 - Math.random() * 1.2,
+      speedY: -0.4 - Math.random() * 0.6,
+      rotSpeed: 1.2 + Math.random() * 2.0
+    });
+  }
+})();
+
+export function updatePetals(delta, time) {
+  petalParticles.forEach(p => {
+    p.mesh.position.x += p.speedX * delta;
+    p.mesh.position.y += p.speedY * delta;
+    p.mesh.rotation.z += p.rotSpeed * delta;
+
+    if (p.mesh.position.y < 0.1) {
+      p.mesh.position.y = 12.0;
+      p.mesh.position.x = 40.0 + (Math.random() - 0.5) * 20;
+    }
+  });
+
+  if (sunsetSkyDome) {
+    sunsetSkyDome.rotation.y = time * 0.015;
+  }
+}
 
 // Multi-Tier Crystal Chandelier Mesh in Foyer
 (function buildChandelier() {
@@ -99,7 +181,6 @@ scene.add(cryptLight);
     ring.position.y = (2.0 - r) * 0.45;
     g.add(ring);
 
-    // Hanging Crystal Prisms
     const numPrisms = Math.floor(r * 10);
     for (let i = 0; i < numPrisms; i++) {
       const angle = (i / numPrisms) * Math.PI * 2;
@@ -112,176 +193,120 @@ scene.add(cryptLight);
   scene.add(g);
 })();
 
-// Volumetric God Rays Mesh from Stained-Glass Window
+// Volumetric God Rays
 (function buildGodRays() {
   const rayGeo = new THREE.ConeGeometry(4.8, 16, 16, 1, true);
   rayGeo.rotateX(-Math.PI / 3);
   rayGeo.translate(0, 5.0, -6);
   const rayMat = new THREE.MeshBasicMaterial({
-    color: 0xec4899,
-    transparent: true,
-    opacity: 0.16,
-    side: THREE.DoubleSide,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
-  });
-  const godRay = new THREE.Mesh(rayGeo, rayMat);
-  godRay.position.set(0, 2, -4);
-  scene.add(godRay);
-})();
-
-// Volumetric Starlight Cones in Observatory
-(function buildObservatoryStarlight() {
-  const rayGeo = new THREE.ConeGeometry(3.6, 14, 16, 1, true);
-  rayGeo.rotateX(Math.PI);
-  const rayMat = new THREE.MeshBasicMaterial({
-    color: 0x38bdf8,
+    color: 0xfbcfe8,
     transparent: true,
     opacity: 0.14,
-    side: THREE.DoubleSide,
     blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
     depthWrite: false
   });
-  const starRay = new THREE.Mesh(rayGeo, rayMat);
-  starRay.position.set(45, 18, 0);
-  scene.add(starRay);
+  const rays = new THREE.Mesh(rayGeo, rayMat);
+  scene.add(rays);
 })();
 
-// Dynamic Weapon Muzzle Flash Light
-export const muzzleLight = new THREE.PointLight(0xf59e0b, 0, 16);
-scene.add(muzzleLight);
-
-// Ambient Floating Stardust & Joy Motes System
-const stardustMotes = [];
-const moteGeo = new THREE.OctahedronGeometry(0.08);
-
-for (let i = 0; i < 90; i++) {
-  const moteColor = (i % 3 === 0) ? 0x22d3ee : ((i % 3 === 1) ? 0xf59e0b : 0xec4899);
-  const moteMat = new THREE.MeshBasicMaterial({ color: moteColor, transparent: true, opacity: 0.75 });
-  const mote = new THREE.Mesh(moteGeo, moteMat);
-  mote.position.set(
-    (Math.random() - 0.5) * 28,
-    Math.random() * 8 + 0.5,
-    (Math.random() - 0.5) * 28
-  );
-  stardustMotes.push({
-    mesh: mote,
-    baseY: mote.position.y,
-    offsetX: (Math.random() - 0.5) * 20,
-    offsetZ: (Math.random() - 0.5) * 20,
-    phase: Math.random() * Math.PI * 2,
-    speed: Math.random() * 0.8 + 0.4
-  });
-  scene.add(mote);
-}
-
-export function updateStardust(time, currentRoom) {
-  let cx = 0, cy = 0, cz = 0;
-  if (currentRoom === 'library') { cx = 45; cy = 0; cz = 0; }
-  else if (currentRoom === 'garden') { cx = -45; cy = 0; cz = 0; }
-  else if (currentRoom === 'greenhouse') { cx = 0; cy = 0; cz = 45; }
-  else if (currentRoom === 'observatory') { cx = 45; cy = 12; cz = 0; }
-  else if (currentRoom === 'clocktower') { cx = -45; cy = 12; cz = 0; }
-  else if (currentRoom === 'lab') { cx = 0; cy = -14; cz = -45; }
-
-  stardustMotes.forEach((m) => {
-    m.mesh.position.x = cx + m.offsetX;
-    m.mesh.position.y = cy + m.baseY + Math.sin(time * m.speed + m.phase) * 0.4;
-    m.mesh.position.z = cz + m.offsetZ;
-    m.mesh.rotation.x += 0.015;
-    m.mesh.rotation.y += 0.02;
-  });
-}
-
-export function updateSceneLighting(currentRoom) {
-  if (currentRoom === 'foyer') {
-    sunLight.position.set(15, 32, 15);
-    ambientLight.color.setHex(0x38bdf8);
-    ambientLight.intensity = 0.65;
-    scene.fog.near = 35;
-    scene.fog.far = 95;
-  } else if (currentRoom === 'library') {
-    sunLight.position.set(55, 32, 15);
-    ambientLight.color.setHex(0xfbbf24);
-    ambientLight.intensity = 0.55;
-    scene.fog.near = 30;
-    scene.fog.far = 90;
-  } else if (currentRoom === 'garden') {
-    sunLight.position.set(-35, 32, 15);
-    ambientLight.color.setHex(0x6ee7b7);
-    ambientLight.intensity = 0.65;
-    scene.fog.near = 30;
-    scene.fog.far = 90;
-  } else if (currentRoom === 'greenhouse') {
-    sunLight.position.set(10, 32, 55);
-    ambientLight.color.setHex(0x34d399);
-    ambientLight.intensity = 0.7;
-    scene.fog.near = 35;
-    scene.fog.far = 100;
-  } else if (currentRoom === 'observatory') {
-    sunLight.position.set(55, 40, 10);
-    ambientLight.color.setHex(0x38bdf8);
-    ambientLight.intensity = 0.5;
-    scene.fog.near = 40;
-    scene.fog.far = 110;
-  } else if (currentRoom === 'clocktower') {
-    sunLight.position.set(-35, 40, 10);
-    ambientLight.color.setHex(0xf59e0b);
-    ambientLight.intensity = 0.6;
-    scene.fog.near = 35;
-    scene.fog.far = 100;
-  } else if (currentRoom === 'lab') {
-    sunLight.position.set(0, 10, -35);
-    ambientLight.color.setHex(0x06b6d4);
-    ambientLight.intensity = 0.6;
-    scene.fog.near = 25;
-    scene.fog.far = 80;
-  }
-}
-
-// Confetti & Star Sparkle Particle System
-const particles = [];
+// Confetti Burst System
+export const particles = [];
 const particleGeo = new THREE.PlaneGeometry(0.18, 0.18);
-const confettiColors = [0x22d3ee, 0xf59e0b, 0x10b981, 0xec4899, 0xa855f7, 0xffffff];
+const colors = [0xf59e0b, 0x22d3ee, 0xec4899, 0x10b981, 0xa855f7, 0xf43f5e, 0x38bdf8];
 
-export function spawnConfetti(pos, count = 28) {
+export function spawnConfetti(pos, count = 35) {
   for (let i = 0; i < count; i++) {
     const mat = new THREE.MeshBasicMaterial({
-      color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+      color: colors[Math.floor(Math.random() * colors.length)],
       side: THREE.DoubleSide
     });
-    const p = new THREE.Mesh(particleGeo, mat);
-    p.position.copy(pos);
-    p.position.x += (Math.random() - 0.5) * 0.4;
-    p.position.y += (Math.random() - 0.5) * 0.4 + 0.5;
-    p.position.z += (Math.random() - 0.5) * 0.4;
+    const mesh = new THREE.Mesh(particleGeo, mat);
+    mesh.position.copy(pos);
 
     const vel = new THREE.Vector3(
-      (Math.random() - 0.5) * 6.5,
-      Math.random() * 5.5 + 3.8,
-      (Math.random() - 0.5) * 6.5
+      (Math.random() - 0.5) * 6,
+      Math.random() * 6 + 3,
+      (Math.random() - 0.5) * 6
     );
-    const rotVel = new THREE.Vector3(
-      Math.random() * 10,
-      Math.random() * 10,
-      Math.random() * 10
-    );
-    particles.push({ mesh: p, vel, rotVel, life: 1.8 });
-    scene.add(p);
+
+    particles.push({ mesh, vel, life: 1.0, rotSpeed: (Math.random() - 0.5) * 10 });
+    scene.add(mesh);
   }
 }
 
 export function updateParticles(delta) {
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
+    p.life -= delta * 0.9;
     p.vel.y -= 9.8 * delta;
     p.mesh.position.addScaledVector(p.vel, delta);
-    p.mesh.rotation.x += p.rotVel.x * delta;
-    p.mesh.rotation.y += p.rotVel.y * delta;
-    p.life -= delta;
+    p.mesh.rotation.x += p.rotSpeed * delta;
+    p.mesh.rotation.y += p.rotSpeed * delta;
+
+    if (p.mesh.position.y < 0) {
+      p.mesh.position.y = 0;
+      p.vel.y *= -0.4;
+    }
+
     if (p.life <= 0) {
       scene.remove(p.mesh);
+      p.mesh.geometry.dispose();
+      p.mesh.material.dispose();
       particles.splice(i, 1);
     }
   }
 }
+
+// Ambient Stardust Motes
+export const stardustMotes = [];
+(function initStardust() {
+  const moteGeo = new THREE.OctahedronGeometry(0.08);
+  const moteMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true });
+  for (let i = 0; i < 90; i++) {
+    const mote = new THREE.Mesh(moteGeo, moteMat);
+    mote.position.set((Math.random() - 0.5) * 30, Math.random() * 8 + 0.5, (Math.random() - 0.5) * 30);
+    scene.add(mote);
+    stardustMotes.push({ mesh: mote, basePos: mote.position.clone(), speed: 0.6 + Math.random() * 0.8 });
+  }
+})();
+
+export function updateStardust(time, currentRoom) {
+  stardustMotes.forEach((m, idx) => {
+    m.mesh.position.y = m.basePos.y + Math.sin(time * m.speed + idx) * 0.45;
+    m.mesh.rotation.y += 0.02;
+    m.mesh.rotation.x += 0.01;
+  });
+}
+
+// Room-adaptive lighting controller
+export function updateSceneLighting(roomName) {
+  if (roomName === 'foyer') {
+    ambientLight.color.setHex(0x38bdf8);
+    ambientLight.intensity = 0.65;
+    sunLight.intensity = 1.1;
+  } else if (roomName === 'library') {
+    ambientLight.color.setHex(0xfde047);
+    ambientLight.intensity = 0.55;
+    sunLight.intensity = 0.8;
+  } else if (roomName === 'garden' || roomName === 'greenhouse' || roomName === 'rose_maze') {
+    ambientLight.color.setHex(0x6ee7b7);
+    ambientLight.intensity = 0.85;
+    sunLight.intensity = 1.35;
+  } else if (roomName === 'gatehouse' || roomName === 'reflection_pool' || roomName === 'gazebo') {
+    ambientLight.color.setHex(0xf59e0b);
+    ambientLight.intensity = 0.8;
+    sunLight.intensity = 1.4;
+  } else if (roomName === 'observatory' || roomName === 'ballroom' || roomName === 'cathedral') {
+    ambientLight.color.setHex(0x38bdf8);
+    ambientLight.intensity = 0.7;
+    sunLight.intensity = 0.7;
+  } else if (roomName === 'lab' || roomName === 'crypt') {
+    ambientLight.color.setHex(0x06b6d4);
+    ambientLight.intensity = 0.6;
+    sunLight.intensity = 0.3;
+  }
+}
+
+export const muzzleLight = new THREE.PointLight(0xf59e0b, 0, 10);
+scene.add(muzzleLight);
