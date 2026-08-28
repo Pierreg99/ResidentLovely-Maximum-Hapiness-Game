@@ -166,6 +166,11 @@ export function initGrumps() {
   createGrump(new THREE.Vector3(-4, 0, -4), 'library', 'specter');
   createGrump(new THREE.Vector3(5, 0, 5), 'library', 'knight');
   createGrump(new THREE.Vector3(0, 0, -4), 'garden', 'knight');
+  createGrump(new THREE.Vector3(3, 0, -3), 'greenhouse', 'bear');
+  createGrump(new THREE.Vector3(0, 0, -4), 'observatory', 'specter');
+  createGrump(new THREE.Vector3(-3, 0, 3), 'clocktower', 'knight');
+  createGrump(new THREE.Vector3(-5, 0, 3), 'lab', 'bear');
+  createGrump(new THREE.Vector3(5, 0, -4), 'lab', 'specter');
 }
 
 export function upliftGrump(grump, amount, gameState, callbacks) {

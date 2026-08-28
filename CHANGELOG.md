@@ -5,6 +5,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ---
 
+## [2.0.0] - 2026-08-28 ❖ GRAND ESTATE MASTERWORK EXPANSION
+
+### Added
+- **7-Chamber Grand Estate Architecture**:
+  - **Grand Foyer 2F Mezzanine Balconies**: Wraparound upper walkways (Y = 4.5) with golden heart-filigree balustrades, connected to 1F via the Grand Staircase.
+  - **East Wing 2F — Celestial Observatory**: Midnight indigo dome with 28 glowing star constellation nodes, rotating Brass Armillary Astrolabe (equatorial and ecliptic rings), and brass stargazer telescope.
+  - **West Wing 2F — Clocktower Sweet Suite**: Monumental Roman numeral wall clock with spinning escapement gear, oscillating brass pendulum, and royal canopied velvet bed.
+  - **North Wing 1F — Courtyard Tea Greenhouse**: Victorian glass pavilion, porcelain tea table set, sculpted topiary bunny hedges, and harvestable Prismatic Sugar Crystal cluster.
+  - **Subterranean B1 — Sugar Alchemy Lab & Confectionery Boiler**: Glowing neon cyan/magenta syrup pipelines, automated conveyor oven, alembic distillation glassware, and Master Joy Dynamo Generator.
+- **Expanded Quest & Progression System (6 Quests)**:
+  - Added Quest 4 (*Celestial Astrolabe*) and Quest 5 (*Subterranean Sugar Dynamo*).
+  - Scaled total plushie Grump encounters to 10 across all 7 wings.
+- **3-Tier Interactive Tactical Blueprint Engine**:
+  - Added floorplan switching across `1F (Ground)`, `2F (Mezzanine & Towers)`, and `B1 (Subterranean Lab)`.
+  - Comprehensive sector telemetry inspection and real-time live player beacon coordinates.
+- **Next-Gen Visual & Lighting Pipeline**:
+  - Volumetric Starlight light cones in the Observatory dome and animated Stained-Glass Caustic floor projection in the Grand Foyer.
+  - Dedicated multi-room point lights and room-adaptive ambient atmosphere.
+
+---
+
 ## [1.7.0] - 2026-08-27
 
 ### Added

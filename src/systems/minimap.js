@@ -16,31 +16,53 @@ export class MinimapSystem {
     // Floor tabs
     const btn1F = document.getElementById('btn-floor-1f');
     const btn2F = document.getElementById('btn-floor-2f');
+    const btnB1 = document.getElementById('btn-floor-b1');
+
     if (btn1F) {
       btn1F.addEventListener('click', () => {
         audio.playPop();
-        this.activeFloor = '1F';
-        btn1F.classList.add('active');
-        if (btn2F) btn2F.classList.remove('active');
+        this.switchFloor('1F');
       });
     }
     if (btn2F) {
       btn2F.addEventListener('click', () => {
         audio.playPop();
-        this.activeFloor = '2F';
-        btn2F.classList.add('active');
-        if (btn1F) btn1F.classList.remove('active');
+        this.switchFloor('2F');
+      });
+    }
+    if (btnB1) {
+      btnB1.addEventListener('click', () => {
+        audio.playPop();
+        this.switchFloor('B1');
       });
     }
 
     // Room Blueprint Nodes Click Inspection
-    const nodeFoyer = document.getElementById('map-room-foyer');
-    const nodeLib = document.getElementById('map-room-library');
-    const nodeGarden = document.getElementById('map-room-garden');
+    const nodes = {
+      'map-room-foyer': 'foyer',
+      'map-room-library': 'library',
+      'map-room-garden': 'garden',
+      'map-room-greenhouse': 'greenhouse',
+      'map-room-observatory': 'observatory',
+      'map-room-clocktower': 'clocktower',
+      'map-room-lab': 'lab'
+    };
 
-    if (nodeFoyer) nodeFoyer.addEventListener('click', () => this.inspectSector('foyer'));
-    if (nodeLib) nodeLib.addEventListener('click', () => this.inspectSector('library'));
-    if (nodeGarden) nodeGarden.addEventListener('click', () => this.inspectSector('garden'));
+    Object.entries(nodes).forEach(([id, roomName]) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', () => this.inspectSector(roomName));
+    });
+  }
+
+  switchFloor(floor) {
+    this.activeFloor = floor;
+    ['1f', '2f', 'b1'].forEach(f => {
+      const btn = document.getElementById(`btn-floor-${f}`);
+      const layer = document.getElementById(`layer-floor-${f}`);
+      const isActive = f.toUpperCase() === floor;
+      if (btn) btn.classList.toggle('active', isActive);
+      if (layer) layer.style.display = isActive ? 'inline' : 'none';
+    });
   }
 
   inspectSector(room) {
@@ -51,7 +73,7 @@ export class MinimapSystem {
     const grump = document.getElementById('tel-grump-count');
 
     if (room === 'foyer') {
-      if (title) title.textContent = 'GRAND FOYER';
+      if (title) title.textContent = 'GRAND FOYER (1F & 2F)';
       if (joy) joy.textContent = this.gameState.pianoSolved ? '100% BLISS' : '75% BLISS';
       if (quest) quest.textContent = this.gameState.pianoSolved ? 'Sonatina Solved ✔' : 'Harmonic Triad (C-E-G)';
       if (grump) grump.textContent = '2 Plushie Grumps';
@@ -65,6 +87,26 @@ export class MinimapSystem {
       if (joy) joy.textContent = this.gameState.unlockedDoors.garden ? '90% BLISS' : '40% BLISS';
       if (quest) quest.textContent = '4 Heart Lantern Ignition';
       if (grump) grump.textContent = '1 Plush Knight';
+    } else if (room === 'greenhouse') {
+      if (title) title.textContent = 'COURTYARD GREENHOUSE';
+      if (joy) joy.textContent = '85% BLISS';
+      if (quest) quest.textContent = 'Prismatic Sugar Cultivation';
+      if (grump) grump.textContent = '1 Plushie Bear';
+    } else if (room === 'observatory') {
+      if (title) title.textContent = 'CELESTIAL OBSERVATORY (2F)';
+      if (joy) joy.textContent = this.gameState.astrolabeSolved ? '100% BLISS' : '60% BLISS';
+      if (quest) quest.textContent = this.gameState.astrolabeSolved ? 'Astrolabe Aligned ✔' : 'Insert Star Sapphire Gem';
+      if (grump) grump.textContent = '1 Stargazer Specter';
+    } else if (room === 'clocktower') {
+      if (title) title.textContent = 'CLOCKTOWER SUITE (2F)';
+      if (joy) joy.textContent = this.gameState.clockSolved ? '100% BLISS' : '65% BLISS';
+      if (quest) quest.textContent = this.gameState.clockSolved ? 'Royal Crest Retrieved ✔' : 'Grand Clock Escapement';
+      if (grump) grump.textContent = '1 Clockwork Knight';
+    } else if (room === 'lab') {
+      if (title) title.textContent = 'SUBTERRANEAN SUGAR LAB (B1)';
+      if (joy) joy.textContent = this.gameState.dynamoActive ? '100% BLISS' : '45% BLISS';
+      if (quest) quest.textContent = this.gameState.dynamoActive ? 'Joy Dynamo Online ✔' : 'Insert Dynamo Core';
+      if (grump) grump.textContent = '2 Chemist Grumps';
     }
   }
 
@@ -73,6 +115,13 @@ export class MinimapSystem {
     const isOpen = this.mapModal.style.display === 'flex';
     this.mapModal.style.display = isOpen ? 'none' : 'flex';
     if (!isOpen) {
+      if (this.gameState.room === 'observatory' || this.gameState.room === 'clocktower') {
+        this.switchFloor('2F');
+      } else if (this.gameState.room === 'lab') {
+        this.switchFloor('B1');
+      } else {
+        this.switchFloor('1F');
+      }
       this.updateFullMapUI();
       this.inspectSector(this.gameState.room);
     }
@@ -97,19 +146,31 @@ export class MinimapSystem {
     // Player Beacon Transform on High-Res Blueprint
     const beacon = document.getElementById('map-player-beacon');
     if (beacon) {
-      let mapX = 400;
+      let mapX = 380;
       let mapY = 250;
-      const pPos = player.group.position;
+      const pPos = window.__playerPos || { x: 0, z: 0 };
 
       if (this.gameState.room === 'foyer') {
-        mapX = 400 + (pPos.x / 14) * 80;
-        mapY = 250 + (pPos.z / 14) * 160;
+        mapX = 380 + (pPos.x / 14) * 80;
+        mapY = 250 + (pPos.z / 14) * 120;
       } else if (this.gameState.room === 'library') {
-        mapX = 650 + ((pPos.x - rooms.library.position.x) / 12) * 80;
-        mapY = 250 + ((pPos.z - rooms.library.position.z) / 12) * 120;
+        mapX = 620 + ((pPos.x - rooms.library.position.x) / 12) * 70;
+        mapY = 250 + ((pPos.z - rooms.library.position.z) / 12) * 100;
       } else if (this.gameState.room === 'garden') {
-        mapX = 150 + ((pPos.x - rooms.garden.position.x) / 13) * 80;
-        mapY = 250 + ((pPos.z - rooms.garden.position.z) / 13) * 120;
+        mapX = 140 + ((pPos.x - rooms.garden.position.x) / 13) * 70;
+        mapY = 250 + ((pPos.z - rooms.garden.position.z) / 13) * 100;
+      } else if (this.gameState.room === 'greenhouse') {
+        mapX = 380 + ((pPos.x - rooms.greenhouse.position.x) / 13) * 70;
+        mapY = 55 + ((pPos.z - rooms.greenhouse.position.z) / 13) * 25;
+      } else if (this.gameState.room === 'observatory') {
+        mapX = 625 + ((pPos.x - rooms.observatory.position.x) / 12) * 70;
+        mapY = 240 + ((pPos.z - rooms.observatory.position.z) / 12) * 100;
+      } else if (this.gameState.room === 'clocktower') {
+        mapX = 175 + ((pPos.x - rooms.clocktower.position.x) / 12) * 70;
+        mapY = 240 + ((pPos.z - rooms.clocktower.position.z) / 12) * 100;
+      } else if (this.gameState.room === 'lab') {
+        mapX = 400 + ((pPos.x - rooms.lab.position.x) / 13) * 120;
+        mapY = 240 + ((pPos.z - rooms.lab.position.z) / 13) * 120;
       }
 
       beacon.setAttribute('transform', `translate(${mapX.toFixed(1)}, ${mapY.toFixed(1)})`);
@@ -117,6 +178,7 @@ export class MinimapSystem {
   }
 
   render(player, grumps, destructibles) {
+    window.__playerPos = player.group.position;
     const ctx = this.ctx;
     const w = this.canvas.width;
     const h = this.canvas.height;
@@ -136,8 +198,9 @@ export class MinimapSystem {
     const pPos = player.group.position;
 
     let roomOffset = new THREE.Vector3(0, 0, 0);
-    if (this.gameState.room === 'library') roomOffset = rooms.library.position;
-    if (this.gameState.room === 'garden') roomOffset = rooms.garden.position;
+    if (rooms[this.gameState.room]) {
+      roomOffset = rooms[this.gameState.room].position;
+    }
 
     const rx = cx - (pPos.x - roomOffset.x) * scale;
     const ry = cy - (pPos.z - roomOffset.z) * scale;

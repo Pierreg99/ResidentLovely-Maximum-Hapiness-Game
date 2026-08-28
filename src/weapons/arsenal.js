@@ -8,6 +8,14 @@ import { audio } from '../engine/audio.js';
 export const projectiles = [];
 export let currentTargetLock = null;
 
+function getEntityWorldPos(roomName, localPos) {
+  const wp = localPos.clone();
+  if (rooms[roomName]) {
+    wp.add(rooms[roomName].position);
+  }
+  return wp;
+}
+
 export function updateTargetSights(currentRoom) {
   if (!player.isAiming) {
     currentTargetLock = null;
@@ -26,9 +34,7 @@ export function updateTargetSights(currentRoom) {
 
   grumps.forEach(g => {
     if (g.roomName !== currentRoom || g.isDancing) return;
-    let wPos = g.group.position.clone();
-    if (g.roomName === 'library') wPos.add(rooms.library.position);
-    if (g.roomName === 'garden') wPos.add(rooms.garden.position);
+    let wPos = getEntityWorldPos(g.roomName, g.group.position);
 
     const toEnemy = wPos.clone().sub(pPos);
     const dist = toEnemy.length();
@@ -158,10 +164,7 @@ function checkBeamHits(origin, dir, gameState, callbacks) {
   grumps.forEach(g => {
     if (g.roomName !== gameState.room || g.isDancing) return;
 
-    let worldGrumpPos = g.group.position.clone();
-    if (g.roomName === 'library') worldGrumpPos.add(rooms.library.position);
-    if (g.roomName === 'garden') worldGrumpPos.add(rooms.garden.position);
-
+    let worldGrumpPos = getEntityWorldPos(g.roomName, g.group.position);
     const toGrump = worldGrumpPos.clone().sub(origin);
     const dist = toGrump.length();
 
@@ -176,9 +179,7 @@ function checkBeamHits(origin, dir, gameState, callbacks) {
 
   destructibles.forEach(d => {
     if (d.userData.roomName !== gameState.room) return;
-    let worldDPos = d.position.clone();
-    if (d.userData.roomName === 'library') worldDPos.add(rooms.library.position);
-    if (d.userData.roomName === 'garden') worldDPos.add(rooms.garden.position);
+    let worldDPos = getEntityWorldPos(d.userData.roomName, d.position);
 
     if (origin.distanceTo(worldDPos) < 14) {
       const angle = dir.angleTo(worldDPos.clone().sub(origin).normalize());
@@ -201,9 +202,7 @@ export function updateProjectiles(delta, gameState, callbacks) {
     let hit = false;
     grumps.forEach(g => {
       if (g.roomName !== p.roomName || g.isDancing) return;
-      let worldGrumpPos = g.group.position.clone();
-      if (g.roomName === 'library') worldGrumpPos.add(rooms.library.position);
-      if (g.roomName === 'garden') worldGrumpPos.add(rooms.garden.position);
+      let worldGrumpPos = getEntityWorldPos(g.roomName, g.group.position);
 
       if (p.mesh.position.distanceTo(worldGrumpPos.clone().add(new THREE.Vector3(0, 0.8, 0))) < 1.3) {
         hit = true;
@@ -223,9 +222,7 @@ export function updateProjectiles(delta, gameState, callbacks) {
 
     destructibles.forEach(d => {
       if (d.userData.roomName !== p.roomName) return;
-      let worldDPos = d.position.clone();
-      if (d.userData.roomName === 'library') worldDPos.add(rooms.library.position);
-      if (d.userData.roomName === 'garden') worldDPos.add(rooms.garden.position);
+      let worldDPos = getEntityWorldPos(d.userData.roomName, d.position);
 
       if (p.mesh.position.distanceTo(worldDPos.clone().add(new THREE.Vector3(0, 1.0, 0))) < 1.3) {
         hit = true;
@@ -238,9 +235,7 @@ export function updateProjectiles(delta, gameState, callbacks) {
       spawnConfetti(p.mesh.position, 65);
       grumps.forEach(g => {
         if (g.roomName === p.roomName && !g.isDancing) {
-          let wPos = g.group.position.clone();
-          if (g.roomName === 'library') wPos.add(rooms.library.position);
-          if (g.roomName === 'garden') wPos.add(rooms.garden.position);
+          let wPos = getEntityWorldPos(g.roomName, g.group.position);
           if (p.mesh.position.distanceTo(wPos) < p.blastRadius) {
             upliftGrump(g, 65, gameState, callbacks);
           }

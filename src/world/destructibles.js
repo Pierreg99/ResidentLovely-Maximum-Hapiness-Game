@@ -59,10 +59,24 @@ export function initDestructibles() {
   spawnBalloon(new THREE.Vector3(7, 0, 7), 'foyer', 0xec4899);
   spawnBalloon(new THREE.Vector3(-7, 0, 7), 'foyer', 0x22d3ee);
   spawnGiftBox(new THREE.Vector3(5, 0, -8), 'foyer');
+
   spawnBalloon(new THREE.Vector3(-5, 0, 5), 'library', 0xa855f7);
   spawnGiftBox(new THREE.Vector3(4, 0, -4), 'library');
+
   spawnBalloon(new THREE.Vector3(6, 0, 6), 'garden', 0x10b981);
   spawnGiftBox(new THREE.Vector3(-6, 0, -6), 'garden');
+
+  spawnBalloon(new THREE.Vector3(-6, 0, 4), 'greenhouse', 0x34d399);
+  spawnGiftBox(new THREE.Vector3(6, 0, -4), 'greenhouse');
+
+  spawnBalloon(new THREE.Vector3(5, 0, 5), 'observatory', 0x38bdf8);
+  spawnGiftBox(new THREE.Vector3(-5, 0, -5), 'observatory');
+
+  spawnBalloon(new THREE.Vector3(-5, 0, 5), 'clocktower', 0xf59e0b);
+  spawnGiftBox(new THREE.Vector3(5, 0, -5), 'clocktower');
+
+  spawnBalloon(new THREE.Vector3(6, 0, -6), 'lab', 0x06b6d4);
+  spawnGiftBox(new THREE.Vector3(-6, 0, 6), 'lab');
 }
 
 export function popDestructible(d, onToast) {
@@ -70,8 +84,9 @@ export function popDestructible(d, onToast) {
   if (idx !== -1) {
     audio.playPop();
     let worldPos = d.position.clone();
-    if (d.userData.roomName === 'library') worldPos.add(rooms.library.position);
-    if (d.userData.roomName === 'garden') worldPos.add(rooms.garden.position);
+    if (rooms[d.userData.roomName]) {
+      worldPos.add(rooms[d.userData.roomName].position);
+    }
 
     spawnConfetti(worldPos, 30);
     rooms[d.userData.roomName].remove(d);

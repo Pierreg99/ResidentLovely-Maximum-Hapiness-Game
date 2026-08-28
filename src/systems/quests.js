@@ -35,12 +35,34 @@ export const QUESTS = [
     ]
   },
   {
-    id: 'quest_uplift',
-    name: 'QUEST 4: CHÂTEAU JOY BRIGADE',
-    desc: 'Blast and uplift all Gloomy Grumps across all rooms into dancing celebration buddies.',
+    id: 'quest_observatory',
+    name: 'QUEST 4: CELESTIAL ASTROLABE',
+    desc: 'Ascend the Grand Staircase to 2F, enter the Celestial Observatory, and insert the Star Sapphire Gem into the Astrolabe.',
     status: 'active',
     tasks: [
-      { id: 't_uplift_grumps', text: 'Uplift all 5 Gloomy Grump plushies (0/5)', done: false, count: 0, max: 5 },
+      { id: 't_ascend_mezzanine', text: 'Ascend to 2F Mezzanine Balcony', done: false },
+      { id: 't_find_stargem', text: 'Retrieve Star Sapphire Gem from the Stargazer Pod', done: false },
+      { id: 't_align_astrolabe', text: 'Align the Golden Astrolabe with the Starlight Array', done: false }
+    ]
+  },
+  {
+    id: 'quest_dynamo',
+    name: 'QUEST 5: SUBTERRANEAN SUGAR DYNAMO',
+    desc: 'Descend to B1 Subterranean Sugar Lab and insert the synthesized Joy Dynamo Core into the Master Generator.',
+    status: 'active',
+    tasks: [
+      { id: 't_find_crest', text: 'Obtain Golden Sun Crest from Clocktower Sweet Suite', done: false },
+      { id: 't_find_sugar', text: 'Harvest Prismatic Sugar from Courtyard Greenhouse', done: false },
+      { id: 't_activate_dynamo', text: 'Craft Dynamo Core & Activate B1 Sugar Dynamo Generator', done: false }
+    ]
+  },
+  {
+    id: 'quest_uplift',
+    name: 'QUEST 6: CHÂTEAU JOY BRIGADE',
+    desc: 'Blast and uplift all Gloomy Grumps across all 7 estate wings into dancing celebration buddies.',
+    status: 'active',
+    tasks: [
+      { id: 't_uplift_grumps', text: 'Uplift all 10 Gloomy Grump plushies (0/10)', done: false, count: 0, max: 10 },
       { id: 't_save_gramo', text: 'Save your grand progress at the Golden Gramophone', done: false }
     ]
   }

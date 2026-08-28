@@ -16,7 +16,7 @@ import { PersistenceSystem, loadGame } from './systems/persistence.js';
 const gameState = {
   joy: 100,
   room: 'foyer',
-  unlockedDoors: { library: false, garden: false },
+  unlockedDoors: { library: false, garden: false, greenhouse: true, observatory: true, clocktower: true, lab: true },
   currentWeapon: 'pistol',
   inventory: [
     { id: 'herb_green', qty: 2 },
@@ -29,8 +29,11 @@ const gameState = {
   pianoSequence: [],
   pianoSolved: false,
   cauldronFed: false,
+  astrolabeSolved: false,
+  clockSolved: false,
+  dynamoActive: false,
   grumpsUpliftedCount: 0,
-  totalGrumps: 5
+  totalGrumps: 10
 };
 
 // Toast notification helper
@@ -50,6 +53,8 @@ function showToast(text) {
 
 // Subsystem Initializations
 const cameraController = new CameraController();
+const questSystem = new QuestSystem();
+
 const inventorySystem = new InventorySystem(gameState, {
   onToast: showToast,
   onItemCombined: (itemId) => {
@@ -65,11 +70,16 @@ const inventorySystem = new InventorySystem(gameState, {
         q3.tasks[0].done = true;
         questSystem.render();
       }
+    } else if (itemId === 'dynamo_core') {
+      const q5 = QUESTS.find(q => q.id === 'quest_dynamo');
+      if (q5) {
+        q5.tasks[2].done = true;
+        questSystem.render();
+      }
     }
   }
 });
 
-const questSystem = new QuestSystem();
 const minimapSystem = new MinimapSystem(gameState);
 const persistenceSystem = new PersistenceSystem(gameState, lanternMeshes, QUESTS, inventorySystem, questSystem, {
   onToast: showToast
@@ -158,7 +168,7 @@ document.querySelectorAll('.piano-key').forEach(key => {
       audio.playCheer();
       showToast('★ HARMONIC TRIAD PLAYED! PIANO DRAWER OPENED! ★');
       pianoModal.style.display = 'none';
-      spawnGroundItem('key_foyer', new THREE.Vector3(6.5, 1.5, -2.5), 'foyer');
+      spawnGroundItem('key_foyer', new THREE.Vector3(6.5, 1.5, -2.0), 'foyer');
 
       const q1 = QUESTS.find(q => q.id === 'quest_piano');
       if (q1) {
@@ -181,9 +191,13 @@ function changeRoom(newRoom, targetSpawnPos) {
     gameState.room = newRoom;
     player.group.position.copy(targetSpawnPos);
 
-    if (newRoom === 'foyer') roomNameDisplay.textContent = '❖ CHÂTEAU FOYER';
+    if (newRoom === 'foyer') roomNameDisplay.textContent = '❖ CHÂTEAU FOYER & MEZZANINE';
     if (newRoom === 'library') roomNameDisplay.textContent = '❖ EAST WING LIBRARY';
     if (newRoom === 'garden') roomNameDisplay.textContent = '❖ SOLARIUM GARDEN';
+    if (newRoom === 'greenhouse') roomNameDisplay.textContent = '❖ COURTYARD TEA GREENHOUSE';
+    if (newRoom === 'observatory') roomNameDisplay.textContent = '❖ CELESTIAL OBSERVATORY (2F)';
+    if (newRoom === 'clocktower') roomNameDisplay.textContent = '❖ CLOCKTOWER SWEET SUITE (2F)';
+    if (newRoom === 'lab') roomNameDisplay.textContent = '❖ SUBTERRANEAN SUGAR LAB (B1)';
 
     updateSceneLighting(newRoom);
 
@@ -202,50 +216,97 @@ function checkContextualInteractions() {
   currentInteractable = null;
   const pPos = player.group.position;
 
+  // 1. Ground item pickups across all 7 wings
   for (let i = 0; i < groundItems.length; i++) {
     const item = groundItems[i];
     if (item.userData.roomName === gameState.room) {
       let itemWorldPos = item.position.clone();
-      if (gameState.room === 'library') itemWorldPos.add(rooms.library.position);
-      if (gameState.room === 'garden') itemWorldPos.add(rooms.garden.position);
+      if (rooms[gameState.room]) {
+        itemWorldPos.add(rooms[gameState.room].position);
+      }
 
-      if (pPos.distanceTo(itemWorldPos) < 2.2) {
+      if (pPos.distanceTo(itemWorldPos) < 2.4) {
         const dbItem = ITEMS_DB[item.userData.itemId];
-        currentInteractable = { type: 'item', index: i, itemMesh: item, data: dbItem };
-        promptText.textContent = `TAKE ${dbItem.name}`;
+        if (dbItem) {
+          currentInteractable = { type: 'item', index: i, itemMesh: item, data: dbItem };
+          promptText.textContent = `TAKE ${dbItem.name}`;
+          promptBox.style.display = 'flex';
+          return;
+        }
+      }
+    }
+  }
+
+  // 2. Foyer Interactions (1F Ground vs 2F Balcony)
+  if (gameState.room === 'foyer') {
+    if (pPos.y < 2.5) {
+      // 1F Ground Floor
+      if (pPos.distanceTo(new THREE.Vector3(6.5, 0, -3)) < 3.2) {
+        currentInteractable = { type: 'piano' };
+        promptText.textContent = 'EXAMINE & PLAY GRAND PIANO';
+        promptBox.style.display = 'flex';
+        return;
+      }
+      if (pPos.distanceTo(new THREE.Vector3(-8.5, 0, -8.5)) < 2.8) {
+        currentInteractable = { type: 'save' };
+        promptText.textContent = 'SAVE GAME AT GOLD GRAMOPHONE';
+        promptBox.style.display = 'flex';
+        return;
+      }
+      if (pPos.distanceTo(new THREE.Vector3(13.5, 0, 0)) < 2.8) {
+        currentInteractable = { type: 'door_library' };
+        promptText.textContent = gameState.unlockedDoors.library ? 'ENTER EAST WING LIBRARY' : 'LOCKED: REQUIRES FOYER KEY';
+        promptBox.style.display = 'flex';
+        return;
+      }
+      if (pPos.distanceTo(new THREE.Vector3(-13.5, 0, 0)) < 2.8) {
+        currentInteractable = { type: 'door_garden' };
+        promptText.textContent = gameState.unlockedDoors.garden ? 'ENTER SOLARIUM GARDEN' : 'LOCKED: REQUIRES MASTER KEY';
+        promptBox.style.display = 'flex';
+        return;
+      }
+      if (pPos.distanceTo(new THREE.Vector3(0, 0, 13.5)) < 2.8) {
+        currentInteractable = { type: 'door_greenhouse' };
+        promptText.textContent = 'ENTER COURTYARD TEA GREENHOUSE';
+        promptBox.style.display = 'flex';
+        return;
+      }
+      if (pPos.distanceTo(new THREE.Vector3(8.5, 0, 8.5)) < 2.8) {
+        currentInteractable = { type: 'trapdoor_lab' };
+        promptText.textContent = 'DESCEND TO SUBTERRANEAN SUGAR LAB (B1)';
+        promptBox.style.display = 'flex';
+        return;
+      }
+      if (pPos.distanceTo(new THREE.Vector3(0, 0, -5.5)) < 3.0) {
+        currentInteractable = { type: 'stairs_up' };
+        promptText.textContent = 'ASCEND GRAND STAIRCASE TO 2F MEZZANINE';
+        promptBox.style.display = 'flex';
+        return;
+      }
+    } else {
+      // 2F Mezzanine Balconies
+      if (pPos.distanceTo(new THREE.Vector3(0, 4.5, -11.5)) < 3.0) {
+        currentInteractable = { type: 'stairs_down' };
+        promptText.textContent = 'DESCEND GRAND STAIRCASE TO 1F FOYER';
+        promptBox.style.display = 'flex';
+        return;
+      }
+      if (pPos.distanceTo(new THREE.Vector3(12.5, 4.5, 0)) < 2.8) {
+        currentInteractable = { type: 'door_observatory' };
+        promptText.textContent = 'ENTER CELESTIAL OBSERVATORY (2F)';
+        promptBox.style.display = 'flex';
+        return;
+      }
+      if (pPos.distanceTo(new THREE.Vector3(-12.5, 4.5, 0)) < 2.8) {
+        currentInteractable = { type: 'door_clocktower' };
+        promptText.textContent = 'ENTER CLOCKTOWER SWEET SUITE (2F)';
         promptBox.style.display = 'flex';
         return;
       }
     }
   }
 
-  if (gameState.room === 'foyer') {
-    if (pPos.distanceTo(new THREE.Vector3(6.5, 0, -4)) < 3.2) {
-      currentInteractable = { type: 'piano' };
-      promptText.textContent = 'EXAMINE & PLAY GRAND PIANO';
-      promptBox.style.display = 'flex';
-      return;
-    }
-    if (pPos.distanceTo(new THREE.Vector3(-8.5, 0, -8.5)) < 2.8) {
-      currentInteractable = { type: 'save' };
-      promptText.textContent = 'SAVE GAME AT GOLD GRAMOPHONE';
-      promptBox.style.display = 'flex';
-      return;
-    }
-    if (pPos.distanceTo(new THREE.Vector3(13.5, 0, 0)) < 2.8) {
-      currentInteractable = { type: 'door_library' };
-      promptText.textContent = gameState.unlockedDoors.library ? 'ENTER EAST WING LIBRARY' : 'LOCKED: REQUIRES FOYER KEY';
-      promptBox.style.display = 'flex';
-      return;
-    }
-    if (pPos.distanceTo(new THREE.Vector3(-13.5, 0, 0)) < 2.8) {
-      currentInteractable = { type: 'door_garden' };
-      promptText.textContent = gameState.unlockedDoors.garden ? 'ENTER SOLARIUM GARDEN' : 'LOCKED: REQUIRES MASTER KEY';
-      promptBox.style.display = 'flex';
-      return;
-    }
-  }
-
+  // 3. Library Interactions
   if (gameState.room === 'library') {
     const cauldronPos = rooms.library.position.clone().add(new THREE.Vector3(0, 0, -6));
     if (pPos.distanceTo(cauldronPos) < 3.0) {
@@ -263,6 +324,7 @@ function checkContextualInteractions() {
     }
   }
 
+  // 4. Garden Interactions
   if (gameState.room === 'garden') {
     for (let l of lanternMeshes) {
       const lPos = rooms.garden.position.clone().add(l.group.position);
@@ -282,12 +344,85 @@ function checkContextualInteractions() {
     }
   }
 
+  // 5. Greenhouse Interactions
+  if (gameState.room === 'greenhouse') {
+    const sugarPos = rooms.greenhouse.position.clone().add(new THREE.Vector3(5, 0, 4));
+    if (pPos.distanceTo(sugarPos) < 3.0) {
+      currentInteractable = { type: 'sugar_harvest' };
+      promptText.textContent = 'HARVEST PRISMATIC SUGAR CRYSTAL';
+      promptBox.style.display = 'flex';
+      return;
+    }
+    const exitPos = rooms.greenhouse.position.clone().add(new THREE.Vector3(0, 0, -12.5));
+    if (pPos.distanceTo(exitPos) < 2.8) {
+      currentInteractable = { type: 'door_foyer_from_greenhouse' };
+      promptText.textContent = 'RETURN TO FOYER';
+      promptBox.style.display = 'flex';
+      return;
+    }
+  }
+
+  // 6. Observatory Interactions
+  if (gameState.room === 'observatory') {
+    const astrolabePos = rooms.observatory.position.clone().add(new THREE.Vector3(0, 0, 0));
+    if (pPos.distanceTo(astrolabePos) < 3.2) {
+      currentInteractable = { type: 'astrolabe' };
+      promptText.textContent = gameState.astrolabeSolved ? 'ASTROLABE: RADIATING CELESTIAL JOY' : 'INSERT STAR SAPPHIRE GEM INTO ASTROLABE';
+      promptBox.style.display = 'flex';
+      return;
+    }
+    const exitPos = rooms.observatory.position.clone().add(new THREE.Vector3(-11.5, 0, 0));
+    if (pPos.distanceTo(exitPos) < 2.8) {
+      currentInteractable = { type: 'door_foyer_from_observatory' };
+      promptText.textContent = 'RETURN TO 2F MEZZANINE';
+      promptBox.style.display = 'flex';
+      return;
+    }
+  }
+
+  // 7. Clocktower Interactions
+  if (gameState.room === 'clocktower') {
+    const clockPos = rooms.clocktower.position.clone().add(new THREE.Vector3(-7, 0, -4));
+    if (pPos.distanceTo(clockPos) < 3.0) {
+      currentInteractable = { type: 'grandfather_clock' };
+      promptText.textContent = gameState.clockSolved ? 'CLOCKWORK: TICKING IN ETERNAL JOY' : 'INSPECT CLOCKWORK & RETRIEVE SUN CREST';
+      promptBox.style.display = 'flex';
+      return;
+    }
+    const exitPos = rooms.clocktower.position.clone().add(new THREE.Vector3(11.5, 0, 0));
+    if (pPos.distanceTo(exitPos) < 2.8) {
+      currentInteractable = { type: 'door_foyer_from_clocktower' };
+      promptText.textContent = 'RETURN TO 2F MEZZANINE';
+      promptBox.style.display = 'flex';
+      return;
+    }
+  }
+
+  // 8. Subterranean Lab Interactions
+  if (gameState.room === 'lab') {
+    const dynamoPos = rooms.lab.position.clone().add(new THREE.Vector3(0, 0, -3));
+    if (pPos.distanceTo(dynamoPos) < 3.4) {
+      currentInteractable = { type: 'dynamo' };
+      promptText.textContent = gameState.dynamoActive ? 'JOY DYNAMO: RADIATING HIGH-VOLTAGE BLISS' : 'INSERT JOY DYNAMO CORE INTO GENERATOR';
+      promptBox.style.display = 'flex';
+      return;
+    }
+    const exitPos = rooms.lab.position.clone().add(new THREE.Vector3(0, 0, 11.5));
+    if (pPos.distanceTo(exitPos) < 2.8) {
+      currentInteractable = { type: 'ladder_foyer_from_lab' };
+      promptText.textContent = 'CLIMB LADDER TO 1F FOYER';
+      promptBox.style.display = 'flex';
+      return;
+    }
+  }
+
   promptBox.style.display = 'none';
 }
 
 function handleContextInteract() {
   if (!currentInteractable) return;
 
+  // Pickup Ground Item
   if (currentInteractable.type === 'item') {
     const added = inventorySystem.addItem(currentInteractable.data.id, 1);
     if (added) {
@@ -295,10 +430,16 @@ function handleContextInteract() {
       showToast(`OBTAINED: ${currentInteractable.data.name}`);
       if (currentInteractable.data.id === 'key_foyer') {
         const q1 = QUESTS.find(q => q.id === 'quest_piano');
-        if (q1) {
-          q1.tasks[2].done = true;
-          questSystem.render();
-        }
+        if (q1) { q1.tasks[2].done = true; questSystem.render(); }
+      } else if (currentInteractable.data.id === 'gem_star') {
+        const q4 = QUESTS.find(q => q.id === 'quest_observatory');
+        if (q4) { q4.tasks[1].done = true; questSystem.render(); }
+      } else if (currentInteractable.data.id === 'crest_royal') {
+        const q5 = QUESTS.find(q => q.id === 'quest_dynamo');
+        if (q5) { q5.tasks[0].done = true; questSystem.render(); }
+      } else if (currentInteractable.data.id === 'sugar_crystal') {
+        const q5 = QUESTS.find(q => q.id === 'quest_dynamo');
+        if (q5) { q5.tasks[1].done = true; questSystem.render(); }
       }
       rooms[currentInteractable.itemMesh.userData.roomName].remove(currentInteractable.itemMesh);
       groundItems.splice(currentInteractable.index, 1);
@@ -312,6 +453,24 @@ function handleContextInteract() {
 
   if (currentInteractable.type === 'piano') { openPianoPuzzle(); return; }
 
+  // Stair Traversals
+  if (currentInteractable.type === 'stairs_up') {
+    audio.playDoorChime();
+    player.group.position.set(0, 4.5, -11.5);
+    showToast('★ ASCENDED TO 2F MEZZANINE BALCONY ★');
+    const q4 = QUESTS.find(q => q.id === 'quest_observatory');
+    if (q4) { q4.tasks[0].done = true; questSystem.render(); }
+    return;
+  }
+
+  if (currentInteractable.type === 'stairs_down') {
+    audio.playDoorChime();
+    player.group.position.set(0, 0, -5.5);
+    showToast('★ DESCENDED TO 1F GRAND FOYER ★');
+    return;
+  }
+
+  // Cauldron
   if (currentInteractable.type === 'cauldron') {
     if (gameState.cauldronFed) {
       showToast('THE CAULDRON IS ALREADY RADIATING PURE JOY!');
@@ -336,6 +495,7 @@ function handleContextInteract() {
     return;
   }
 
+  // Lanterns
   if (currentInteractable.type === 'lantern') {
     const l = currentInteractable.lantern;
     if (!l.lit) {
@@ -360,11 +520,97 @@ function handleContextInteract() {
     return;
   }
 
+  // Astrolabe Puzzle
+  if (currentInteractable.type === 'astrolabe') {
+    if (gameState.astrolabeSolved) {
+      showToast('THE CELESTIAL ASTROLABE IS ALREADY ALIGNED WITH THE STARS!');
+      return;
+    }
+    const gemIdx = gameState.inventory.findIndex(s => s && s.id === 'gem_star');
+    if (gemIdx !== -1) {
+      inventorySystem.consumeSlot(gemIdx);
+      gameState.astrolabeSolved = true;
+      audio.playCheer();
+      spawnConfetti(rooms.observatory.position.clone().add(new THREE.Vector3(0, 3, 0)), 50);
+      showToast('★ STAR SAPPHIRE INSERTED! ASTROLABE ALIGNED! ★');
+      const q4 = QUESTS.find(q => q.id === 'quest_observatory');
+      if (q4) {
+        q4.tasks[2].done = true;
+        questSystem.checkAllDone();
+        questSystem.render();
+      }
+    } else {
+      showToast('FIND AND INSERT THE STAR SAPPHIRE GEM FIRST!');
+    }
+    return;
+  }
+
+  // Grandfather Clock
+  if (currentInteractable.type === 'grandfather_clock') {
+    if (gameState.clockSolved) {
+      showToast('THE CLOCK MECHANISM IS WORKING IN HARMONY.');
+      return;
+    }
+    gameState.clockSolved = true;
+    audio.playCheer();
+    inventorySystem.addItem('crest_royal', 1);
+    showToast('★ CLOCK MECHANISM UNLOCKED! OBTAINED: GOLDEN SUN CREST! ★');
+    const q5 = QUESTS.find(q => q.id === 'quest_dynamo');
+    if (q5) {
+      q5.tasks[0].done = true;
+      questSystem.render();
+    }
+    return;
+  }
+
+  // Sugar Harvest
+  if (currentInteractable.type === 'sugar_harvest') {
+    const added = inventorySystem.addItem('sugar_crystal', 1);
+    if (added) {
+      audio.playPop();
+      showToast('★ HARVESTED PRISMATIC SUGAR CRYSTAL! ★');
+      const q5 = QUESTS.find(q => q.id === 'quest_dynamo');
+      if (q5) {
+        q5.tasks[1].done = true;
+        questSystem.render();
+      }
+    } else {
+      showToast('INVENTORY FULL (8/8 SLOTS)');
+    }
+    return;
+  }
+
+  // Joy Dynamo
+  if (currentInteractable.type === 'dynamo') {
+    if (gameState.dynamoActive) {
+      showToast('THE JOY DYNAMO IS ONLINE AND RADIATING MAXIMUM HAPPINESS!');
+      return;
+    }
+    const coreIdx = gameState.inventory.findIndex(s => s && s.id === 'dynamo_core');
+    if (coreIdx !== -1) {
+      inventorySystem.consumeSlot(coreIdx);
+      gameState.dynamoActive = true;
+      audio.playCheer();
+      spawnConfetti(rooms.lab.position.clone().add(new THREE.Vector3(0, 3, -3)), 60);
+      showToast('★ JOY DYNAMO ACTIVATED! ALL CHÂTEAU PIPELINES CHARGED! ★');
+      const q5 = QUESTS.find(q => q.id === 'quest_dynamo');
+      if (q5) {
+        q5.tasks[2].done = true;
+        questSystem.checkAllDone();
+        questSystem.render();
+      }
+    } else {
+      showToast('COMBINE GOLDEN SUN CREST + PRISMATIC SUGAR FOR DYNAMO CORE!');
+    }
+    return;
+  }
+
   if (currentInteractable.type === 'save') {
     persistenceSystem.promptSave();
     return;
   }
 
+  // Room Transitions
   if (currentInteractable.type === 'door_library') {
     if (gameState.unlockedDoors.library) {
       changeRoom('library', rooms.library.position.clone().add(new THREE.Vector3(-9, 0, 0)));
@@ -375,10 +621,7 @@ function handleContextInteract() {
         audio.playDoorChime();
         showToast('UNLOCKED EAST WING WITH FOYER KEY!');
         const q2 = QUESTS.find(q => q.id === 'quest_cauldron');
-        if (q2) {
-          q2.tasks[0].done = true;
-          questSystem.render();
-        }
+        if (q2) { q2.tasks[0].done = true; questSystem.render(); }
         changeRoom('library', rooms.library.position.clone().add(new THREE.Vector3(-9, 0, 0)));
       } else {
         showToast('DOOR IS LOCKED. SOLVE THE PIANO SONATINA FOR THE KEY.');
@@ -397,15 +640,32 @@ function handleContextInteract() {
         audio.playDoorChime();
         showToast('UNLOCKED SOLARIUM WITH MASTER BALLROOM KEY!');
         const q3 = QUESTS.find(q => q.id === 'quest_lanterns');
-        if (q3) {
-          q3.tasks[1].done = true;
-          questSystem.render();
-        }
+        if (q3) { q3.tasks[1].done = true; questSystem.render(); }
         changeRoom('garden', rooms.garden.position.clone().add(new THREE.Vector3(10, 0, 0)));
       } else {
         showToast('LOCKED! CRAFT MASTER KEY BY COMBINING FOYER KEY + GOLD RIBBON.');
       }
     }
+    return;
+  }
+
+  if (currentInteractable.type === 'door_greenhouse') {
+    changeRoom('greenhouse', rooms.greenhouse.position.clone().add(new THREE.Vector3(0, 0, -10)));
+    return;
+  }
+
+  if (currentInteractable.type === 'trapdoor_lab') {
+    changeRoom('lab', rooms.lab.position.clone().add(new THREE.Vector3(0, 0, 9)));
+    return;
+  }
+
+  if (currentInteractable.type === 'door_observatory') {
+    changeRoom('observatory', rooms.observatory.position.clone().add(new THREE.Vector3(-9, 0, 0)));
+    return;
+  }
+
+  if (currentInteractable.type === 'door_clocktower') {
+    changeRoom('clocktower', rooms.clocktower.position.clone().add(new THREE.Vector3(9, 0, 0)));
     return;
   }
 
@@ -416,6 +676,26 @@ function handleContextInteract() {
 
   if (currentInteractable.type === 'door_foyer_from_garden') {
     changeRoom('foyer', new THREE.Vector3(-11, 0, 0));
+    return;
+  }
+
+  if (currentInteractable.type === 'door_foyer_from_greenhouse') {
+    changeRoom('foyer', new THREE.Vector3(0, 0, 11));
+    return;
+  }
+
+  if (currentInteractable.type === 'door_foyer_from_observatory') {
+    changeRoom('foyer', new THREE.Vector3(11, 4.5, 0));
+    return;
+  }
+
+  if (currentInteractable.type === 'door_foyer_from_clocktower') {
+    changeRoom('foyer', new THREE.Vector3(-11, 4.5, 0));
+    return;
+  }
+
+  if (currentInteractable.type === 'ladder_foyer_from_lab') {
+    changeRoom('foyer', new THREE.Vector3(7, 0, 7));
     return;
   }
 }
@@ -431,12 +711,12 @@ initInput({
   onFire: () => triggerWeaponFire(gameState, cameraController, {
     onToast: showToast,
     onGrumpUplifted: () => {
-      const q4 = QUESTS.find(q => q.id === 'quest_uplift');
-      if (q4) {
-        const t = q4.tasks[0];
+      const qUplift = QUESTS.find(q => q.id === 'quest_uplift');
+      if (qUplift) {
+        const t = qUplift.tasks[0];
         t.count = gameState.grumpsUpliftedCount;
-        t.text = `Uplift all 5 Gloomy Grump plushies (${t.count}/5)`;
-        if (t.count >= 5) {
+        t.text = `Uplift all 10 Gloomy Grump plushies (${t.count}/10)`;
+        if (t.count >= 10) {
           t.done = true;
           questSystem.checkAllDone();
         }
@@ -479,12 +759,12 @@ function animate() {
   updateProjectiles(delta, gameState, {
     onToast: showToast,
     onGrumpUplifted: () => {
-      const q4 = QUESTS.find(q => q.id === 'quest_uplift');
-      if (q4) {
-        const t = q4.tasks[0];
+      const qUplift = QUESTS.find(q => q.id === 'quest_uplift');
+      if (qUplift) {
+        const t = qUplift.tasks[0];
         t.count = gameState.grumpsUpliftedCount;
-        t.text = `Uplift all 5 Gloomy Grump plushies (${t.count}/5)`;
-        if (t.count >= 5) {
+        t.text = `Uplift all 10 Gloomy Grump plushies (${t.count}/10)`;
+        if (t.count >= 10) {
           t.done = true;
           questSystem.checkAllDone();
         }
@@ -506,4 +786,4 @@ function animate() {
 }
 
 animate();
-showToast('❖ RESIDENT LOVELY v1.6.2 DUAL-SMOOTHING ACTIVE ❖');
+showToast('❖ RESIDENT LOVELY v2.0 GRAND ESTATE EXPANSION LOADED ❖');

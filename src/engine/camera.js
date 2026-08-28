@@ -10,9 +10,13 @@ export class CameraController {
 
     // Room Bounding Boxes for Camera Collision Clamping
     this.roomBounds = {
-      foyer: { minX: -12.2, maxX: 12.2, minZ: -12.2, maxZ: 12.2, minY: 0.9, maxY: 7.8, center: new THREE.Vector3(0, 0, 0) },
+      foyer: { minX: -12.2, maxX: 12.2, minZ: -12.2, maxZ: 12.2, minY: 0.9, maxY: 11.0, center: new THREE.Vector3(0, 0, 0) },
       library: { minX: 34.0, maxX: 56.0, minZ: -10.2, maxZ: 10.2, minY: 0.9, maxY: 7.2, center: new THREE.Vector3(45, 0, 0) },
-      garden: { minX: -56.0, maxX: -34.0, minZ: -11.2, maxZ: 11.2, minY: 0.9, maxY: 7.8, center: new THREE.Vector3(-45, 0, 0) }
+      garden: { minX: -56.0, maxX: -34.0, minZ: -11.2, maxZ: 11.2, minY: 0.9, maxY: 7.8, center: new THREE.Vector3(-45, 0, 0) },
+      greenhouse: { minX: -11.5, maxX: 11.5, minZ: 33.5, maxZ: 56.5, minY: 0.9, maxY: 9.0, center: new THREE.Vector3(0, 0, 45) },
+      observatory: { minX: 34.0, maxX: 56.0, minZ: -10.5, maxZ: 10.5, minY: 12.8, maxY: 20.0, center: new THREE.Vector3(45, 12, 0) },
+      clocktower: { minX: -56.0, maxX: -34.0, minZ: -10.5, maxZ: 10.5, minY: 12.8, maxY: 20.0, center: new THREE.Vector3(-45, 12, 0) },
+      lab: { minX: -11.5, maxX: 11.5, minZ: -56.5, maxZ: -33.5, minY: -13.2, maxY: -6.0, center: new THREE.Vector3(0, -14, -45) }
     };
 
     // Classic Resident Evil Fixed Cinematic Camera Nodes per Room
@@ -20,7 +24,7 @@ export class CameraController {
       foyer: [
         { id: 'foyer_entrance', pos: new THREE.Vector3(0, 6.0, -11.0), triggerZ: -4 },
         { id: 'foyer_center', pos: new THREE.Vector3(-8.8, 5.2, 0), triggerZ: 2 },
-        { id: 'foyer_stairs', pos: new THREE.Vector3(7.8, 5.5, 8.0), triggerZ: 14 }
+        { id: 'foyer_stairs', pos: new THREE.Vector3(7.8, 8.5, 8.0), triggerZ: 14 }
       ],
       library: [
         { id: 'lib_entry', pos: new THREE.Vector3(36.5, 5.2, -5.0), triggerZ: -2 },
@@ -31,6 +35,22 @@ export class CameraController {
         { id: 'garden_entry', pos: new THREE.Vector3(-36.5, 5.5, -5.0), triggerZ: -2 },
         { id: 'garden_fountain', pos: new THREE.Vector3(-45.0, 4.8, 8.0), triggerZ: 4 },
         { id: 'garden_gazebo', pos: new THREE.Vector3(-53.5, 5.8, -3.0), triggerZ: 14 }
+      ],
+      greenhouse: [
+        { id: 'gh_entry', pos: new THREE.Vector3(0, 4.5, 36.0), triggerZ: 40 },
+        { id: 'gh_pavilion', pos: new THREE.Vector3(7.5, 5.5, 48.0), triggerZ: 50 }
+      ],
+      observatory: [
+        { id: 'obs_entry', pos: new THREE.Vector3(37.5, 16.5, -5.0), triggerZ: -2 },
+        { id: 'obs_astrolabe', pos: new THREE.Vector3(52.5, 17.5, 6.0), triggerZ: 4 }
+      ],
+      clocktower: [
+        { id: 'clock_entry', pos: new THREE.Vector3(-37.5, 16.5, -5.0), triggerZ: -2 },
+        { id: 'clock_pendulum', pos: new THREE.Vector3(-52.5, 17.5, 6.0), triggerZ: 4 }
+      ],
+      lab: [
+        { id: 'lab_entry', pos: new THREE.Vector3(0, -9.5, -36.0), triggerZ: -40 },
+        { id: 'lab_dynamo', pos: new THREE.Vector3(-7.5, -8.5, -48.0), triggerZ: -50 }
       ]
     };
 

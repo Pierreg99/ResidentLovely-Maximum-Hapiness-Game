@@ -63,6 +63,41 @@ export const ITEMS_DB = {
     desc: 'Ancient alchemical recipe scroll detailing 3-tier herb blending secrets.',
     type: 'quest_item',
     icon: '<rect x="4" y="4" width="16" height="16" rx="2" fill="#a855f7"/><line x1="8" y1="8" x2="16" y2="8" stroke="#fff"/><line x1="8" y1="12" x2="16" y2="12" stroke="#fff"/>'
+  },
+  gem_star: {
+    id: 'gem_star',
+    name: 'STAR SAPPHIRE GEM',
+    desc: 'A luminescent celestial gem echoing with starry resonance. Fits the Celestial Astrolabe in the 2F Observatory.',
+    type: 'quest_item',
+    icon: '<polygon points="12 2 22 12 12 22 2 12" fill="#38bdf8" stroke="#22d3ee" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="#fff"/>'
+  },
+  crest_royal: {
+    id: 'crest_royal',
+    name: 'GOLDEN SUN CREST',
+    desc: 'An antique gilded emblem salvaged from the Clocktower Sweet Suite pendulum casing.',
+    type: 'quest_item',
+    icon: '<circle cx="12" cy="12" r="8" fill="#f59e0b" stroke="#fff" stroke-width="1.5"/><polygon points="12 4 14 10 20 12 14 14 12 20 10 14 4 12 10 10" fill="#fff"/>'
+  },
+  sugar_crystal: {
+    id: 'sugar_crystal',
+    name: 'PRISMATIC SUGAR CRYSTAL',
+    desc: 'Naturally crystallized rainbow sucrose cultivated in the Courtyard Tea Greenhouse.',
+    type: 'material',
+    icon: '<polygon points="12 3 19 9 16 21 8 21 5 9" fill="#ec4899" stroke="#f472b6" stroke-width="1.5"/><line x1="12" y1="3" x2="12" y2="21" stroke="#fff"/>'
+  },
+  dynamo_core: {
+    id: 'dynamo_core',
+    name: 'JOY DYNAMO CORE',
+    desc: 'Synthesized power matrix combining the Sun Crest & Prismatic Sugar. Fuels the Subterranean Sugar Lab Dynamo!',
+    type: 'quest_item',
+    icon: '<circle cx="12" cy="12" r="9" fill="#06b6d4" stroke="#f59e0b" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="#ec4899"/>'
+  },
+  elixir_hyper: {
+    id: 'elixir_hyper',
+    name: 'HYPER BLISS CONFECTION',
+    desc: 'Ultra-luxurious confection granting permanent maximum joy vitality and glowing sparkle aura.',
+    type: 'consumable',
+    icon: '<path d="M4 14h16l-2 8H6z" fill="#f59e0b"/><circle cx="12" cy="9" r="7" fill="#a855f7"/><polygon points="12 2 14 7 9 7" fill="#22d3ee"/>'
   }
 };
 
@@ -409,6 +444,28 @@ export class InventorySystem {
       audio.playCheer();
       if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: MASTER BALLROOM KEY! ★');
       if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('key_master');
+      return;
+    }
+
+    // 5. Golden Sun Crest + Prismatic Sugar = Joy Dynamo Core
+    if (ids === 'crest_royal+sugar_crystal') {
+      this.consumeSlot(idx1);
+      this.consumeSlot(idx2);
+      this.addItem('dynamo_core', 1);
+      audio.playCheer();
+      if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: JOY DYNAMO CORE! ★');
+      if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('dynamo_core');
+      return;
+    }
+
+    // 6. Mega Bliss Cupcake + Prismatic Sugar = Hyper Bliss Confection
+    if (ids === 'bliss_cupcake+sugar_crystal') {
+      this.consumeSlot(idx1);
+      this.consumeSlot(idx2);
+      this.addItem('elixir_hyper', 1);
+      audio.playCheer();
+      if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: HYPER BLISS CONFECTION! ★');
+      if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('elixir_hyper');
       return;
     }
 
