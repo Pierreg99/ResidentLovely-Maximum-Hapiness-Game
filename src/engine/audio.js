@@ -1,3 +1,5 @@
+import { SECTOR_REGISTRY, getSector } from '../world/sectors.js';
+
 /**
  * SoundEngine: Synthesized Web Audio API Sound Effects (Zero external audio files)
  * Enhanced with Kawaii chimes, Typewriter mechanical clicks, and Door handles.
@@ -8,6 +10,9 @@ export class SoundEngine {
     this.muted = false;
     this.beamOsc = null;
     this.beamGain = null;
+    this.bgmTimer = null;
+    this.currentBgmRoom = 'foyer';
+    this.bgmStep = 0;
   }
 
   init() {
@@ -149,7 +154,6 @@ export class SoundEngine {
   playTypewriter() {
     if (this.muted) return;
     this.init();
-    // Mechanical key strike + bell
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';
@@ -162,7 +166,6 @@ export class SoundEngine {
     osc.start();
     osc.stop(this.ctx.currentTime + 0.05);
 
-    // Occasional bell ring
     const bell = this.ctx.createOscillator();
     const bGain = this.ctx.createGain();
     bell.type = 'sine';
@@ -209,7 +212,6 @@ export class SoundEngine {
   playDoorChime() {
     if (this.muted) return;
     this.init();
-    // Door handle click + harmonic opening whoosh
     const oscClick = this.ctx.createOscillator();
     const gainClick = this.ctx.createGain();
     oscClick.type = 'triangle';
@@ -270,7 +272,7 @@ export class SoundEngine {
     osc.stop(this.ctx.currentTime + 0.35);
   }
 
-  // --- Dynamic Adaptive Web Audio BGM System ---
+  // --- Dynamic Adaptive Web Audio BGM System (32 Sectors) ---
   startBGM(roomName = 'foyer') {
     if (this.bgmTimer) return;
     this.init();
@@ -288,19 +290,49 @@ export class SoundEngine {
       crypt: [164.81, 196.00, 246.94, 329.63, 246.94, 196.00],
       dining: [261.63, 329.63, 392.00, 523.25, 659.25, 523.25],
       gallery: [293.66, 369.99, 440.00, 587.33, 440.00, 369.99],
+      bakery: [392.00, 440.00, 493.88, 587.33, 659.25, 587.33],
       mastersuite: [329.63, 392.00, 493.88, 659.25, 493.88, 392.00],
-      ballroom: [392.00, 493.88, 587.33, 783.99, 987.77, 783.99]
+      ballroom: [392.00, 493.88, 587.33, 783.99, 987.77, 783.99],
+      cathedral: [261.63, 392.00, 523.25, 783.99, 1046.50, 783.99],
+      gatehouse: [392.00, 440.00, 493.88, 587.33, 493.88, 440.00],
+      reflection_pool: [293.66, 349.23, 440.00, 523.25, 440.00, 349.23],
+      rose_maze: [329.63, 392.00, 440.00, 493.88, 440.00, 392.00],
+      gazebo: [349.23, 440.00, 523.25, 659.25, 523.25, 440.00],
+      conservatory: [196.00, 233.08, 293.66, 349.23, 293.66, 233.08],
+      tea_salon: [440.00, 554.37, 659.25, 880.00, 659.25, 554.37],
+      music_parlor: [329.63, 415.30, 493.88, 659.25, 493.88, 415.30],
+      village_district: [293.66, 369.99, 440.00, 587.33, 440.00, 369.99],
+      sacred_forest_trail: [185.00, 220.00, 277.18, 369.99, 277.18, 220.00],
+      harbor_docks: [261.63, 311.13, 392.00, 466.16, 392.00, 311.13],
+      moonlit_meadow: [246.94, 293.66, 369.99, 493.88, 369.99, 293.66],
+      crystal_grotto: [277.18, 329.63, 415.30, 554.37, 415.30, 329.63],
+      moonlit_rooftop: [293.66, 369.99, 440.00, 587.33, 739.99, 587.33],
+      clock_tower_belfry: [174.61, 220.00, 261.63, 349.23, 261.63, 220.00],
+      mirror_maze_gallery: [311.13, 392.00, 466.16, 622.25, 466.16, 392.00],
+      underground_river_cavern: [196.00, 233.08, 293.66, 392.00, 293.66, 233.08],
+      crystal_vault: [220.00, 261.63, 329.63, 440.00, 523.25, 440.00],
+      ancient_ruins: [146.83, 174.61, 220.00, 293.66, 220.00, 174.61]
     };
+
+    // Populate scales for ID aliases
+    SECTOR_REGISTRY.forEach(sec => {
+      if (bgmScales[sec.slug]) {
+        bgmScales[sec.id] = bgmScales[sec.slug];
+      }
+    });
 
     this.bgmTimer = setInterval(() => {
       if (this.muted || !this.ctx) return;
-      const scale = bgmScales[this.currentBgmRoom] || bgmScales.foyer;
+      const sector = getSector(this.currentBgmRoom);
+      const key = sector ? sector.slug : this.currentBgmRoom;
+      const scale = bgmScales[key] || bgmScales.foyer;
       const freq = scale[this.bgmStep % scale.length];
       this.bgmStep++;
 
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      osc.type = (this.currentBgmRoom === 'observatory' || this.currentBgmRoom === 'ballroom') ? 'sine' : 'triangle';
+      const isCrystal = (key === 'observatory' || key === 'ballroom' || key === 'cathedral' || key === 'crystal_vault' || key === 'crystal_grotto' || key === 'mirror_maze_gallery' || key === 'moonlit_rooftop');
+      osc.type = isCrystal ? 'sine' : 'triangle';
       osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
       gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.35);
@@ -314,6 +346,56 @@ export class SoundEngine {
   updateBGMRoom(roomName) {
     this.currentBgmRoom = roomName;
     if (!this.bgmTimer) this.startBGM(roomName);
+  }
+
+  playRollingPinSlam() {
+    if (this.muted) return;
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(65, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(25, this.ctx.currentTime + 0.28);
+    gain.gain.setValueAtTime(0.5, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.32);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.32);
+  }
+
+  playValveTurnChime(noteFreq = 440) {
+    if (this.muted) return;
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(noteFreq, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(noteFreq * 1.5, this.ctx.currentTime + 0.2);
+    gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.4);
+  }
+
+  playTartSuccessJingle() {
+    if (this.muted) return;
+    this.init();
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    notes.forEach((freq, i) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.09);
+      gain.gain.setValueAtTime(0.28, this.ctx.currentTime + i * 0.09);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.09 + 0.35);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(this.ctx.currentTime + i * 0.09);
+      osc.stop(this.ctx.currentTime + i * 0.09 + 0.35);
+    });
   }
 
   stopBGM() {

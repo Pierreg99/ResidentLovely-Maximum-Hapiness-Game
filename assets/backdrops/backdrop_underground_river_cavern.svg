@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="riverCaveSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#020817" />
+      <stop offset="45%" stop-color="#082f49" />
+      <stop offset="80%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#031f36" />
+    </linearGradient>
+    <linearGradient id="waterFlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#0369a1" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#021424" stop-opacity="1" />
+    </linearGradient>
+    <radialGradient id="cavernGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#0284c7" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#020817" stop-opacity="0" />
+    </radialGradient>
+    <filter id="riverGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#riverCaveSky)" />
+  <circle cx="960" cy="520" r="560" fill="url(#cavernGlow)" />
+
+  <!-- Hanging Stalactite Formations -->
+  <g fill="#0c1e33" stroke="#034870" stroke-width="2">
+    <polygon points="120,0 200,320 280,0" />
+    <polygon points="260,0 330,420 390,0" />
+    <polygon points="860,0 930,360 990,0" />
+    <polygon points="980,0 1040,460 1100,0" />
+    <polygon points="1520,0 1590,380 1660,0" />
+  </g>
+
+  <!-- Flowing Subterranean River Surface -->
+  <polygon points="0,1080 380,720 1540,720 1920,1080" fill="url(#waterFlow)" />
+
+  <!-- Bioluminescent River Ripples -->
+  <g stroke="#38bdf8" stroke-width="2" fill="none" opacity="0.7" filter="url(#riverGlow)">
+    <ellipse cx="960" cy="780" rx="360" ry="25" />
+    <ellipse cx="960" cy="850" rx="520" ry="38" />
+    <ellipse cx="960" cy="940" rx="680" ry="52" />
+    <ellipse cx="960" cy="1030" rx="860" ry="68" />
+  </g>
+
+  <!-- Basalt Stepping Stones across the Underground Rapids -->
+  <g fill="#0f172a" stroke="#0284c7" stroke-width="2">
+    <ellipse cx="720" cy="820" rx="60" ry="18" fill="#1e293b" />
+    <ellipse cx="960" cy="860" rx="80" ry="22" fill="#1e293b" />
+    <ellipse cx="1200" cy="830" rx="65" ry="19" fill="#1e293b" />
+  </g>
+</svg>

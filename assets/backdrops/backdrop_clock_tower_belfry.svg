@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="ctbSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#020617" />
+      <stop offset="50%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <linearGradient id="ctbBell" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#78350f" />
+      <stop offset="50%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#451a03" />
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="780" fill="url(#ctbSky)" />
+  <rect x="0" y="80" width="1920" height="70" fill="#1c1917" />
+  <path d="M 870,300 Q 820,480 720,620 Q 960,670 1200,620 Q 1100,480 1050,300 Z" fill="url(#ctbBell)" stroke="#451a03" stroke-width="4" />
+  <polygon points="0,1080 0,900 1920,900 1920,1080" fill="#0f0d0c" />
+</svg>

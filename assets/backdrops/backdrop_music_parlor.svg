@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="musicWall" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#05070a" />
+      <stop offset="45%" stop-color="#0b172a" />
+      <stop offset="85%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#030712" />
+    </linearGradient>
+    <linearGradient id="pianoWood" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#030712" />
+      <stop offset="50%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#030712" />
+    </linearGradient>
+    <linearGradient id="brassHorn" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="40%" stop-color="#f59e0b" />
+      <stop offset="80%" stop-color="#b45309" />
+      <stop offset="100%" stop-color="#78350f" />
+    </linearGradient>
+    <radialGradient id="stageGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
+      <stop offset="40%" stop-color="#818cf8" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#05070a" stop-opacity="0" />
+    </radialGradient>
+    <filter id="musicBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Base Wall -->
+  <rect width="1920" height="1080" fill="url(#musicWall)" />
+
+  <!-- Concert Hall Acoustic Sound Shell Arches (Background) -->
+  <g stroke="#38bdf8" stroke-width="3" fill="none" opacity="0.5">
+    <ellipse cx="960" cy="420" rx="680" ry="340" />
+    <ellipse cx="960" cy="420" rx="540" ry="270" />
+    <ellipse cx="960" cy="420" rx="400" ry="200" />
+    <ellipse cx="960" cy="420" rx="260" ry="130" />
+  </g>
+
+  <!-- Grand Cyan Ambient Aura -->
+  <circle cx="960" cy="500" r="450" fill="url(#stageGlow)" />
+
+  <!-- Wall Sconces & Brass Horn Lamps (Left & Right) -->
+  <g filter="url(#musicBlur)">
+    <!-- Left Horn Sconce -->
+    <path d="M 280,480 Q 320,400 400,380 L 400,440 Z" fill="url(#brassHorn)" />
+    <ellipse cx="400" cy="410" rx="15" ry="30" fill="#fef08a" />
+    <line x1="280" y1="480" x2="280" y2="560" stroke="#f59e0b" stroke-width="6" />
+
+    <!-- Right Horn Sconce -->
+    <path d="M 1640,480 Q 1600,400 1520,380 L 1520,440 Z" fill="url(#brassHorn)" />
+    <ellipse cx="1520" cy="410" rx="15" ry="30" fill="#fef08a" />
+    <line x1="1640" y1="480" x2="1640" y2="560" stroke="#f59e0b" stroke-width="6" />
+  </g>
+
+  <!-- Grand Concert Harpsichord / Piano (Center Stage) -->
+  <g fill="url(#pianoWood)" stroke="#22d3ee" stroke-width="2">
+    <!-- Curved Grand Piano Body -->
+    <path d="M 720,700 Q 850,560 1100,580 Q 1240,640 1200,740 L 720,740 Z" fill="#0b0f19" />
+    <polygon points="720,740 1200,740 1200,780 720,780" fill="#030712" />
+    <!-- Piano Keys (Ivory & Ebony) -->
+    <rect x="730" y="740" width="460" height="25" fill="#f8fafc" />
+    <!-- Black Keys -->
+    <g fill="#020617">
+      <rect x="750" y="740" width="12" height="15" />
+      <rect x="770" y="740" width="12" height="15" />
+      <rect x="810" y="740" width="12" height="15" />
+      <rect x="830" y="740" width="12" height="15" />
+      <rect x="850" y="740" width="12" height="15" />
+      <rect x="890" y="740" width="12" height="15" />
+      <rect x="910" y="740" width="12" height="15" />
+      <rect x="950" y="740" width="12" height="15" />
+      <rect x="970" y="740" width="12" height="15" />
+      <rect x="990" y="740" width="12" height="15" />
+      <rect x="1030" y="740" width="12" height="15" />
+      <rect x="1050" y="740" width="12" height="15" />
+    </g>
+    <!-- Piano Legs -->
+    <line x1="750" y1="780" x2="740" y2="890" stroke="#0f172a" stroke-width="12" />
+    <line x1="1170" y1="780" x2="1180" y2="890" stroke="#0f172a" stroke-width="12" />
+    <line x1="1020" y1="780" x2="1020" y2="870" stroke="#0f172a" stroke-width="10" />
+    <!-- Open Prop Stick & Lid -->
+    <polygon points="720,700 1120,440 1220,540 1100,580" fill="#1e293b" opacity="0.9" />
+    <line x1="1100" y1="580" x2="1110" y2="450" stroke="#d97706" stroke-width="4" />
+  </g>
+
+  <!-- Cello Stand & Music Stands (Flanks) -->
+  <!-- Left Music Stand -->
+  <g stroke="#38bdf8" stroke-width="2" fill="#0f172a">
+    <line x1="560" y1="620" x2="560" y2="820" stroke-width="4" />
+    <polygon points="510,620 610,620 590,560 530,560" />
+    <!-- Sheet Music Pages -->
+    <rect x="535" y="565" width="22" height="30" fill="#f8fafc" />
+    <rect x="563" y="565" width="22" height="30" fill="#f8fafc" />
+  </g>
+
+  <!-- Polished Concert Stage Parquet Floor -->
+  <polygon points="0,1080 300,820 1620,820 1920,1080" fill="#090d16" />
+  <g stroke="#22d3ee" stroke-width="1.5" opacity="0.3">
+    <line x1="960" y1="820" x2="960" y2="1080" />
+    <line x1="720" y1="820" x2="480" y2="1080" />
+    <line x1="1200" y1="820" x2="1440" y2="1080" />
+    <line x1="480" y1="820" x2="100" y2="1080" />
+    <line x1="1440" y1="820" x2="1820" y2="1080" />
+    <line x1="420" y1="900" x2="1500" y2="900" />
+    <line x1="300" y1="990" x2="1620" y2="990" />
+  </g>
+</svg>

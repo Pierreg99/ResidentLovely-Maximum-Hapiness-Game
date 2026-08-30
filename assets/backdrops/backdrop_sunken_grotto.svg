@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="grottoSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#020817" />
+      <stop offset="45%" stop-color="#1e1035" />
+      <stop offset="80%" stop-color="#032b43" />
+      <stop offset="100%" stop-color="#021422" />
+    </linearGradient>
+    <linearGradient id="amethystCluster" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e9d5ff" />
+      <stop offset="40%" stop-color="#c084fc" />
+      <stop offset="80%" stop-color="#7e22ce" />
+      <stop offset="100%" stop-color="#3b0764" />
+    </linearGradient>
+    <linearGradient id="cyanGeode" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#cffafe" />
+      <stop offset="50%" stop-color="#22d3ee" />
+      <stop offset="100%" stop-color="#0891b2" />
+    </linearGradient>
+    <linearGradient id="grottoPool" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0e7490" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#083344" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="1" />
+    </linearGradient>
+    <radialGradient id="grottoAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.6" />
+      <stop offset="50%" stop-color="#06b6d4" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#020817" stop-opacity="0" />
+    </radialGradient>
+    <filter id="grottoGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Base Grotto Cavern Wall -->
+  <rect width="1920" height="1080" fill="url(#grottoSky)" />
+
+  <!-- Bioluminescent Cavern Aura -->
+  <circle cx="960" cy="520" r="580" fill="url(#grottoAura)" />
+
+  <!-- Hanging Natural Stone Stalactites & Amethyst Geode Veins -->
+  <g fill="#0b0f19" stroke="#1e1035" stroke-width="2">
+    <!-- Ceiling Rock Formations -->
+    <path d="M 0,0 L 0,280 Q 240,120 480,240 Q 720,80 960,200 Q 1200,90 1440,250 Q 1680,110 1920,280 L 1920,0 Z" />
+  </g>
+
+  <!-- Hanging Glowing Amethyst Stalactites -->
+  <g filter="url(#grottoGlow)">
+    <polygon points="340,160 380,380 410,160" fill="url(#amethystCluster)" />
+    <polygon points="400,180 430,440 460,180" fill="url(#cyanGeode)" />
+    
+    <polygon points="900,120 940,420 980,120" fill="url(#amethystCluster)" />
+    <polygon points="970,140 1000,480 1030,140" fill="url(#cyanGeode)" />
+
+    <polygon points="1480,160 1520,400 1560,160" fill="url(#amethystCluster)" />
+    <polygon points="1550,180 1580,450 1610,180" fill="url(#cyanGeode)" />
+  </g>
+
+  <!-- Giant Amethyst Geode Arch (Center Stage) -->
+  <g filter="url(#grottoGlow)">
+    <path d="M 680,820 Q 960,340 1240,820 L 1180,820 Q 960,420 740,820 Z" fill="url(#amethystCluster)" stroke="#c084fc" stroke-width="3" />
+    <circle cx="960" cy="540" r="140" fill="url(#grottoAura)" />
+  </g>
+
+  <!-- Giant Amethyst & Quartz Crystals Rising from Grotto Basin -->
+  <g filter="url(#grottoGlow)">
+    <!-- Left Giant Crystal Spires -->
+    <polygon points="120,850 190,440 260,850" fill="url(#amethystCluster)" />
+    <polygon points="180,850 240,360 300,850" fill="url(#cyanGeode)" />
+    <polygon points="250,850 310,500 370,850" fill="url(#amethystCluster)" />
+
+    <!-- Right Giant Crystal Spires -->
+    <polygon points="1800,850 1730,440 1660,850" fill="url(#amethystCluster)" />
+    <polygon points="1740,850 1680,360 1620,850" fill="url(#cyanGeode)" />
+    <polygon points="1670,850 1610,500 1550,850" fill="url(#amethystCluster)" />
+  </g>
+
+  <!-- Sunken Grotto Subterranean Lake Basin -->
+  <polygon points="0,1080 340,780 1580,780 1920,1080" fill="url(#grottoPool)" />
+
+  <!-- Bioluminescent Water Ripples & Shimmer -->
+  <g fill="none" stroke="#22d3ee" stroke-width="2" opacity="0.6" filter="url(#grottoGlow)">
+    <ellipse cx="960" cy="830" rx="280" ry="25" />
+    <ellipse cx="960" cy="880" rx="420" ry="38" stroke="#a78bfa" />
+    <ellipse cx="960" cy="940" rx="580" ry="52" />
+    <ellipse cx="960" cy="1010" rx="760" ry="68" stroke="#a78bfa" />
+  </g>
+
+  <!-- Basalt Stepping Columns across Sunken Water -->
+  <g fill="#0f172a" stroke="#06b6d4" stroke-width="2">
+    <!-- Stepping Column 1 -->
+    <polygon points="680,840 760,840 780,900 660,900" fill="#1e1b4b" />
+    <polygon points="660,900 780,900 780,940 660,940" />
+
+    <!-- Stepping Column 2 (Center) -->
+    <polygon points="900,880 1020,880 1050,950 870,950" fill="#1e1b4b" />
+    <polygon points="870,950 1050,950 1050,990 870,990" />
+
+    <!-- Stepping Column 3 -->
+    <polygon points="1160,840 1240,840 1260,900 1140,900" fill="#1e1b4b" />
+    <polygon points="1140,900 1260,900 1260,940 1140,940" />
+  </g>
+
+  <!-- Floating Crystal Energy Motes -->
+  <g fill="#ffffff" opacity="0.9">
+    <circle cx="580" cy="620" r="3" />
+    <circle cx="740" cy="540" r="2.5" />
+    <circle cx="890" cy="460" r="3.5" />
+    <circle cx="1030" cy="480" r="4" />
+    <circle cx="1180" cy="560" r="2.5" />
+    <circle cx="1340" cy="640" r="3.5" />
+  </g>
+</svg>

@@ -1,4 +1,5 @@
 import { rooms } from '../world/rooms.js';
+import { SECTOR_REGISTRY, getSector } from '../world/sectors.js';
 
 export class CameraController {
   constructor() {
@@ -20,9 +21,39 @@ export class CameraController {
       clocktower: { minX: -56.0, maxX: -34.0, minZ: -10.5, maxZ: 10.5, minY: 12.8, maxY: 20.0, center: new THREE.Vector3(-45, 12, 0) },
       mastersuite: { minX: -11.5, maxX: 11.5, minZ: 33.5, maxZ: 56.5, minY: 12.8, maxY: 20.0, center: new THREE.Vector3(0, 12, 45) },
       ballroom: { minX: -12.5, maxX: 12.5, minZ: -56.5, maxZ: -33.5, minY: 12.8, maxY: 20.0, center: new THREE.Vector3(0, 12, -45) },
+      cathedral: { minX: -11.5, maxX: 11.5, minZ: -11.5, maxZ: 11.5, minY: 24.9, maxY: 38.0, center: new THREE.Vector3(0, 24, 0) },
+      gatehouse: { minX: -13.0, maxX: 13.0, minZ: 77.0, maxZ: 103.0, minY: 0.9, maxY: 12.0, center: new THREE.Vector3(0, 0, 90) },
+      reflection_pool: { minX: -57.0, maxX: -33.0, minZ: 77.0, maxZ: 103.0, minY: 0.9, maxY: 9.0, center: new THREE.Vector3(-45, 0, 90) },
+      rose_maze: { minX: 33.0, maxX: 57.0, minZ: 77.0, maxZ: 103.0, minY: 0.9, maxY: 9.0, center: new THREE.Vector3(45, 0, 90) },
+      gazebo: { minX: -10.5, maxX: 10.5, minZ: 124.5, maxZ: 145.5, minY: 0.9, maxY: 10.5, center: new THREE.Vector3(0, 0, 135) },
       lab: { minX: -11.5, maxX: 11.5, minZ: -56.5, maxZ: -33.5, minY: -13.2, maxY: -6.0, center: new THREE.Vector3(0, -14, -45) },
       crypt: { minX: -12.5, maxX: 12.5, minZ: -56.5, maxZ: -33.5, minY: -27.2, maxY: -20.0, center: new THREE.Vector3(0, -28, -45) }
     };
+
+    // Dynamically populate bounds for all 32 sectors from SECTOR_REGISTRY
+    SECTOR_REGISTRY.forEach(sec => {
+      const w = sec.size.w;
+      const l = sec.size.l;
+      const h = sec.size.h;
+      const cx = sec.coords.x;
+      const cy = sec.coords.y;
+      const cz = sec.coords.z;
+      const halfW = w / 2 - 1.6;
+      const halfL = l / 2 - 1.6;
+
+      if (!this.roomBounds[sec.slug]) {
+        this.roomBounds[sec.slug] = {
+          minX: cx - halfW,
+          maxX: cx + halfW,
+          minZ: cz - halfL,
+          maxZ: cz + halfL,
+          minY: cy + 0.9,
+          maxY: cy + h - 1.0,
+          center: new THREE.Vector3(cx, cy, cz)
+        };
+      }
+      this.roomBounds[sec.id] = this.roomBounds[sec.slug];
+    });
 
     // Classic Resident Evil Fixed Cinematic Camera Nodes per Room
     this.fixedNodes = {
@@ -75,6 +106,20 @@ export class CameraController {
       ]
     };
 
+    // Dynamically populate default cinematic camera angles for all sectors
+    SECTOR_REGISTRY.forEach(sec => {
+      if (!this.fixedNodes[sec.slug]) {
+        const cx = sec.coords.x;
+        const cy = sec.coords.y;
+        const cz = sec.coords.z;
+        this.fixedNodes[sec.slug] = [
+          { id: `${sec.slug}_entry`, pos: new THREE.Vector3(cx, cy + 5.5, cz - 8.0), triggerZ: cz - 2 },
+          { id: `${sec.slug}_center`, pos: new THREE.Vector3(cx - 6.0, cy + 5.2, cz), triggerZ: cz + 2 }
+        ];
+      }
+      this.fixedNodes[sec.id] = this.fixedNodes[sec.slug];
+    });
+
     window.addEventListener('resize', () => {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
@@ -109,7 +154,8 @@ export class CameraController {
   update(player, delta, currentRoom) {
     const pPos = player.group.position;
     const pRot = player.rotation;
-    const bounds = this.roomBounds[currentRoom] || this.roomBounds.foyer;
+    const sector = getSector(currentRoom);
+    const bounds = this.roomBounds[currentRoom] || (sector ? this.roomBounds[sector.slug] : this.roomBounds.foyer);
 
     // Head culling for ADS mode to prevent mesh clipping
     if (player.setHeadVisibility) {
@@ -156,12 +202,13 @@ export class CameraController {
 
     } else if (this.viewMode === 'fixed') {
       // 2. CLASSIC RESIDENT EVIL FIXED CINEMATIC CAMERA ANGLES
-      const roomNodes = this.fixedNodes[currentRoom] || this.fixedNodes.foyer;
+      const roomNodes = this.fixedNodes[currentRoom] || (sector ? this.fixedNodes[sector.slug] : this.fixedNodes.foyer);
       let activeNode = roomNodes[0];
 
       let roomRelZ = pPos.z;
-      if (currentRoom === 'library') roomRelZ = pPos.z - rooms.library.position.z;
-      if (currentRoom === 'garden') roomRelZ = pPos.z - rooms.garden.position.z;
+      if (rooms[currentRoom] && rooms[currentRoom].position) {
+        roomRelZ = pPos.z - rooms[currentRoom].position.z;
+      }
 
       for (let node of roomNodes) {
         if (roomRelZ <= node.triggerZ) {

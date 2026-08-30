@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="harborSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#020817" />
+      <stop offset="45%" stop-color="#0c2340" />
+      <stop offset="70%" stop-color="#0369a1" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="seaWater" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0369a1" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#075985" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#021f3f" stop-opacity="1" />
+    </linearGradient>
+    <linearGradient id="woodDock" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1c1917" />
+      <stop offset="50%" stop-color="#292524" />
+      <stop offset="100%" stop-color="#0c0a09" />
+    </linearGradient>
+    <linearGradient id="dockHighlight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#0284c7" stop-opacity="0.1" />
+    </linearGradient>
+    <radialGradient id="lanternGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="1" />
+      <stop offset="30%" stop-color="#f59e0b" stop-opacity="0.8" />
+      <stop offset="70%" stop-color="#d97706" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e0f2fe" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#38bdf8" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#020817" stop-opacity="0" />
+    </radialGradient>
+    <filter id="harborGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Night Sky -->
+  <rect width="1920" height="680" fill="url(#harborSky)" />
+
+  <!-- Full Moon & Aura -->
+  <circle cx="1450" cy="220" r="160" fill="url(#moonGlow)" />
+  <circle cx="1450" cy="220" r="54" fill="#f0f9ff" />
+
+  <!-- Distant Headland & Lighthouse Silhouette -->
+  <path d="M 0,560 Q 250,510 500,540 L 700,580 L 0,580 Z" fill="#04182e" />
+  <path d="M 1250,560 Q 1500,520 1920,540 L 1920,580 L 1250,580 Z" fill="#04182e" />
+  <!-- Distant Lighthouse Tower -->
+  <polygon points="460,530 470,450 485,450 495,530" fill="#082f49" />
+  <rect x="470" y="440" width="15" height="12" fill="#fef08a" opacity="0.85" filter="url(#harborGlow)" />
+  <!-- Lighthouse Light Beam -->
+  <polygon points="477,446 0,380 0,440" fill="#fef08a" opacity="0.15" />
+
+  <!-- Open Sea Water Layer -->
+  <rect y="570" width="1920" height="510" fill="url(#seaWater)" />
+
+  <!-- Moon Reflection Shimmer on Water -->
+  <g fill="#38bdf8" opacity="0.4" filter="url(#harborGlow)">
+    <ellipse cx="1450" cy="610" rx="90" ry="4" />
+    <ellipse cx="1445" cy="640" rx="120" ry="5" />
+    <ellipse cx="1455" cy="680" rx="150" ry="6" />
+    <ellipse cx="1440" cy="730" rx="190" ry="7" />
+    <ellipse cx="1450" cy="790" rx="240" ry="8" />
+    <ellipse cx="1445" cy="860" rx="300" ry="9" />
+  </g>
+
+  <!-- Distant Sailing Ship Silhouette -->
+  <g fill="#082f49">
+    <path d="M 820,555 Q 890,570 960,555 L 940,572 L 840,572 Z" />
+    <line x1="885" y1="555" x2="885" y2="470" stroke="#082f49" stroke-width="2" />
+    <line x1="915" y1="555" x2="915" y2="485" stroke="#082f49" stroke-width="1.5" />
+    <!-- Sails -->
+    <path d="M 885,475 Q 855,510 885,540 Z" fill="#0e3a5a" />
+    <path d="M 885,480 Q 910,510 885,535 Z" fill="#0e3a5a" />
+    <path d="M 915,490 Q 935,515 915,540 Z" fill="#0e3a5a" />
+  </g>
+
+  <!-- Foreground Pier / Wooden Docks Structure -->
+  <g fill="url(#woodDock)" stroke="#0c0a09" stroke-width="2">
+    <!-- Vertical Mooring Pilings (Left) -->
+    <rect x="140" y="650" width="36" height="430" />
+    <rect x="260" y="620" width="30" height="460" />
+    <rect x="420" y="680" width="40" height="400" />
+    
+    <!-- Dock Boardwalk Main Deck -->
+    <polygon points="0,1080 0,860 620,720 1300,720 1920,860 1920,1080" />
+  </g>
+
+  <!-- Boardwalk Planks & Highlights -->
+  <g stroke="#44403c" stroke-width="2" opacity="0.6">
+    <line x1="0" y1="920" x2="1920" y2="920" />
+    <line x1="0" y1="980" x2="1920" y2="980" />
+    <line x1="0" y1="1040" x2="1920" y2="1040" />
+    <line x1="300" y1="860" x2="300" y2="1080" />
+    <line x1="600" y1="780" x2="600" y2="1080" />
+    <line x1="960" y1="720" x2="960" y2="1080" />
+    <line x1="1320" y1="780" x2="1320" y2="1080" />
+    <line x1="1620" y1="860" x2="1620" y2="1080" />
+  </g>
+
+  <!-- Dock Lantern Posts & Amber Glow Aura -->
+  <!-- Left Lantern -->
+  <g filter="url(#harborGlow)">
+    <circle cx="340" cy="620" r="120" fill="url(#lanternGlow)" />
+    <!-- Lantern Post -->
+    <rect x="336" y="640" width="8" height="190" fill="#172554" />
+    <polygon points="325,640 355,640 350,605 330,605" fill="#fef08a" stroke="#d97706" stroke-width="2" />
+    <polygon points="320,605 360,605 340,585" fill="#0f172a" />
+  </g>
+
+  <!-- Right Lantern -->
+  <g filter="url(#harborGlow)">
+    <circle cx="1580" cy="620" r="120" fill="url(#lanternGlow)" />
+    <!-- Lantern Post -->
+    <rect x="1576" y="640" width="8" height="190" fill="#172554" />
+    <polygon points="1565,640 1595,640 1590,605 1570,605" fill="#fef08a" stroke="#d97706" stroke-width="2" />
+    <polygon points="1560,605 1600,605 1580,585" fill="#0f172a" />
+  </g>
+
+  <!-- Cargo Barrels & Mooring Cleats / Ropes -->
+  <g fill="#292524" stroke="#1c1917" stroke-width="2">
+    <!-- Barrels Left -->
+    <ellipse cx="480" cy="850" rx="30" ry="12" fill="#44403c" />
+    <rect x="450" y="850" width="60" height="70" rx="6" />
+    <ellipse cx="480" cy="920" rx="30" ry="12" />
+
+    <ellipse cx="530" cy="870" rx="26" ry="10" fill="#44403c" />
+    <rect x="504" y="870" width="52" height="60" rx="5" />
+    <ellipse cx="530" cy="930" rx="26" ry="10" />
+
+    <!-- Anchor Silhouette -->
+    <path d="M 1400,860 L 1400,940 Q 1360,950 1350,910 L 1340,915 Q 1355,970 1400,960 Q 1445,970 1460,915 L 1450,910 Q 1440,950 1400,940 Z" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5" />
+  </g>
+</svg>

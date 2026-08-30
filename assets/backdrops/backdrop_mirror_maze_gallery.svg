@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="mmgSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#05070a" />
+      <stop offset="50%" stop-color="#0e1726" />
+      <stop offset="100%" stop-color="#030712" />
+    </linearGradient>
+    <linearGradient id="mmgGold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="50%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#mmgSky)" />
+  <polygon points="900,480 1020,480 1020,600 900,600" fill="#22d3ee" stroke="url(#mmgGold)" stroke-width="2" />
+  <polygon points="820,400 1100,400 1100,680 820,680" fill="none" stroke="url(#mmgGold)" stroke-width="3" />
+  <polygon points="680,260 1240,260 1240,820 680,820" fill="none" stroke="url(#mmgGold)" stroke-width="4" />
+  <polygon points="460,100 1460,100 1460,980 460,980" fill="none" stroke="url(#mmgGold)" stroke-width="6" />
+  <polygon points="0,1080 460,980 1460,980 1920,1080" fill="#090d16" />
+</svg>

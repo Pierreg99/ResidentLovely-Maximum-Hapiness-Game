@@ -1,9 +1,12 @@
 import { scene, renderer, updateParticles, spawnConfetti, updateStardust, updatePetals, updateSceneLighting } from './world/scene.js';
 import { rooms, initRooms, lanternMeshes, groundItems, spawnGroundItem, updateGroundItems } from './world/rooms.js';
+import { SECTOR_REGISTRY, getSector } from './world/sectors.js';
+import { BackdropManager, createSectorBackdrop } from './world/backdrops.js';
+import { surfaceShaderManager, createPostProcessingPipeline } from './world/shaders/surface-shaders.js';
 import { destructibles, initDestructibles, updateDestructibles } from './world/destructibles.js';
 import { player, initPlayer, updatePlayer, performQuickTurn } from './entities/player.js';
 import { grumps, initGrumps, updateGrumps } from './entities/grump.js';
-import { initBoss, bossInstance } from './entities/boss.js';
+import { initBoss, bossInstance, masterChefBoss } from './entities/boss.js';
 import { companionSquad } from './entities/companion.js';
 import { triggerWeaponFire, updateProjectiles, updateTargetSights } from './weapons/arsenal.js';
 import { audio } from './engine/audio.js';
@@ -30,12 +33,41 @@ const gameState = {
   combineSourceSlot: null,
   pianoSequence: [],
   pianoSolved: false,
+  sugarValveSequence: [],
+  sugarValvesEqualized: false,
+  chefCalmed: false,
   cauldronFed: false,
   astrolabeSolved: false,
   clockSolved: false,
   dynamoActive: false,
   grumpsUpliftedCount: 0,
   totalGrumps: 10
+};
+
+// v4.0.0 Graphic Subsystems — lazy-initialised on first animate frame
+let backdropManager = null;
+let postProcessingComposer = null;
+let _graphicsReady = false;
+
+const _initGraphics = () => {
+  if (_graphicsReady) return;
+  _graphicsReady = true;
+  try {
+    backdropManager = createSectorBackdrop('S01', { scene });
+  } catch (e) {
+    console.warn('[v4.0.0] BackdropManager init failed (graceful degradation):', e.message);
+    backdropManager = null;
+  }
+  try {
+    postProcessingComposer = createPostProcessingPipeline(renderer, scene, null, {
+      bloomStrength: 0.65,
+      bloomRadius: 0.4,
+      bloomThreshold: 0.72
+    });
+  } catch (e) {
+    // EffectComposer not bundled in Three.js r128 CDN — graceful degradation
+    postProcessingComposer = null;
+  }
 };
 
 // Toast notification helper
@@ -182,6 +214,25 @@ document.querySelectorAll('.piano-key').forEach(key => {
   });
 });
 
+function checkSugarValvePuzzle() {
+  if (gameState.sugarValveSequence.join('-') === 'cyan-gold-emerald' && !gameState.sugarValvesEqualized) {
+    gameState.sugarValvesEqualized = true;
+    audio.playCheer();
+    if (masterChefBoss) {
+      masterChefBoss.takeDamage(40, gameState, {
+        onToast: showToast,
+        onItemAwarded: (itemId) => {
+          inventorySystem.addItem(itemId, 1);
+        }
+      });
+    }
+    if (rooms.bakery) {
+      spawnConfetti(rooms.bakery.position.clone().add(new THREE.Vector3(0, 3, 0)), 80);
+    }
+    showToast('★ SUGAR PRESSURE EQUALIZED! PERFECT BLISS TART BAKED! ★');
+  }
+}
+
 // Room Transitions & Authentic Door Loading Cutscene
 const doorCurtain = document.getElementById('door-curtain');
 const roomNameDisplay = document.getElementById('room-name-display');
@@ -194,24 +245,50 @@ function changeRoom(newRoom, targetSpawnPos) {
     gameState.room = newRoom;
     player.group.position.copy(targetSpawnPos);
 
-    if (newRoom === 'foyer') roomNameDisplay.textContent = '❖ CHÂTEAU FOYER & MEZZANINE';
-    if (newRoom === 'library') roomNameDisplay.textContent = '❖ EAST WING LIBRARY';
-    if (newRoom === 'garden') roomNameDisplay.textContent = '❖ SOLARIUM GARDEN';
-    if (newRoom === 'greenhouse') roomNameDisplay.textContent = '❖ COURTYARD TEA GREENHOUSE';
-    if (newRoom === 'dining') roomNameDisplay.textContent = '❖ GRAND BANQUET DINING HALL';
-    if (newRoom === 'gallery') roomNameDisplay.textContent = '❖ HALL OF WHOLESOME PORTRAITS';
-    if (newRoom === 'observatory') roomNameDisplay.textContent = '❖ CELESTIAL OBSERVATORY (2F)';
-    if (newRoom === 'clocktower') roomNameDisplay.textContent = '❖ CLOCKTOWER SWEET SUITE (2F)';
-    if (newRoom === 'mastersuite') roomNameDisplay.textContent = '❖ ROYAL VELVET MASTER SUITE (2F)';
-    if (newRoom === 'ballroom') roomNameDisplay.textContent = '❖ GRAND CRYSTAL BALLROOM (2F)';
-    if (newRoom === 'lab') roomNameDisplay.textContent = '❖ SUBTERRANEAN SUGAR LAB (B1)';
-    if (newRoom === 'crypt') roomNameDisplay.textContent = '❖ WHISPERING CRYPT OF JOY (B2)';
+    const sector = getSector(newRoom);
+    if (sector) {
+      roomNameDisplay.textContent = `❖ ${sector.name.toUpperCase()} (${sector.floor})`;
+    } else {
+      if (newRoom === 'foyer') roomNameDisplay.textContent = '❖ CHÂTEAU FOYER & MEZZANINE';
+      if (newRoom === 'library') roomNameDisplay.textContent = '❖ EAST WING LIBRARY';
+      if (newRoom === 'garden') roomNameDisplay.textContent = '❖ SOLARIUM GARDEN';
+      if (newRoom === 'greenhouse') roomNameDisplay.textContent = '❖ COURTYARD TEA GREENHOUSE';
+      if (newRoom === 'dining') roomNameDisplay.textContent = '❖ GRAND BANQUET DINING HALL';
+      if (newRoom === 'gallery') roomNameDisplay.textContent = '❖ HALL OF WHOLESOME PORTRAITS';
+      if (newRoom === 'observatory') roomNameDisplay.textContent = '❖ CELESTIAL OBSERVATORY (2F)';
+      if (newRoom === 'clocktower') roomNameDisplay.textContent = '❖ CLOCKTOWER SWEET SUITE (2F)';
+      if (newRoom === 'mastersuite') roomNameDisplay.textContent = '❖ ROYAL VELVET MASTER SUITE (2F)';
+      if (newRoom === 'ballroom') roomNameDisplay.textContent = '❖ GRAND CRYSTAL BALLROOM (2F)';
+      if (newRoom === 'lab') roomNameDisplay.textContent = '❖ SUBTERRANEAN SUGAR LAB (B1)';
+      if (newRoom === 'crypt') roomNameDisplay.textContent = '❖ WHISPERING CRYPT OF JOY (B2)';
+    }
 
     audio.updateBGMRoom(newRoom);
     const bossHud = document.getElementById('boss-health-bar');
-    if (bossHud) bossHud.style.display = (newRoom === 'crypt') ? 'block' : 'none';
+    const isBossRoom = (newRoom === 'crypt' || newRoom === 'bakery' || sector?.slug === 'crypt' || sector?.slug === 'bakery' || sector?.id === 'S18' || sector?.id === 'S07');
+    if (bossHud) {
+      bossHud.style.display = isBossRoom ? 'block' : 'none';
+      const bossTitle = document.getElementById('boss-title');
+      if (bossTitle) {
+        bossTitle.textContent = (newRoom === 'bakery' || sector?.slug === 'bakery') ? 'THE GRUMPY MASTER CHEF (S07)' : 'GRAND GLOOM BEHEMOTH (S18)';
+      }
+    }
 
     updateSceneLighting(newRoom);
+
+    // v4.0.0: Update 2.5D backdrop and activate sector GLSL shaders
+    try {
+      const sectorData = getSector(newRoom);
+      if (backdropManager && sectorData) {
+        backdropManager.transitionTo(sectorData.id || newRoom);
+      }
+      if (surfaceShaderManager && sectorData) {
+        surfaceShaderManager.activateSector(sectorData.id || newRoom, scene);
+      }
+    } catch (e) {
+      // Graceful fallback
+    }
+
 
     setTimeout(() => {
       if (doorCurtain) doorCurtain.style.display = 'none';
@@ -579,18 +656,43 @@ function handleContextInteract() {
   if (currentInteractable.type === 'sugar_harvest') {
     const added = inventorySystem.addItem('sugar_crystal', 1);
     if (added) {
-      audio.playPop();
-      showToast('★ HARVESTED PRISMATIC SUGAR CRYSTAL! ★');
-      const q5 = QUESTS.find(q => q.id === 'quest_dynamo');
-      if (q5) {
-        q5.tasks[1].done = true;
-        questSystem.render();
-      }
+  // Sugar Pressure Valves in Royal Bakery (S07)
+  if (currentInteractable.type === 'sugar_valve_cyan') {
+    audio.playValveTurnChime(523.25);
+    gameState.sugarValveSequence.push('cyan');
+    if (gameState.sugarValveSequence.length > 3) gameState.sugarValveSequence.shift();
+    showToast('❖ CYAN SUGAR VALVE ROTATED (HIGH PRESSURE FLOW)');
+    checkSugarValvePuzzle();
+    return;
+  }
+
+  if (currentInteractable.type === 'sugar_valve_gold') {
+    audio.playValveTurnChime(659.25);
+    gameState.sugarValveSequence.push('gold');
+    if (gameState.sugarValveSequence.length > 3) gameState.sugarValveSequence.shift();
+    showToast('❖ GOLDEN SUGAR VALVE ROTATED (HARMONIC PRESSURE)');
+    checkSugarValvePuzzle();
+    return;
+  }
+
+  if (currentInteractable.type === 'sugar_valve_emerald') {
+    audio.playValveTurnChime(783.99);
+    gameState.sugarValveSequence.push('emerald');
+    if (gameState.sugarValveSequence.length > 3) gameState.sugarValveSequence.shift();
+    showToast('❖ EMERALD SUGAR VALVE ROTATED (PRESSURE STABILIZING)');
+    checkSugarValvePuzzle();
+    return;
+  }
+
+  if (currentInteractable.type === 'royal_oven') {
+    if (gameState.sugarValvesEqualized) {
+      showToast('★ ROYAL OVEN IS BAKING STRAWBERRY BLISS TARTS AT PEAK HARMONY! ★');
     } else {
-      showToast('INVENTORY FULL (8/8 SLOTS)');
+      showToast('❖ OVEN PRESSURE REDLINING! TURN VALVES IN HARMONIC SEQUENCE (CYAN ➔ GOLD ➔ EMERALD)!');
     }
     return;
   }
+
 
   // Joy Dynamo
   if (currentInteractable.type === 'dynamo') {
@@ -793,9 +895,13 @@ function animate() {
       }
     }
   });
+
   updateGrumps(delta, time, cameraController.camera);
   if (bossInstance && gameState.room === 'crypt') {
     bossInstance.update(delta, time, player.group.position);
+  }
+  if (masterChefBoss && gameState.room === 'bakery') {
+    masterChefBoss.update(delta, time, player.group.position);
   }
   updateDestructibles(time);
   updateGroundItems(delta, time);
@@ -807,8 +913,25 @@ function animate() {
   minimapSystem.render(player, grumps, destructibles);
   checkContextualInteractions();
 
-  renderer.render(scene, cameraController.camera);
+  // v4.0.0: tick backdrop parallax
+  if (backdropManager) {
+    try {
+      backdropManager.update(delta, cameraController.camera);
+    } catch (e) {
+      // Graceful fallback
+    }
+  }
+
+  // v4.0.0: lazy-init graphics on first frame
+  _initGraphics();
+
+  // Primary 3D WebGL render
+  try {
+    renderer.render(scene, cameraController.camera);
+  } catch (e) {
+    console.error('[Render Fallback Error]:', e);
+  }
 }
 
 animate();
-showToast('❖ RESIDENT LOVELY v2.0 GRAND ESTATE EXPANSION LOADED ❖');
+showToast('❖ RESIDENT LOVELY v4.0.0 MAXIMAL GRAPHIC OVERHAUL + 32-SECTOR WORLD LOADED');

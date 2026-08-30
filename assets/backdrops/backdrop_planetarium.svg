@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="cosmosSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#020617" />
+      <stop offset="35%" stop-color="#0f172a" />
+      <stop offset="70%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <radialGradient id="nebulaCore" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
+      <stop offset="30%" stop-color="#a855f7" stop-opacity="0.5" />
+      <stop offset="65%" stop-color="#ec4899" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="brassArmillary" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="50%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+      <stop offset="40%" stop-color="#38bdf8" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+    </radialGradient>
+    <filter id="cosmosGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Deep Cosmos Background -->
+  <rect width="1920" height="1080" fill="url(#cosmosSky)" />
+
+  <!-- Swirling Nebula Cloud -->
+  <ellipse cx="960" cy="420" rx="720" ry="380" fill="url(#nebulaCore)" filter="url(#cosmosGlow)" />
+
+  <!-- Constellation Star Map Lines -->
+  <g stroke="#38bdf8" stroke-width="1.5" opacity="0.65" stroke-dasharray="4 6">
+    <!-- Ursa Major motif -->
+    <polyline points="400,220 520,200 620,260 740,240 760,340 660,360 620,260" fill="none" />
+    <!-- Orion motif -->
+    <polyline points="1350,180 1480,220 1520,380 1320,400 1350,180" fill="none" />
+    <line x1="1390" y1="290" x2="1470" y2="300" stroke="#fef08a" stroke-width="2" />
+    <!-- Cassiopeia W motif -->
+    <polyline points="850,140 920,180 980,130 1040,190 1100,150" fill="none" stroke="#a78bfa" stroke-width="2" />
+  </g>
+
+  <!-- Star Nodes along Constellations -->
+  <g fill="#ffffff" filter="url(#cosmosGlow)">
+    <circle cx="400" cy="220" r="4" />
+    <circle cx="520" cy="200" r="3.5" />
+    <circle cx="620" cy="260" r="4.5" />
+    <circle cx="740" cy="240" r="5" fill="#fef08a" />
+    <circle cx="760" cy="340" r="4" />
+    <circle cx="660" cy="360" r="3.5" />
+
+    <circle cx="1350" cy="180" r="5" fill="#fef08a" />
+    <circle cx="1480" cy="220" r="4" />
+    <circle cx="1520" cy="380" r="5.5" fill="#38bdf8" />
+    <circle cx="1320" cy="400" r="4.5" />
+
+    <circle cx="850" cy="140" r="4" />
+    <circle cx="920" cy="180" r="3.5" />
+    <circle cx="980" cy="130" r="4.5" />
+    <circle cx="1040" cy="190" r="3.5" />
+    <circle cx="1100" cy="150" r="4" />
+  </g>
+
+  <!-- Giant Planetary Rings & Celestial Orbital Paths -->
+  <g stroke="url(#brassArmillary)" fill="none" stroke-width="2.5" opacity="0.75">
+    <ellipse cx="960" cy="440" rx="600" ry="180" transform="rotate(-15 960 440)" />
+    <ellipse cx="960" cy="440" rx="480" ry="140" transform="rotate(25 960 440)" />
+    <ellipse cx="960" cy="440" rx="360" ry="100" stroke="#38bdf8" stroke-dasharray="10 10" />
+    <circle cx="960" cy="440" r="220" stroke="#a78bfa" stroke-width="3" />
+  </g>
+
+  <!-- Glowing Luminous Core Orb (The Sun / Nexus Star) -->
+  <g filter="url(#cosmosGlow)">
+    <circle cx="960" cy="440" r="85" fill="url(#starGlow)" />
+    <circle cx="960" cy="440" r="60" fill="#fef08a" />
+    <circle cx="960" cy="440" r="40" fill="#ffffff" />
+  </g>
+
+  <!-- Planetarium Dome Architecture & Giant Observatory Telescope Frame -->
+  <g stroke="#1e293b" stroke-width="4" fill="none">
+    <!-- Outer Dome Arch -->
+    <path d="M 180,1080 L 180,500 Q 960,-60 1740,500 L 1740,1080" />
+    <path d="M 280,1080 L 280,560 Q 960,60 1640,560 L 1640,1080" />
+    <!-- Slit Opening Beams -->
+    <line x1="840" y1="0" x2="840" y2="760" stroke="#0f172a" stroke-width="12" />
+    <line x1="1080" y1="0" x2="1080" y2="760" stroke="#0f172a" stroke-width="12" />
+  </g>
+
+  <!-- Giant Brass Armillary Sphere Pedestal / Mechanism on Floor -->
+  <polygon points="0,1080 400,820 1520,820 1920,1080" fill="#0b1120" />
+  <g stroke="#38bdf8" stroke-width="1" opacity="0.35">
+    <line x1="960" y1="820" x2="960" y2="1080" />
+    <line x1="720" y1="820" x2="480" y2="1080" />
+    <line x1="1200" y1="820" x2="1440" y2="1080" />
+    <line x1="560" y1="900" x2="1360" y2="900" />
+    <line x1="450" y1="990" x2="1470" y2="990" />
+  </g>
+
+  <!-- Center Floor Astrolabe Dial -->
+  <ellipse cx="960" cy="940" rx="260" ry="65" fill="#0f172a" stroke="url(#brassArmillary)" stroke-width="3" />
+  <ellipse cx="960" cy="940" rx="180" ry="45" fill="#1e1b4b" stroke="#38bdf8" stroke-width="2" />
+  <line x1="960" y1="875" x2="960" y2="1005" stroke="url(#brassArmillary)" stroke-width="3" />
+  <line x1="780" y1="940" x2="1140" y2="940" stroke="url(#brassArmillary)" stroke-width="3" />
+</svg>

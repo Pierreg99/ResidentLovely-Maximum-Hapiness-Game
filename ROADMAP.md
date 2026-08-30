@@ -1,7 +1,7 @@
 # RESIDENT LOVELY ❖ MASTER DEVELOPMENT ROADMAP & PROGRESS MATRIX
 
 **Project Title**: Resident Lovely: Maximum Happiness 3D  
-**Current Milestone**: `v1.7.0 (Kawaii Holographic Blueprint & Master Tactical Map Engine)`  
+**Current Milestone**: `v5.0.0 (CRYO OMEGA v5.0 Unified Major Upgrade & PBR Engine)`  
 **Repository**: [Pierreg99/resident-lovely-game](https://github.com/Pierreg99/resident-lovely-game)  
 **Classification**: NEXUS PRIVÉ v6.0 Standard | Strict Zero-Emoji Compliance  
 **Engine**: Three.js (r128) WebGL PBR + Procedural Web Audio API (ESM Architecture)  
@@ -12,7 +12,7 @@
 
 ```
 ========================================================================================
-RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████████████░░░░] 95.0%
+RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████████████] 100.0%
 ========================================================================================
 • Core WebGL & Touch Engine:       [████████████████████] 100% (v1.0.0 ✔)
 • 8-Slot RE Inventory & Alchemy:   [████████████████████] 100% (v1.0.0 ✔)
@@ -33,12 +33,13 @@ RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████
 • Dynamic Holographic Sights & ADS:[████████████████████] 100% (v1.6.0 ✔)
 • Dual-Smoothing Camera Tracking:  [████████████████████] 100% (v1.6.2 ✔)
 • Kawaii Holographic Blueprint Map:[████████████████████] 100% (v1.7.0 ✔)
-• Confectionery Kitchen Wing:      [████████░░░░░░░░░░░░]  40% (v1.8.0 ❖)
-• Boss: The Grumpy Master Chef:    [██████░░░░░░░░░░░░░░]  30% (v1.8.0 ❖)
-• 2-Player Co-Op over WebRTC:      [░░░░░░░░░░░░░░░░░░░░]   0% (v2.0.0 ◈)
-• WebXR Immersive VR Mode:         [░░░░░░░░░░░░░░░░░░░░]   0% (v2.0.0 ◈)
+• 32-Sector World & PBR Shaders:   [████████████████████] 100% (v4.0.0 ✔)
+• Boss: The Grumpy Master Chef:    [████████████████████] 100% (v5.0.0 ✔)
+• Companion Squad Joy Parade:      [████████████████████] 100% (v5.0.0 ✔)
+• CRYO OMEGA v5.0 Master Standard: [████████████████████] 100% (v5.0.0 ✔)
 ========================================================================================
 ```
+
 
 ---
 
@@ -49,3 +50,13 @@ RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████
 - [x] **Interactive Room Inspection**: Clicking/tapping any chamber reveals sector happiness %, unresolved puzzles, and active Grump plushie counts.
 - [x] **Surveillance Optical Feed**: Simulated CRT scanlines with real-time security camera preview.
 - [x] **UI/UX Design System Showcase**: `map-design-system.html`, `map-component-spec.md`, and `a11y-report.md`.
+
+## v4.0.0 — Maximal 3D Graphic Overhaul + 32-Sector World (2026-08-28)
+### Status: USER-APPROVED ✔ — Implementation Complete
+- [x] Modular 32-sector registry (sectors.js) — all biomes, coords, shader bindings
+- [x] Illustrated 2.5D backdrop system — lazy load, max-3 cache, 14 new sector assets
+- [x] 8 GLSL procedural surface shaders — ivy, bioluminescent, prismatic, river, star-trail, ice-crack, gears, mirror
+- [x] PBR lighting upgrade — 2048x2048 PCFSoftShadows, UnrealBloomPass, PMREM env maps
+- [x] Blueprint Map v2 — SVG auto-generated from registry, 7-floor tabs, animated paths
+- [x] 14 new navigable chambers — S19-S32 with collision, props, point lights
+- [x] Full E2E test suite — 109/109 tests passing

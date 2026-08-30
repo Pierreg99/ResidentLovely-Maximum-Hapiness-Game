@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="ruinsSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#05070a" />
+      <stop offset="45%" stop-color="#1e0b36" />
+      <stop offset="80%" stop-color="#3b0764" />
+      <stop offset="100%" stop-color="#090514" />
+    </linearGradient>
+    <radialGradient id="altarAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c084fc" stop-opacity="0.8" />
+      <stop offset="40%" stop-color="#7c3aed" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#05070a" stop-opacity="0" />
+    </radialGradient>
+    <filter id="ruinsBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#ruinsSky)" />
+  <circle cx="960" cy="540" r="560" fill="url(#altarAura)" />
+
+  <!-- Broken Ionic Columns & Collapsed Marble Archway (Left & Right) -->
+  <g fill="#1e1b4b" stroke="#7c3aed" stroke-width="3">
+    <!-- Left Broken Column 1 -->
+    <rect x="240" y="380" width="70" height="460" fill="#0f0728" />
+    <polygon points="220,380 330,380 310,340 240,340" />
+    <!-- Column Cracks -->
+    <path d="M 260,450 L 290,520 L 265,600" fill="none" stroke="#a855f7" stroke-width="2" />
+
+    <!-- Left Broken Column 2 (Shorter) -->
+    <rect x="380" y="520" width="60" height="320" fill="#0f0728" />
+    <polygon points="360,520 460,520 440,480 380,480" />
+
+    <!-- Right Broken Column 1 -->
+    <rect x="1610" y="380" width="70" height="460" fill="#0f0728" />
+    <polygon points="1590,380 1700,380 1680,340 1610,340" />
+
+    <!-- Right Broken Column 2 -->
+    <rect x="1480" y="520" width="60" height="320" fill="#0f0728" />
+    <polygon points="1460,520 1560,520 1540,480 1480,480" />
+  </g>
+
+  <!-- Central Great Runed Altar Slab -->
+  <g filter="url(#ruinsBlur)">
+    <polygon points="680,720 1240,720 1300,820 620,820" fill="#1e1b4b" stroke="#c084fc" stroke-width="3" />
+    <!-- Floating Runic Relic / Shard above Altar -->
+    <polygon points="960,420 1020,520 960,620 900,520" fill="#c084fc" />
+  </g>
+
+  <!-- Dilapidated Ancient Flagstone Floor -->
+  <polygon points="0,1080 300,820 1620,820 1920,1080" fill="#090514" />
+  <g stroke="#7c3aed" stroke-width="1.5" opacity="0.4">
+    <line x1="960" y1="820" x2="960" y2="1080" />
+    <line x1="720" y1="820" x2="480" y2="1080" />
+    <line x1="1200" y1="820" x2="1440" y2="1080" />
+    <line x1="480" y1="820" x2="100" y2="1080" />
+    <line x1="1440" y1="820" x2="1820" y2="1080" />
+  </g>
+</svg>

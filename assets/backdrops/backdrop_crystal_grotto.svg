@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="cgSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#020817" />
+      <stop offset="50%" stop-color="#1e1035" />
+      <stop offset="100%" stop-color="#021422" />
+    </linearGradient>
+    <linearGradient id="cgCrystal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e9d5ff" />
+      <stop offset="50%" stop-color="#c084fc" />
+      <stop offset="100%" stop-color="#7e22ce" />
+    </linearGradient>
+    <radialGradient id="cgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#22d3ee" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#020817" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#cgSky)" />
+  <circle cx="960" cy="540" r="540" fill="url(#cgGlow)" />
+  <polygon points="120,850 190,440 260,850" fill="url(#cgCrystal)" />
+  <polygon points="1800,850 1730,440 1660,850" fill="url(#cgCrystal)" />
+  <polygon points="0,1080 340,780 1580,780 1920,1080" fill="#0b172a" />
+</svg>

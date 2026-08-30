@@ -8,8 +8,13 @@
   <link rel="manifest" href="./manifest.json">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="./css/style.css">
-  <!-- Three.js (r128) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Three.js (r128 Local with CDN Fallback) -->
+  <script src="./js/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+    }
+  </script>
 </head>
 <body>
 

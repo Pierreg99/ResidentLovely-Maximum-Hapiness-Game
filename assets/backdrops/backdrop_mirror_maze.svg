@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="mazeSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#05070a" />
+      <stop offset="50%" stop-color="#0e1726" />
+      <stop offset="100%" stop-color="#030712" />
+    </linearGradient>
+    <linearGradient id="mirrorGlass1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#818cf8" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.3" />
+    </linearGradient>
+    <linearGradient id="mirrorGlass2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#e0e7ff" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#38bdf8" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0.4" />
+    </linearGradient>
+    <linearGradient id="goldFrame" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="50%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+    <radialGradient id="portalGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.7" />
+      <stop offset="40%" stop-color="#a78bfa" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#05070a" stop-opacity="0" />
+    </radialGradient>
+    <filter id="mirrorGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1920" height="1080" fill="url(#mazeSky)" />
+
+  <!-- Infinite Perspective Hallway -->
+  <g stroke="#22d3ee" stroke-width="1.5" opacity="0.35">
+    <line x1="0" y1="0" x2="960" y2="540" />
+    <line x1="1920" y1="0" x2="960" y2="540" />
+    <line x1="0" y1="1080" x2="960" y2="540" />
+    <line x1="1920" y1="1080" x2="960" y2="540" />
+  </g>
+
+  <!-- Nested Recursive Portals / Frames -->
+  <!-- Level 4 (Smallest) -->
+  <polygon points="900,480 1020,480 1020,600 900,600" fill="url(#portalGlow)" stroke="url(#goldFrame)" stroke-width="2" />
+  <!-- Level 3 -->
+  <polygon points="820,400 1100,400 1100,680 820,680" fill="none" stroke="url(#goldFrame)" stroke-width="3" />
+  <!-- Level 2 -->
+  <polygon points="680,260 1240,260 1240,820 680,820" fill="none" stroke="url(#goldFrame)" stroke-width="4" />
+  <!-- Level 1 (Largest) -->
+  <polygon points="460,100 1460,100 1460,980 460,980" fill="none" stroke="url(#goldFrame)" stroke-width="6" />
+
+  <!-- Floating Prismatic Mirror Panels (Left Flank) -->
+  <g filter="url(#mirrorGlow)">
+    <polygon points="120,80 320,180 320,900 120,1000" fill="url(#mirrorGlass1)" stroke="#38bdf8" stroke-width="2" />
+    <line x1="130" y1="100" x2="310" y2="880" stroke="#ffffff" stroke-width="2" opacity="0.6" />
+    
+    <polygon points="260,150 420,240 420,840 260,930" fill="url(#mirrorGlass2)" stroke="#a78bfa" stroke-width="2" opacity="0.85" />
+    <line x1="270" y1="170" x2="410" y2="820" stroke="#ffffff" stroke-width="1.5" opacity="0.5" />
+  </g>
+
+  <!-- Floating Prismatic Mirror Panels (Right Flank) -->
+  <g filter="url(#mirrorGlow)">
+    <polygon points="1800,80 1600,180 1600,900 1800,1000" fill="url(#mirrorGlass1)" stroke="#38bdf8" stroke-width="2" />
+    <line x1="1790" y1="100" x2="1610" y2="880" stroke="#ffffff" stroke-width="2" opacity="0.6" />
+
+    <polygon points="1660,150 1500,240 1500,840 1660,930" fill="url(#mirrorGlass2)" stroke="#a78bfa" stroke-width="2" opacity="0.85" />
+    <line x1="1650" y1="170" x2="1510" y2="820" stroke="#ffffff" stroke-width="1.5" opacity="0.5" />
+  </g>
+
+  <!-- Kaleidoscope Light Rays & Refractions -->
+  <g stroke="#ffffff" stroke-width="1" opacity="0.4">
+    <line x1="960" y1="540" x2="200" y2="100" />
+    <line x1="960" y1="540" x2="400" y2="50" />
+    <line x1="960" y1="540" x2="1520" y2="50" />
+    <line x1="960" y1="540" x2="1720" y2="100" />
+    <line x1="960" y1="540" x2="150" y2="950" />
+    <line x1="960" y1="540" x2="1770" y2="950" />
+  </g>
+
+  <!-- Refraction Crystals & Sparkle Glyphs -->
+  <g fill="#fef08a" opacity="0.9" filter="url(#mirrorGlow)">
+    <circle cx="960" cy="540" r="8" fill="#ffffff" />
+    <polygon points="960,510 970,540 960,570 950,540" fill="#f59e0b" />
+    <polygon points="930,540 960,530 990,540 960,550" fill="#f59e0b" />
+    
+    <!-- Sparkles -->
+    <circle cx="820" cy="400" r="3" fill="#ffffff" />
+    <circle cx="1100" cy="400" r="3" fill="#ffffff" />
+    <circle cx="680" cy="260" r="4" fill="#ffffff" />
+    <circle cx="1240" cy="260" r="4" fill="#ffffff" />
+    <circle cx="460" cy="100" r="5" fill="#ffffff" />
+    <circle cx="1460" cy="100" r="5" fill="#ffffff" />
+  </g>
+
+  <!-- Marble Reflective Floor -->
+  <polygon points="0,1080 460,980 1460,980 1920,1080" fill="#090d16" opacity="0.9" />
+  <g stroke="#38bdf8" stroke-width="1" opacity="0.3">
+    <line x1="680" y1="980" x2="400" y2="1080" />
+    <line x1="960" y1="980" x2="960" y2="1080" />
+    <line x1="1240" y1="980" x2="1520" y2="1080" />
+    <line x1="300" y1="1030" x2="1620" y2="1030" />
+  </g>
+</svg>

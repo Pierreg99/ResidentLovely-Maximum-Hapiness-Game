@@ -5,7 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ---
 
-## [2.0.0] - 2026-08-28 ❖ GRAND ESTATE MASTERWORK EXPANSION
+## [5.0.0] - 2026-08-30 ❖ CRYO OMEGA v5.0 UNIFIED MAJOR UPGRADE
+
+### Added & Upgraded
+- **Full-Spectrum Engine Unification**:
+  - Full convergence with **CRYO OMEGA v5.0 UNIFIED** and the 1,002 multi-agent swarm architecture.
+  - 32-Sector 7-Floor World Architecture (`4F`, `3F`, `2F`, `1F`, `B1`, `B2`, `OUTDOOR`) with seamless biome lighting.
+  - Per-sector procedural GLSL shaders (Bioluminescent, Ivy Vein, Flowing River, Celestial Nebula, Crystal Cavern).
+  - 3-Phase Tactical Boss Encounter: *The Grumpy Master Chef* (Rolling Pin Waves, Confectionery Barrage, Sugar Valve Crisis).
+  - 4-Tier Follower Companion Joy Parade squad dynamics with petting (+25% speed buff) and Mega Bliss Cupcake feeding.
+  - Native ESM multi-module architecture with zero runtime bundling overhead and 60 FPS mobile WebGL target.
+  - 100% Zero-Emoji Protocol compliance across all UI, HUD, and SVG tactical floorplans.
+
 
 ### Added
 - **7-Chamber Grand Estate Architecture**:

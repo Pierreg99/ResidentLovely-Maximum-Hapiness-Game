@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="forestSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#021c14" />
+      <stop offset="40%" stop-color="#064e3b" />
+      <stop offset="80%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#065f46" />
+    </linearGradient>
+    <linearGradient id="canopyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#022c22" />
+      <stop offset="70%" stop-color="#064e3b" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="mossTrunk" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06281e" />
+      <stop offset="40%" stop-color="#064e3b" />
+      <stop offset="70%" stop-color="#10b981" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#021c14" />
+    </linearGradient>
+    <radialGradient id="sporeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.95" />
+      <stop offset="40%" stop-color="#10b981" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#047857" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="sunShaft" cx="30%" cy="0%" r="90%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.35" />
+      <stop offset="50%" stop-color="#34d399" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#064e3b" stop-opacity="0" />
+    </radialGradient>
+    <filter id="sporeBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Sky Base -->
+  <rect width="1920" height="1080" fill="url(#forestSky)" />
+
+  <!-- Volumetric Sunlight / God-Rays Shimmer -->
+  <polygon points="500,0 750,0 1200,1080 800,1080" fill="url(#sunShaft)" />
+  <polygon points="900,0 1100,0 1700,1080 1400,1080" fill="url(#sunShaft)" opacity="0.7" />
+  <polygon points="200,0 380,0 650,1080 400,1080" fill="url(#sunShaft)" opacity="0.5" />
+
+  <!-- Deep Background Tree Silhouettes -->
+  <g fill="#022c22" opacity="0.7">
+    <!-- Trunks -->
+    <rect x="350" y="200" width="45" height="880" />
+    <rect x="520" y="220" width="35" height="860" />
+    <rect x="820" y="180" width="60" height="900" />
+    <rect x="1150" y="210" width="40" height="870" />
+    <rect x="1380" y="190" width="55" height="890" />
+    <rect x="1600" y="230" width="35" height="850" />
+    <!-- Distant Foliage Arches -->
+    <path d="M 0,250 Q 400,80 800,200 Q 1200,100 1920,220 L 1920,0 L 0,0 Z" />
+  </g>
+
+  <!-- Midground Majestic Sacred Trees & Woven Branches -->
+  <g fill="url(#canopyGrad)">
+    <!-- Giant Arching Tree (Left) -->
+    <path d="M -50,1080 Q 250,700 320,400 Q 550,150 960,180 Q 650,100 200,320 Q 80,600 -120,1080 Z" fill="url(#mossTrunk)" />
+    <!-- Giant Arching Tree (Right) -->
+    <path d="M 1970,1080 Q 1670,700 1600,400 Q 1370,150 960,180 Q 1270,100 1720,320 Q 1840,600 2040,1080 Z" fill="url(#mossTrunk)" />
+  </g>
+
+  <!-- Hanging Vines & Bioluminescent Tendrils -->
+  <g stroke="#34d399" stroke-width="2" fill="none" opacity="0.65">
+    <path d="M 400,280 Q 430,450 410,600 Q 420,680 405,740" />
+    <path d="M 520,240 Q 490,400 510,560 Q 500,640 515,700" />
+    <path d="M 750,200 Q 770,360 760,520 Q 780,600 770,680" />
+    <path d="M 1180,200 Q 1160,380 1175,540 Q 1150,620 1160,710" />
+    <path d="M 1450,250 Q 1480,420 1460,580 Q 1475,650 1465,720" />
+    <path d="M 1620,300 Q 1590,460 1610,620" />
+  </g>
+
+  <!-- Ancient Sacred Stone Shrine / Runic Altar -->
+  <g stroke="#10b981" stroke-width="2">
+    <!-- Torii / Stone Arch Post Left -->
+    <rect x="760" y="580" width="32" height="320" fill="#064e3b" />
+    <!-- Torii Post Right -->
+    <rect x="1128" y="580" width="32" height="320" fill="#064e3b" />
+    <!-- Lintel Beam Top -->
+    <polygon points="700,580 1220,580 1200,540 720,540" fill="#065f46" />
+    <!-- Secondary Lintel -->
+    <rect x="740" y="610" width="440" height="20" fill="#047857" />
+    <!-- Shrine Sacred Crystal Core -->
+    <polygon points="960,670 990,720 960,770 930,720" fill="#6ee7b7" filter="url(#sporeBlur)" />
+  </g>
+
+  <!-- Glowing Bioluminescent Spores / Fireflies -->
+  <g filter="url(#sporeBlur)">
+    <circle cx="410" cy="740" r="14" fill="url(#sporeGlow)" />
+    <circle cx="515" cy="700" r="12" fill="url(#sporeGlow)" />
+    <circle cx="770" cy="680" r="15" fill="url(#sporeGlow)" />
+    <circle cx="1160" cy="710" r="14" fill="url(#sporeGlow)" />
+    <circle cx="1465" cy="720" r="16" fill="url(#sporeGlow)" />
+    <!-- Ambient Floating Spores -->
+    <circle cx="650" cy="480" r="8" fill="url(#sporeGlow)" />
+    <circle cx="880" cy="420" r="10" fill="url(#sporeGlow)" />
+    <circle cx="1040" cy="460" r="9" fill="url(#sporeGlow)" />
+    <circle cx="1300" cy="510" r="11" fill="url(#sporeGlow)" />
+    <circle cx="960" cy="340" r="12" fill="url(#sporeGlow)" />
+  </g>
+
+  <!-- Foreground Mossy Pathway & Root Mound -->
+  <path d="M 0,1080 L 600,850 L 1320,850 L 1920,1080 Z" fill="#022c22" />
+  <path d="M 400,1080 Q 960,820 1520,1080 Z" fill="#064e3b" opacity="0.8" />
+  
+  <!-- Stepping Stones Along Sacred Path -->
+  <ellipse cx="960" cy="870" rx="40" ry="12" fill="#065f46" stroke="#10b981" stroke-width="1.5" />
+  <ellipse cx="910" cy="910" rx="55" ry="15" fill="#065f46" stroke="#10b981" stroke-width="1.5" />
+  <ellipse cx="1010" cy="950" rx="65" ry="18" fill="#065f46" stroke="#10b981" stroke-width="1.5" />
+  <ellipse cx="930" cy="1000" rx="85" ry="22" fill="#065f46" stroke="#10b981" stroke-width="2" />
+</svg>

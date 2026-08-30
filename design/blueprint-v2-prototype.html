@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Resident Lovely ❖ Holographic Tactical Blueprint Map v2.0</title>
+  <style>
+    :root {
+      --bg-obsidian: #05070a;
+      --surface-dark: rgba(15, 23, 42, 0.85);
+      --cyan-glow: #22d3ee;
+      --gold-accent: #f59e0b;
+      --emerald-joy: #10b981;
+      --crimson-danger: #ef4444;
+      --amethyst-void: #7c3aed;
+      --sakura-pink: #f472b6;
+      --ocean-azure: #0284c7;
+      --amber-crypt: #78350f;
+      --crystal-lavender: #a78bfa;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      --font-display: 'Orbitron', 'Trebuchet MS', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+    body {
+      background-color: var(--bg-obsidian);
+      color: #e2e8f0;
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* CRT Scanline & Vignette Overlay */
+    .crt-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                  radial-gradient(circle at center, transparent 65%, rgba(0,0,0,0.8) 100%);
+      background-size: 100% 3px, 100% 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Header Bar */
+    header {
+      padding: 16px 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid rgba(34, 211, 238, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .title-group h1 {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      letter-spacing: 0.15em;
+      color: var(--cyan-glow);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(34, 211, 238, 0.15);
+      border: 1px solid var(--cyan-glow);
+      color: var(--cyan-glow);
+    }
+
+    .telemetry {
+      display: flex;
+      gap: 16px;
+      font-size: 0.8rem;
+    }
+
+    .telemetry span {
+      color: #94a3b8;
+    }
+    .telemetry strong {
+      color: var(--gold-accent);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 24px;
+      gap: 16px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* 7-Tab Floor Selector */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .floor-tab {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      color: #94a3b8;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      white-space: nowrap;
+      min-height: 44px;
+    }
+
+    .floor-tab:hover, .floor-tab:focus-visible {
+      border-color: var(--cyan-glow);
+      color: #f8fafc;
+      background: rgba(34, 211, 238, 0.1);
+      outline: none;
+    }
+
+    .floor-tab.active {
+      background: rgba(34, 211, 238, 0.2);
+      border-color: var(--cyan-glow);
+      color: var(--cyan-glow);
+      box-shadow: 0 0 12px rgba(34, 211, 238, 0.25);
+    }
+
+    /* Grid Layout */
+    .workspace-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+      flex: 1;
+      min-height: 540px;
+    }
+
+    @media (max-width: 960px) {
+      .workspace-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Map Canvas Card */
+    .map-card {
+      background: var(--surface-dark);
+      border: 1px solid rgba(34, 211, 238, 0.25);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+    }
+
+    .svg-container {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 480px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    svg.blueprint-svg {
+      width: 100%;
+      height: 100%;
+      max-height: 520px;
+    }
+
+    /* Biome Rectangle Styling */
+    .sector-node {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .sector-node:hover rect {
+      filter: drop-shadow(0 0 10px var(--cyan-glow));
+      stroke-width: 2.5;
+    }
+
+    .sector-node.active rect {
+      stroke: #ffffff;
+      stroke-width: 3;
+    }
+
+    /* Biome Fills */
+    .biome-estate { fill: rgba(34, 211, 238, 0.15); stroke: var(--cyan-glow); }
+    .biome-gothic { fill: rgba(124, 58, 237, 0.2); stroke: var(--amethyst-void); }
+    .biome-kawaii { fill: rgba(244, 114, 182, 0.2); stroke: var(--sakura-pink); }
+    .biome-outdoor { fill: rgba(16, 185, 129, 0.15); stroke: var(--emerald-joy); }
+    .biome-forest { fill: rgba(6, 95, 70, 0.35); stroke: #10b981; }
+    .biome-maritime { fill: rgba(2, 132, 199, 0.2); stroke: var(--ocean-azure); }
+    .biome-subterranean { fill: rgba(120, 53, 15, 0.3); stroke: #d97706; }
+    .biome-crystal { fill: rgba(167, 139, 250, 0.25); stroke: var(--crystal-lavender); }
+
+    /* Animated Connection Paths */
+    .connection-line {
+      stroke: rgba(34, 211, 238, 0.4);
+      stroke-width: 2;
+      stroke-dasharray: 6 4;
+      animation: dash-flow 1.2s linear infinite;
+    }
+
+    @keyframes dash-flow {
+      to { stroke-dashoffset: -20; }
+    }
+
+    /* Player Beacon Pulse */
+    .beacon-pulse {
+      animation: beacon-ripple 1.8s infinite cubic-bezier(0.2, 0.8, 0.4, 1);
+      transform-origin: center;
+    }
+
+    @keyframes beacon-ripple {
+      0% { r: 8px; opacity: 1; stroke-width: 2px; }
+      100% { r: 28px; opacity: 0; stroke-width: 0.5px; }
+    }
+
+    /* Telemetry Sidebar Card */
+    .sidebar-card {
+      background: var(--surface-dark);
+      border: 1px solid rgba(51, 65, 85, 0.8);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar-card h2 {
+      font-size: 1rem;
+      color: var(--cyan-glow);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.8);
+      padding-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      padding: 6px 0;
+      border-bottom: 1px dashed rgba(51, 65, 85, 0.4);
+    }
+
+    .stat-row span:first-child { color: #94a3b8; }
+    .stat-row span:last-child { color: #f8fafc; font-weight: bold; }
+
+    .progress-bar-bg {
+      height: 8px;
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan-glow), var(--emerald-joy));
+      width: 85%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* Action Buttons */
+    .btn-action {
+      background: rgba(34, 211, 238, 0.15);
+      border: 1px solid var(--cyan-glow);
+      color: var(--cyan-glow);
+      padding: 10px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      min-height: 44px;
+    }
+
+    .btn-action:hover {
+      background: var(--cyan-glow);
+      color: var(--bg-obsidian);
+      box-shadow: 0 0 16px rgba(34, 211, 238, 0.4);
+    }
+
+    /* Biome Legend */
+    .legend-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.75rem;
+      padding-top: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #94a3b8;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="crt-overlay"></div>
+
+  <header>
+    <div class="title-group">
+      <h1><span>❖</span> Resident Lovely : Tactical Holographic Blueprint</h1>
+      <span class="badge">NEXUS PRIVÉ v6.0</span>
+    </div>
+    <div class="telemetry">
+      <span>GRID: <strong>32 SECTORS</strong></span>
+      <span>ACTIVE BEACON: <strong id="beaconCoord">(0, 0, 0)</strong></span>
+      <span>HAPPINESS: <strong style="color: var(--emerald-joy)">95.0%</strong></span>
+    </div>
+  </header>
+
+  <main>
+    <!-- 7-Tab Level Selector -->
+    <nav class="tab-bar" aria-label="Floor Level Navigation">
+      <button class="floor-tab" onclick="switchFloor('4F')">▲ 4F : Rooftop & Belfry</button>
+      <button class="floor-tab" onclick="switchFloor('3F')">▲ 3F : Cathedral & Mirrors</button>
+      <button class="floor-tab" onclick="switchFloor('2F')">▲ 2F : Upper Towers</button>
+      <button class="floor-tab active" onclick="switchFloor('1F')">❖ 1F : Grand Estate</button>
+      <button class="floor-tab" onclick="switchFloor('B1')">▼ B1 : Alchemical Labs</button>
+      <button class="floor-tab" onclick="switchFloor('B2')">▼ B2 : Deep River & Vaults</button>
+      <button class="floor-tab" onclick="switchFloor('OUTDOOR')">◈ OUTDOOR : Grounds & Docks</button>
+    </nav>
+
+    <div class="workspace-layout">
+      <!-- SVG Map Viewport -->
+      <section class="map-card" aria-label="Tactical Floor Map">
+        <div class="svg-container" id="svgContainer">
+          <!-- Procedural SVG injected here -->
+        </div>
+      </section>
+
+      <!-- Telemetry Sidebar -->
+      <aside class="sidebar-card">
+        <h2><span id="sectorName">Grand Foyer</span> <span style="font-size:0.75rem; color:#94a3b8" id="sectorIdBadge">S00 · 1F</span></h2>
+        
+        <div>
+          <div class="stat-row"><span>Biome Identity:</span><span id="sectorBiome">Estate Wing</span></div>
+          <div class="stat-row"><span>Coordinates:</span><span id="sectorCoords">(0, 0, 0)</span></div>
+          <div class="stat-row"><span>Active Grumps:</span><span id="sectorGrumps">0 Plushies</span></div>
+          <div class="stat-row"><span>PBR Surface Shader:</span><span id="sectorShader" style="color: var(--cyan-glow)">Chandelier Glint</span></div>
+        </div>
+
+        <div>
+          <div class="stat-row"><span>Happiness Index:</span><span id="sectorHappinessNum" style="color: var(--emerald-joy)">100%</span></div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="sectorProgressBar"></div>
+          </div>
+        </div>
+
+        <button class="btn-action" onclick="playDeploySound()">
+          <span>▶</span> Deploy Tactical Beacon
+        </button>
+
+        <div style="border-top: 1px solid rgba(51,65,85,0.6); padding-top: 12px;">
+          <h3 style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px; text-transform:uppercase">Biome Chromatic Index</h3>
+          <div class="legend-grid">
+            <div class="legend-item"><div class="legend-color" style="background:#22d3ee"></div> Estate</div>
+            <div class="legend-item"><div class="legend-color" style="background:#7c3aed"></div> Gothic</div>
+            <div class="legend-item"><div class="legend-color" style="background:#f472b6"></div> Kawaii</div>
+            <div class="legend-item"><div class="legend-color" style="background:#10b981"></div> Outdoor</div>
+            <div class="legend-item"><div class="legend-color" style="background:#065f46"></div> Forest</div>
+            <div class="legend-item"><div class="legend-color" style="background:#0284c7"></div> Maritime</div>
+            <div class="legend-item"><div class="legend-color" style="background:#78350f"></div> Crypt</div>
+            <div class="legend-item"><div class="legend-color" style="background:#a78bfa"></div> Crystal</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    // Web Audio Synthesizer for Diegetic Clicks
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(freq = 880, duration = 0.04) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playDeploySound() {
+      playBeep(440, 0.08);
+      setTimeout(() => playBeep(880, 0.12), 80);
+    }
+
+    // 32-Sector Master Database (Hybrid B+C Grid)
+    const SECTORS = [
+      // 1F
+      { id:'foyer', name:'Grand Foyer', floor:'1F', x:300, y:200, biome:'estate', coords:'(0,0,0)', grumps:0, shader:'Chandelier Glint', happy:100, conns:['library','garden','greenhouse','gallery'] },
+      { id:'library', name:'Archival Library', floor:'1F', x:480, y:200, biome:'estate', coords:'(45,0,0)', grumps:1, shader:'Woodgrain Anisotropy', happy:90, conns:['foyer','dining','music_parlor'] },
+      { id:'garden', name:'Solarium Garden', floor:'1F', x:120, y:200, biome:'outdoor', coords:'(-45,0,0)', grumps:0, shader:'Water Ripple Caustic', happy:100, conns:['foyer','tea_salon'] },
+      { id:'greenhouse', name:'Tea Greenhouse', floor:'1F', x:300, y:80, biome:'outdoor', coords:'(0,0,45)', grumps:0, shader:'Glass Dew Refraction', happy:100, conns:['foyer','dining','gallery'] },
+      { id:'dining', name:'Banquet Hall', floor:'1F', x:480, y:80, biome:'estate', coords:'(45,0,45)', grumps:2, shader:'Gilded Wainscoting', happy:80, conns:['library','greenhouse'] },
+      { id:'gallery', name:'Portrait Gallery', floor:'1F', x:120, y:80, biome:'estate', coords:'(-45,0,45)', grumps:1, shader:'Varnish Specular', happy:85, conns:['foyer','greenhouse','haunted_conservatory'] },
+      { id:'haunted_conservatory', name:'Haunted Conservatory', floor:'1F', x:20, y:80, biome:'gothic', coords:'(-90,0,0)', grumps:3, shader:'Ivy Vein Growth', happy:65, conns:['gallery','tea_salon'] },
+      { id:'tea_salon', name:'Pastel Tea Salon', floor:'1F', x:20, y:200, biome:'kawaii', coords:'(-90,0,45)', grumps:0, shader:'Velvet Sheen', happy:100, conns:['haunted_conservatory','garden'] },
+      { id:'music_parlor', name:'Grand Music Parlor', floor:'1F', x:580, y:200, biome:'estate', coords:'(-90,0,-45)', grumps:1, shader:'Brass Polish Flare', happy:92, conns:['library'] },
+
+      // 2F
+      { id:'observatory', name:'Starlight Observatory', floor:'2F', x:450, y:180, biome:'estate', coords:'(45,12,0)', grumps:0, shader:'Celestial Dome Reflection', happy:100, conns:['cathedral','mastersuite'] },
+      { id:'clocktower', name:'Clock Tower Mezzanine', floor:'2F', x:150, y:180, biome:'estate', coords:'(-45,12,0)', grumps:2, shader:'Pendulum Motion Blur', happy:75, conns:['cathedral','ballroom'] },
+      { id:'mastersuite', name:'Master Bedroom Suite', floor:'2F', x:300, y:80, biome:'kawaii', coords:'(0,12,45)', grumps:0, shader:'Silk Drapery PBR', happy:100, conns:['observatory','ballroom'] },
+      { id:'ballroom', name:'Gilded Grand Ballroom', floor:'2F', x:300, y:280, biome:'estate', coords:'(0,12,-45)', grumps:1, shader:'Parquet Mirror Polish', happy:90, conns:['clocktower','mastersuite'] },
+
+      // 3F
+      { id:'cathedral', name:'Grand Sun Cathedral', floor:'3F', x:300, y:160, biome:'estate', coords:'(0,24,0)', grumps:0, shader:'Stained Glass Caustic', happy:100, conns:['mirror_maze'] },
+      { id:'mirror_maze', name:'Mirror Maze Gallery', floor:'3F', x:480, y:160, biome:'estate', coords:'(45,24,-45)', grumps:2, shader:'Infinite Mirror Depth', happy:70, conns:['cathedral'] },
+
+      // 4F
+      { id:'moonlit_rooftop', name:'Moonlit Rooftop Garden', floor:'4F', x:300, y:140, biome:'outdoor', coords:'(0,36,0)', grumps:0, shader:'Star Trail Sky Dome', happy:100, conns:['clock_belfry'] },
+      { id:'clock_belfry', name:'Clock Tower Belfry', floor:'4F', x:150, y:140, biome:'estate', coords:'(-45,24,0)', grumps:1, shader:'Mechanical Gear Motion', happy:85, conns:['moonlit_rooftop'] },
+
+      // B1
+      { id:'lab', name:'Alchemical Laboratory', floor:'B1', x:300, y:140, biome:'subterranean', coords:'(0,-14,-45)', grumps:2, shader:'Bubbling Acid Luminescence', happy:70, conns:['crypt','bakery'] },
+      { id:'bakery', name:'Pastry Test Kitchen', floor:'B1', x:480, y:140, biome:'kawaii', coords:'(45,-14,-45)', grumps:0, shader:'Warm Oven Bloom', happy:100, conns:['lab'] },
+      { id:'crypt', name:'Upper Ancestral Crypt', floor:'B1', x:300, y:260, biome:'gothic', coords:'(0,-28,-45)', grumps:3, shader:'Cobweb Volumetric Fog', happy:60, conns:['lab'] },
+
+      // B2
+      { id:'river_cavern', name:'Underground River Cavern', floor:'B2', x:300, y:140, biome:'subterranean', coords:'(0,-42,-45)', grumps:1, shader:'Subterranean Flow Water', happy:80, conns:['crystal_vault','ancient_ruins'] },
+      { id:'crystal_vault', name:'Prismatic Crystal Vault', floor:'B2', x:480, y:140, biome:'crystal', coords:'(45,-42,-45)', grumps:0, shader:'Prismatic Rainbow Flare', happy:100, conns:['river_cavern'] },
+      { id:'ancient_ruins', name:'Ancient Subterranean Ruins', floor:'B2', x:120, y:140, biome:'subterranean', coords:'(-45,-42,-45)', grumps:2, shader:'Rune Glow Dissolve', happy:75, conns:['river_cavern'] },
+
+      // OUTDOOR
+      { id:'gatehouse', name:'Estate Main Gatehouse', floor:'OUTDOOR', x:300, y:80, biome:'outdoor', coords:'(0,0,90)', grumps:0, shader:'Wrought Iron Sheen', happy:100, conns:['reflection_pool','rose_maze','gazebo'] },
+      { id:'reflection_pool', name:'Marble Reflection Pool', floor:'OUTDOOR', x:120, y:80, biome:'maritime', coords:'(-45,0,90)', grumps:0, shader:'Planar Water Reflection', happy:100, conns:['gatehouse','harbor_docks'] },
+      { id:'rose_maze', name:'Hedge Rose Maze', floor:'OUTDOOR', x:480, y:80, biome:'outdoor', coords:'(45,0,90)', grumps:2, shader:'Wind Petal Turbulence', happy:80, conns:['gatehouse','forest_trail'] },
+      { id:'gazebo', name:'Moonlight Gazebo', floor:'OUTDOOR', x:300, y:190, biome:'outdoor', coords:'(0,0,135)', grumps:0, shader:'Moonbeam Godrays', happy:100, conns:['gatehouse','village'] },
+      { id:'village', name:'Village District Market', floor:'OUTDOOR', x:300, y:300, biome:'outdoor', coords:'(0,0,180)', grumps:0, shader:'Cobblestone Wetness', happy:100, conns:['gazebo','meadow','crystal_grotto'] },
+      { id:'forest_trail', name:'Sacred Forest Trail', floor:'OUTDOOR', x:520, y:190, biome:'forest', coords:'(90,0,135)', grumps:1, shader:'Bioluminescent Canopy', happy:88, conns:['rose_maze','meadow'] },
+      { id:'harbor_docks', name:'Moonlit Harbor Docks', floor:'OUTDOOR', x:80, y:190, biome:'maritime', coords:'(-90,0,135)', grumps:0, shader:'Sea Mist Water Ripple', happy:100, conns:['reflection_pool','crystal_grotto'] },
+      { id:'meadow', name:'Star-Dusted Meadow', floor:'OUTDOOR', x:500, y:300, biome:'outdoor', coords:'(45,0,180)', grumps:0, shader:'Grass Wind Wave', happy:100, conns:['village','forest_trail'] },
+      { id:'crystal_grotto', name:'Outdoor Crystal Grotto', floor:'OUTDOOR', x:100, y:300, biome:'crystal', coords:'(-45,0,180)', grumps:0, shader:'Quartz Specular Bloom', happy:100, conns:['village','harbor_docks'] }
+    ];
+
+    let currentFloor = '1F';
+    let selectedSectorId = 'foyer';
+
+    function renderFloorMap(floor) {
+      const container = document.getElementById('svgContainer');
+      const floorSectors = SECTORS.filter(s => s.floor === floor);
+      
+      let linesSvg = '';
+      let nodesSvg = '';
+
+      // Draw connection lines
+      floorSectors.forEach(s => {
+        s.conns.forEach(targetId => {
+          const target = floorSectors.find(t => t.id === targetId);
+          if (target && s.id < target.id) {
+            linesSvg += `<line x1="${s.x + 40}" y1="${s.y + 25}" x2="${target.x + 40}" y2="${target.y + 25}" class="connection-line" />`;
+          }
+        });
+      });
+
+      // Draw sector cards
+      floorSectors.forEach(s => {
+        const isSelected = s.id === selectedSectorId;
+        const isBeacon = s.id === 'foyer' && floor === '1F';
+        
+        nodesSvg += `
+          <g class="sector-node ${isSelected ? 'active' : ''}" onclick="selectSector('${s.id}')" transform="translate(${s.x}, ${s.y})">
+            <rect width="90" height="55" rx="6" class="biome-${s.biome}"></rect>
+            <text x="45" y="24" text-anchor="middle" fill="#f8fafc" font-size="9.5" font-family="var(--font-mono)" font-weight="bold">${s.name.split(' ')[0]}</text>
+            <text x="45" y="38" text-anchor="middle" fill="#94a3b8" font-size="8">${s.biome.toUpperCase()}</text>
+            <circle cx="80" cy="12" r="4" fill="${s.happy >= 90 ? '#10b981' : (s.happy >= 70 ? '#f59e0b' : '#ef4444')}"></circle>
+            ${isBeacon ? `
+              <circle cx="45" cy="27" r="10" stroke="#22d3ee" fill="none" class="beacon-pulse"></circle>
+              <circle cx="45" cy="27" r="4" fill="#22d3ee"></circle>
+            ` : ''}
+          </g>
+        `;
+      });
+
+      container.innerHTML = `
+        <svg class="blueprint-svg" viewBox="0 0 680 400">
+          <defs>
+            <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(34, 211, 238, 0.05)" stroke-width="1"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#gridPattern)"/>
+          ${linesSvg}
+          ${nodesSvg}
+        </svg>
+      `;
+    }
+
+    function selectSector(id) {
+      playBeep(660, 0.03);
+      selectedSectorId = id;
+      const s = SECTORS.find(sec => sec.id === id);
+      if (!s) return;
+
+      document.getElementById('sectorName').textContent = s.name;
+      document.getElementById('sectorIdBadge').textContent = `${s.id.toUpperCase()} · ${s.floor}`;
+      document.getElementById('sectorBiome').textContent = s.biome.toUpperCase();
+      document.getElementById('sectorCoords').textContent = s.coords;
+      document.getElementById('sectorGrumps').textContent = `${s.grumps} Plushies`;
+      document.getElementById('sectorShader').textContent = s.shader;
+      document.getElementById('sectorHappinessNum').textContent = `${s.happy}%`;
+      document.getElementById('sectorProgressBar').style.width = `${s.happy}%`;
+      document.getElementById('beaconCoord').textContent = s.coords;
+
+      renderFloorMap(currentFloor);
+    }
+
+    function switchFloor(floor) {
+      playBeep(520, 0.04);
+      currentFloor = floor;
+      document.querySelectorAll('.floor-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.textContent.includes(floor));
+      });
+
+      const firstOnFloor = SECTORS.find(s => s.floor === floor);
+      if (firstOnFloor) selectSector(firstOnFloor.id);
+      else renderFloorMap(floor);
+    }
+
+    // Initialize
+    renderFloorMap('1F');
+  </script>
+</body>
+</html>
