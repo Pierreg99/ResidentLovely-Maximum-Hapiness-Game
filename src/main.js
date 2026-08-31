@@ -3,11 +3,13 @@ import { rooms, initRooms, lanternMeshes, groundItems, spawnGroundItem, updateGr
 import { SECTOR_REGISTRY, getSector } from './world/sectors.js';
 import { BackdropManager, createSectorBackdrop } from './world/backdrops.js';
 import { surfaceShaderManager, createPostProcessingPipeline } from './world/shaders/surface-shaders.js';
+import { atmosphereEngine } from './world/atmosphere.js';
 import { destructibles, initDestructibles, updateDestructibles } from './world/destructibles.js';
 import { player, initPlayer, updatePlayer, performQuickTurn } from './entities/player.js';
 import { grumps, initGrumps, updateGrumps } from './entities/grump.js';
-import { initBoss, bossInstance, masterChefBoss } from './entities/boss.js';
+import { initBoss, bossInstance, masterChefBoss, clockworkBoss, prismaticBoss } from './entities/boss.js';
 import { companionSquad } from './entities/companion.js';
+
 import { triggerWeaponFire, updateProjectiles, updateTargetSights } from './weapons/arsenal.js';
 import { audio } from './engine/audio.js';
 import { CameraController } from './engine/camera.js';
@@ -903,6 +905,13 @@ function animate() {
   if (masterChefBoss && gameState.room === 'bakery') {
     masterChefBoss.update(delta, time, player.group.position);
   }
+  if (clockworkBoss && (gameState.room === 'clock_tower_belfry' || gameState.room === 'clocktower')) {
+    clockworkBoss.update(delta, time, player.group.position);
+  }
+  if (prismaticBoss && (gameState.room === 'crystal_vault' || gameState.room === 'crystal_grotto')) {
+    prismaticBoss.update(delta, time, player.group.position);
+  }
+  atmosphereEngine.update(delta, player.group.position);
   updateDestructibles(time);
   updateGroundItems(delta, time);
   updateParticles(delta);
@@ -934,4 +943,5 @@ function animate() {
 }
 
 animate();
-showToast('❖ RESIDENT LOVELY v4.0.0 MAXIMAL GRAPHIC OVERHAUL + 32-SECTOR WORLD LOADED');
+showToast('❖ RESIDENT LOVELY v5.1.0 UNIFIED TRI-TIER EXPANSION LOADED');
+

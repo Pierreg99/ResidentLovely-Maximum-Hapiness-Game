@@ -313,12 +313,178 @@ export class GloomBehemothBoss {
   }
 }
 
+
+/**
+ * ClockworkArchivistBoss: 4F Secret Belfry Boss (S20)
+ * Chrono-manipulating boss with Escapement Pendulum and Time-Warp Rewind.
+ */
+export class ClockworkArchivistBoss {
+  constructor() {
+    this.group = new THREE.Group();
+    this.group.position.set(0, 24, -3);
+    this.roomName = 'clock_tower_belfry';
+    this.sectorId = 'S20';
+    this.name = 'THE CLOCKWORK ARCHIVIST';
+    this.anger = 100;
+    this.maxAnger = 100;
+    this.phase = 1;
+    this.isCalmed = false;
+    this.squashTimer = 0;
+    this.gearSpinSpeed = 1.0;
+    this.chronoPulseTimer = 0;
+
+    this.initMesh();
+    if (rooms.clock_tower_belfry) rooms.clock_tower_belfry.add(this.group);
+  }
+
+  initMesh() {
+    // Body: Brass Mechanical Automaton
+    const brassMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.25, metalness: 0.85 });
+    this.bodyMesh = new THREE.Mesh(new THREE.OctahedronGeometry(1.2, 2), brassMat);
+    this.bodyMesh.position.y = 1.6;
+    this.group.add(this.bodyMesh);
+
+    // Rotating Escapement Gear Halo
+    const gearMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, roughness: 0.2, metalness: 0.6 });
+    this.gearHalo = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.12, 8, 24), gearMat);
+    this.gearHalo.position.y = 1.6;
+    this.group.add(this.gearHalo);
+
+    // Glowing Cyan Optical Core
+    this.coreEye = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), new THREE.MeshBasicMaterial({ color: 0x22d3ee }));
+    this.coreEye.position.set(0, 1.6, 0.9);
+    this.group.add(this.coreEye);
+  }
+
+  takeDamage(amount, gameState, callbacks) {
+    if (this.isCalmed) return;
+    this.anger = Math.max(0, this.anger - amount);
+    this.squashTimer = 0.25;
+
+    if (this.anger <= 60 && this.phase === 1) {
+      this.phase = 2;
+      this.gearSpinSpeed = 2.5;
+      audio.playCheer();
+      if (callbacks?.onToast) callbacks.onToast('★ CHRONO ARCHIVIST ENTERED PHASE 2: TEMPORAL REWIND! ★');
+    } else if (this.anger <= 25 && this.phase === 2) {
+      this.phase = 3;
+      this.gearSpinSpeed = 4.0;
+      audio.playCheer();
+      if (callbacks?.onToast) callbacks.onToast('★ CHRONO ARCHIVIST ENTERED PHASE 3: ESCAPEMENT OVERLOAD! ★');
+    }
+
+    if (this.anger <= 0) {
+      this.pacify(gameState, callbacks);
+    }
+  }
+
+  pacify(gameState, callbacks) {
+    this.isCalmed = true;
+    this.coreEye.material.color.setHex(0x10b981);
+    audio.playCheer();
+    spawnConfetti(this.group.position.clone().add(new THREE.Vector3(0, 2, 0)), 80);
+    if (callbacks?.onToast) callbacks.onToast('★ THE CLOCKWORK ARCHIVIST HAS BEEN CALMED INTO HARMONY! ★');
+  }
+
+  update(delta, time, playerPos) {
+    if (this.gearHalo) {
+      this.gearHalo.rotation.z += delta * this.gearSpinSpeed;
+      this.gearHalo.rotation.x = Math.sin(time * 2) * 0.2;
+    }
+    this.group.position.y = (this.group.position.y || 24) + Math.sin(time * 3) * 0.005;
+    if (playerPos) {
+      const dir = playerPos.clone().sub(this.group.position);
+      this.group.rotation.y = Math.atan2(dir.x, dir.z);
+    }
+  }
+}
+
+/**
+ * PrismaticGolemBoss: B2 Crystal Vaults Boss (S31)
+ * Crystal entity requiring prism weapon beam refractions to pacify.
+ */
+export class PrismaticGolemBoss {
+  constructor() {
+    this.group = new THREE.Group();
+    this.group.position.set(0, -28, -4);
+    this.roomName = 'crystal_vault';
+    this.sectorId = 'S31';
+    this.name = 'THE PRISMATIC GOLEM';
+    this.anger = 100;
+    this.maxAnger = 100;
+    this.isCalmed = false;
+    this.squashTimer = 0;
+
+    this.initMesh();
+    if (rooms.crystal_vault) rooms.crystal_vault.add(this.group);
+  }
+
+  initMesh() {
+    const prismMat = new THREE.MeshStandardMaterial({
+      color: 0xa855f7,
+      roughness: 0.1,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.85
+    });
+
+    this.bodyMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(1.6), prismMat);
+    this.bodyMesh.position.y = 1.8;
+    this.group.add(this.bodyMesh);
+
+    // Orbiting Prismatic Shards
+    this.shards = [];
+    for (let i = 0; i < 4; i++) {
+      const shard = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.8, 6), new THREE.MeshBasicMaterial({ color: 0x22d3ee }));
+      this.group.add(shard);
+      this.shards.push(shard);
+    }
+  }
+
+  takeDamage(amount, gameState, callbacks) {
+    if (this.isCalmed) return;
+    this.anger = Math.max(0, this.anger - amount);
+    this.squashTimer = 0.2;
+
+    if (this.anger <= 0) {
+      this.pacify(gameState, callbacks);
+    }
+  }
+
+  pacify(gameState, callbacks) {
+    this.isCalmed = true;
+    this.bodyMesh.material.color.setHex(0x10b981);
+    audio.playCheer();
+    spawnConfetti(this.group.position.clone().add(new THREE.Vector3(0, 2, 0)), 80);
+    if (callbacks?.onToast) callbacks.onToast('★ THE PRISMATIC GOLEM CONVERGED INTO RADIANT JOY! ★');
+  }
+
+  update(delta, time, playerPos) {
+    if (this.shards) {
+      this.shards.forEach((shard, idx) => {
+        const angle = time * 2 + (idx * Math.PI / 2);
+        shard.position.set(Math.cos(angle) * 2.5, 1.8 + Math.sin(time * 3 + idx) * 0.4, Math.sin(angle) * 2.5);
+        shard.rotation.y = angle;
+      });
+    }
+    if (this.bodyMesh) {
+      this.bodyMesh.rotation.y += delta * 0.8;
+      this.bodyMesh.rotation.x = Math.sin(time) * 0.15;
+    }
+  }
+}
+
 export let bossInstance = null;
 export let masterChefBoss = null;
+export let clockworkBoss = null;
+export let prismaticBoss = null;
 
 export function initBoss() {
   bossInstance = new GloomBehemothBoss();
   masterChefBoss = new MasterChefBoss();
-  return { gloom: bossInstance, chef: masterChefBoss };
+  clockworkBoss = new ClockworkArchivistBoss();
+  prismaticBoss = new PrismaticGolemBoss();
+  return { gloom: bossInstance, chef: masterChefBoss, clockwork: clockworkBoss, prismatic: prismaticBoss };
 }
+
 

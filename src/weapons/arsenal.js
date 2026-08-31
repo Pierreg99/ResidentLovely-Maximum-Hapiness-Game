@@ -111,6 +111,25 @@ export function launchProjectile(type, origin, dir, currentRoom) {
     gravity = -9.8;
     life = 2.5;
     blastRadius = 5.5;
+  } else if (type === 'chrono_wand') {
+    // Chrono Stasis Time Dart
+    const chronoDart = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.22),
+      new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x22d3ee, emissiveIntensity: 0.8 })
+    );
+    pGroup.add(chronoDart);
+    vel.multiplyScalar(28);
+    life = 1.8;
+  } else if (type === 'prism_blaster') {
+    // Prismatic Refraction Crystal Core
+    const prismCore = new THREE.Mesh(
+      new THREE.DodecahedronGeometry(0.26),
+      new THREE.MeshStandardMaterial({ color: 0xa855f7, emissive: 0xec4899, emissiveIntensity: 0.7 })
+    );
+    pGroup.add(prismCore);
+    vel.multiplyScalar(26);
+    life = 1.5;
+    blastRadius = 4.0;
   }
 
   scene.add(pGroup);
@@ -121,23 +140,39 @@ export function triggerWeaponFire(gameState, cameraController, callbacks) {
   audio.init();
 
   // Weapon recoil kickback animation (+Z is forward)
-  player.meshGun.position.z = 0.22;
-  setTimeout(() => { player.meshGun.position.z = 0.4; }, 90);
+  if (player.meshGun) {
+    player.meshGun.position.z = 0.22;
+    setTimeout(() => { if (player.meshGun) player.meshGun.position.z = 0.4; }, 90);
+  }
 
   // Muzzle flash point light
   const fwd = new THREE.Vector3(0, 0, 1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
   const muzzlePos = player.group.position.clone().add(new THREE.Vector3(0.42, 1.05, 0.75).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation));
 
-  muzzleLight.position.copy(muzzlePos);
-  muzzleLight.color.setHex(gameState.currentWeapon === 'mortar' ? 0xec4899 : (gameState.currentWeapon === 'shotgun' ? 0x22d3ee : 0xf59e0b));
-  muzzleLight.intensity = 3.5;
-  setTimeout(() => { muzzleLight.intensity = 0; }, 80);
+  if (muzzleLight) {
+    muzzleLight.position.copy(muzzlePos);
+    muzzleLight.color.setHex(
+      gameState.currentWeapon === 'mortar' ? 0xec4899 :
+      gameState.currentWeapon === 'shotgun' ? 0x22d3ee :
+      gameState.currentWeapon === 'chrono_wand' ? 0x38bdf8 :
+      gameState.currentWeapon === 'prism_blaster' ? 0xa855f7 : 0xf59e0b
+    );
+    muzzleLight.intensity = 3.5;
+    setTimeout(() => { if (muzzleLight) muzzleLight.intensity = 0; }, 80);
+  }
 
   spawnConfetti(muzzlePos, 18);
 
   if (gameState.currentWeapon === 'pistol') {
     audio.playPistol();
     launchProjectile('pistol', muzzlePos, fwd, gameState.room);
+  } else if (gameState.currentWeapon === 'chrono_wand') {
+    audio.playPistol();
+    launchProjectile('chrono_wand', muzzlePos, fwd, gameState.room);
+  } else if (gameState.currentWeapon === 'prism_blaster') {
+    audio.playBubbleShot();
+    launchProjectile('prism_blaster', muzzlePos, fwd, gameState.room);
+
   } else if (gameState.currentWeapon === 'shotgun') {
     audio.playBubbleShot();
     for (let i = -2; i <= 2; i++) {
