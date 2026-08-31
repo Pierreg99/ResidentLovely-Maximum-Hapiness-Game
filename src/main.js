@@ -14,6 +14,9 @@ import { triggerWeaponFire, updateProjectiles, updateTargetSights } from './weap
 import { audio } from './engine/audio.js';
 import { CameraController } from './engine/camera.js';
 import { initInput } from './engine/input.js';
+import { GameModes } from "./systems/game_modes.js";
+import { EndlessDimension } from "./systems/endless_generator.js";
+import { AIDialogue } from "./systems/ai_dialogue.js";
 import { InventorySystem, ITEMS_DB } from './systems/inventory.js';
 import { QuestSystem, QUESTS } from './systems/quests.js';
 import { MinimapSystem } from './systems/minimap.js';
@@ -917,6 +920,7 @@ function animate() {
   updateParticles(delta);
   updateStardust(time, gameState.room);
   updatePetals(delta, time);
+  GameModes.update(delta);
   updateTargetSights(gameState.room);
 
   minimapSystem.render(player, grumps, destructibles);
@@ -945,3 +949,4 @@ function animate() {
 animate();
 showToast('❖ RESIDENT LOVELY v5.1.0 UNIFIED TRI-TIER EXPANSION LOADED');
 
+GameModes.init(); AIDialogue.init(); GameModes.startSpeedrun();

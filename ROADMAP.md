@@ -60,3 +60,9 @@ RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████
 - [x] Blueprint Map v2 — SVG auto-generated from registry, 7-floor tabs, animated paths
 - [x] 14 new navigable chambers — S19-S32 with collision, props, point lights
 - [x] Full E2E test suite — 109/109 tests passing
+
+## v6.0.0 — AI Companions & Advanced Modes Expansion (WIP)
+### Status: PHASE 1-3 BASE IMPLEMENTED
+- [x] AI-Driven Dialogue Engine (`ai_dialogue.js`) with LLM fallback support
+- [x] Time-Attack Speedrun Mode (`game_modes.js`) with persistent PB tracking
+- [x] Endless Dimension Roguelike Base (`endless_generator.js`)
