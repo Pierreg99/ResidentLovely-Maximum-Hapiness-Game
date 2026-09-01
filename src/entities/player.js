@@ -116,8 +116,9 @@ export function initPlayer() {
   starBadge.position.set(-0.25, 1.92, 0.32);
   hGroup.add(starBadge);
 
-  // 4. Bouncing Twin-Tail Hair Meshes (-Z Back)
+  // 4. Bouncing Twin-Tail Hair Meshes with Pink Ribbon Bows (-Z Back)
   const hairMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.4 });
+  const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.3 });
   const tailGeo = new THREE.ConeGeometry(0.12, 0.6, 12);
   tailGeo.rotateX(Math.PI);
 
@@ -127,11 +128,32 @@ export function initPlayer() {
   hGroup.add(leftTail);
   player.leftPigtail = leftTail;
 
+  const leftBow = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.06), ribbonMat);
+  leftBow.position.set(-0.38, 1.72, -0.12);
+  hGroup.add(leftBow);
+
   const rightTail = new THREE.Mesh(tailGeo, hairMat);
   rightTail.position.set(0.42, 1.55, -0.15);
   rightTail.rotation.z = 0.3;
   hGroup.add(rightTail);
   player.rightPigtail = rightTail;
+
+  const rightBow = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.06), ribbonMat);
+  rightBow.position.set(0.38, 1.72, -0.12);
+  hGroup.add(rightBow);
+
+  // Tactical Wrist Cuffs with Golden Clasps
+  const cuffMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.3 });
+  const goldCuffMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 });
+  for (let sign of [-1, 1]) {
+    const cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.09, 0.12, 12), cuffMat);
+    cuff.position.set(sign * 0.46, 0.82, 0.2);
+    pGroup.add(cuff);
+
+    const clasp = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.08), goldCuffMat);
+    clasp.position.set(sign * 0.5, 0.82, 0.2);
+    pGroup.add(clasp);
+  }
 
   // 5. Custom Mk-IV Confetti Blaster with Heart Tip (+Z Forward)
   const gunGroup = new THREE.Group();

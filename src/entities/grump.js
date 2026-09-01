@@ -45,11 +45,29 @@ export function createGrump(pos, roomName, type = 'bear') {
       gGroup.add(star);
       stars.push(star);
 
-      // Floppy Bear Ears
+    // Floppy Bear Ears with Inner Felt
+    for (let x of [-0.2, 0.2]) {
       const ear = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), furMat);
       ear.position.set(x * 2.2, 1.25, 0);
       gGroup.add(ear);
+
+      const innerEar = new THREE.Mesh(new THREE.CircleGeometry(0.12, 12), new THREE.MeshStandardMaterial({ color: 0xbfdbfe }));
+      innerEar.position.set(x * 2.2, 1.25, 0.12);
+      gGroup.add(innerEar);
     }
+
+    // Cute Red Satin Bowtie
+    const bowMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, roughness: 0.3 });
+    const bowtie = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.12, 0.08), bowMat);
+    bowtie.position.set(0, 0.42, 0.62);
+    gGroup.add(bowtie);
+
+    // Stitched Heart Patch on Belly
+    const patchMat = new THREE.MeshStandardMaterial({ color: 0x60a5fa, roughness: 0.5 });
+    const patch = new THREE.Mesh(new THREE.OctahedronGeometry(0.12), patchMat);
+    patch.position.set(-0.2, 0.45, 0.58);
+    gGroup.add(patch);
+
   } else if (type === 'bunny') {
     // 2. Pouting Lop-Eared Bunny
     furMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.6 });
@@ -57,7 +75,12 @@ export function createGrump(pos, roomName, type = 'bear') {
     bodyMesh.position.y = 0.62;
     gGroup.add(bodyMesh);
 
-    // Long Floppy Ears
+    // Fluffy Cotton Tail
+    const tail = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 12), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }));
+    tail.position.set(0, 0.35, -0.6);
+    gGroup.add(tail);
+
+    // Long Floppy Ears & Blush Cheeks
     for (let x of [-0.28, 0.28]) {
       const ear = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.08, 0.85, 12), furMat);
       ear.position.set(x, 1.05, -0.1);
@@ -68,6 +91,10 @@ export function createGrump(pos, roomName, type = 'bear') {
       eye.position.set(x * 0.7, 0.78, 0.52);
       gGroup.add(eye);
       eyes.push(eye);
+
+      const blush = new THREE.Mesh(new THREE.CircleGeometry(0.06, 8), new THREE.MeshBasicMaterial({ color: 0xfb7185, transparent: true, opacity: 0.7 }));
+      blush.position.set(x * 1.1, 0.68, 0.55);
+      gGroup.add(blush);
 
       const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.08), new THREE.MeshBasicMaterial({ color: 0xf59e0b }));
       star.position.set(x * 0.7, 0.78, 0.54);
@@ -81,6 +108,17 @@ export function createGrump(pos, roomName, type = 'bear') {
     bodyMesh = new THREE.Mesh(new THREE.SphereGeometry(0.64, 20, 20), furMat);
     bodyMesh.position.y = 0.64;
     gGroup.add(bodyMesh);
+
+    // Golden Bell Collar
+    const collarMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e });
+    const collar = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.04, 8, 18), collarMat);
+    collar.rotation.x = Math.PI / 2;
+    collar.position.set(0, 0.5, 0.2);
+    gGroup.add(collar);
+
+    const bell = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 12), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9 }));
+    bell.position.set(0, 0.45, 0.58);
+    gGroup.add(bell);
 
     // Pointy Cat Ears
     for (let x of [-0.25, 0.25]) {
@@ -100,7 +138,7 @@ export function createGrump(pos, roomName, type = 'bear') {
       stars.push(star);
     }
   } else if (type === 'penguin') {
-    // 4. Pouting Penguin
+    // 4. Pouting Penguin with Red Knit Scarf
     furMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 });
     bodyMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.58, 1.1, 16), furMat);
     bodyMesh.position.y = 0.6;
@@ -109,6 +147,12 @@ export function createGrump(pos, roomName, type = 'bear') {
     const belly = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffffff }));
     belly.position.set(0, 0.55, 0.3);
     gGroup.add(belly);
+
+    const scarfMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.8 });
+    const scarf = new THREE.Mesh(new THREE.TorusGeometry(0.44, 0.08, 8, 16), scarfMat);
+    scarf.rotation.x = Math.PI / 2;
+    scarf.position.set(0, 0.82, 0.08);
+    gGroup.add(scarf);
 
     const beak = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.25, 8), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
     beak.rotation.x = Math.PI / 2;
@@ -128,11 +172,15 @@ export function createGrump(pos, roomName, type = 'bear') {
       stars.push(star);
     }
   } else {
-    // 5. Spectral Ghostling
+    // 5. Spectral Ghostling with Floating Crown
     furMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85, roughness: 0.2 });
     bodyMesh = new THREE.Mesh(new THREE.SphereGeometry(0.65, 20, 20), furMat);
     bodyMesh.position.y = 0.95;
     gGroup.add(bodyMesh);
+
+    const crown = new THREE.Mesh(new THREE.OctahedronGeometry(0.14), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 }));
+    crown.position.set(0, 1.7, 0);
+    gGroup.add(crown);
 
     const skirt = new THREE.Mesh(new THREE.ConeGeometry(0.65, 0.8, 16, 1, true), furMat);
     skirt.position.y = 0.45;
