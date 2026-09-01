@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://pierreg99.github.io/resident-lovely-game/"><img src="https://img.shields.io/badge/PLAY_NOW-GitHub_Pages-cyan?style=for-the-badge&logo=github" alt="Play Now" /></a>
+  <a href="https://pierreg99.github.io/ResidentLovely-Maximum-Hapiness-Game/"><img src="https://img.shields.io/badge/PLAY_NOW-GitHub_Pages-cyan?style=for-the-badge&logo=github" alt="Play Now" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" /></a>
   <a href="PROGRESS.md"><img src="https://img.shields.io/badge/Progress-v6.3.0_Master-orange.svg?style=for-the-badge" alt="Progress" /></a>
   <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Changelog-Comprehensive-emerald.svg?style=for-the-badge" alt="Changelog" /></a>
@@ -19,7 +19,7 @@
 
 ## ❖ Live Deployment Endpoints
 
-- **Public GitHub Pages (Play in Browser)**: [https://pierreg99.github.io/resident-lovely-game/](https://pierreg99.github.io/resident-lovely-game/)
+- **Public GitHub Pages (Play in Browser)**: [https://pierreg99.github.io/ResidentLovely-Maximum-Hapiness-Game/](https://pierreg99.github.io/ResidentLovely-Maximum-Hapiness-Game/)
 - **Local Control Center Endpoint**: `http://localhost:8080/index.html`
 - **Master Design Document (DOCX)**: [`docs/Resident_Lovely_Master_Game_Design_Specification.docx`](docs/Resident_Lovely_Master_Game_Design_Specification.docx)
 - **Map Design System Showcase**: [`design/map-design-system.html`](design/map-design-system.html)
