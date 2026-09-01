@@ -47,6 +47,28 @@ export function initPlayer() {
   pouch.position.set(0.38, 0.4, 0);
   pGroup.add(pouch);
 
+  // Golden Shoulder Epaulets
+  const epauletMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.2 });
+  for (let sign of [-1, 1]) {
+    const epaulet = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.26), epauletMat);
+    epaulet.position.set(sign * 0.4, 1.15, 0);
+    pGroup.add(epaulet);
+  }
+
+  // Knee-High Tactical Boots with Buckles
+  const bootMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.4 });
+  const silverMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.1 });
+  for (let sign of [-1, 1]) {
+    const boot = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.42, 12), bootMat);
+    boot.position.set(sign * 0.2, 0.2, 0);
+    boot.castShadow = true;
+    pGroup.add(boot);
+
+    const bootBuckle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 0.18), silverMat);
+    bootBuckle.position.set(sign * 0.2, 0.32, 0.08);
+    pGroup.add(bootBuckle);
+  }
+
   // 2. Head Group (Can be culled in ADS First-Person Mode)
   const hGroup = player.headGroup;
   pGroup.add(hGroup);

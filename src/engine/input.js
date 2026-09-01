@@ -203,45 +203,53 @@ export function initInput(callbacks) {
     }
   });
 
-  // UI Button Bindings
+  // Haptic Feedback Helper
+  function triggerHaptic(ms = 12) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try { navigator.vibrate(ms); } catch (e) {}
+    }
+  }
+
+  // UI Button Bindings with Haptic Responses
   const btnAim = document.getElementById('btn-aim');
-  if (btnAim) btnAim.addEventListener('click', onToggleAim);
+  if (btnAim) btnAim.addEventListener('click', () => { triggerHaptic(15); onToggleAim(); });
 
   const btnFire = document.getElementById('btn-fire');
-  if (btnFire) btnFire.addEventListener('click', onFire);
+  if (btnFire) btnFire.addEventListener('click', () => { triggerHaptic(20); onFire(); });
 
   const btnInteract = document.getElementById('btn-interact');
-  if (btnInteract) btnInteract.addEventListener('click', onContextInteract);
+  if (btnInteract) btnInteract.addEventListener('click', () => { triggerHaptic(15); onContextInteract(); });
 
   const btnTurn = document.getElementById('btn-quick-turn');
-  if (btnTurn) btnTurn.addEventListener('click', onQuickTurn);
+  if (btnTurn) btnTurn.addEventListener('click', () => { triggerHaptic(18); onQuickTurn(); });
 
   const btnViewMode = document.getElementById('btn-view-mode');
-  if (btnViewMode) btnViewMode.addEventListener('click', onCycleViewMode);
+  if (btnViewMode) btnViewMode.addEventListener('click', () => { triggerHaptic(12); onCycleViewMode(); });
 
   const promptBox = document.getElementById('prompt-box');
-  if (promptBox) promptBox.addEventListener('click', onContextInteract);
+  if (promptBox) promptBox.addEventListener('click', () => { triggerHaptic(12); onContextInteract(); });
 
   const btnInv = document.getElementById('btn-inventory');
-  if (btnInv) btnInv.addEventListener('click', onToggleInventory);
+  if (btnInv) btnInv.addEventListener('click', () => { triggerHaptic(12); onToggleInventory(); });
 
   const btnQuest = document.getElementById('btn-quest-log');
-  if (btnQuest) btnQuest.addEventListener('click', onToggleQuestLog);
+  if (btnQuest) btnQuest.addEventListener('click', () => { triggerHaptic(12); onToggleQuestLog(); });
 
   const questPill = document.getElementById('active-quest-pill');
-  if (questPill) questPill.addEventListener('click', onToggleQuestLog);
+  if (questPill) questPill.addEventListener('click', () => { triggerHaptic(12); onToggleQuestLog(); });
 
   const btnMiniMap = document.getElementById('btn-minimap');
-  if (btnMiniMap) btnMiniMap.addEventListener('click', onToggleFullMap);
+  if (btnMiniMap) btnMiniMap.addEventListener('click', () => { triggerHaptic(12); onToggleFullMap(); });
 
   const btnFullMap = document.getElementById('btn-full-map');
-  if (btnFullMap) btnFullMap.addEventListener('click', onToggleFullMap);
+  if (btnFullMap) btnFullMap.addEventListener('click', () => { triggerHaptic(12); onToggleFullMap(); });
 
   const btnCycle = document.getElementById('btn-cycle-weapon');
-  if (btnCycle) btnCycle.addEventListener('click', onCycleWeapon);
+  if (btnCycle) btnCycle.addEventListener('click', () => { triggerHaptic(15); onCycleWeapon(); });
 
   document.querySelectorAll('.weapon-slot').forEach(slot => {
     slot.addEventListener('click', () => {
+      triggerHaptic(12);
       onSetWeapon(slot.getAttribute('data-weapon'));
     });
   });

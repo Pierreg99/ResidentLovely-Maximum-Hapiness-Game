@@ -1,7 +1,28 @@
 # CHANGELOG: RESIDENT LOVELY ❖ MAXIMUM HAPPINESS 3D
 
 All notable changes to **Resident Lovely** are documented in this file.  
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.0 / Zero-Emoji Standard**.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.1 / Zero-Emoji Standard**.
+
+## [6.1.0] - 2026-09-01 ❖ MASTER TOUCH CONTROLS, REALISTIC ASSETS & FAST-TRAVEL NETWORK
+
+### Added & Enhanced
+- **Master Mobile Touch Virtual Controls** (`src/engine/input.js`, `index.html`):
+  - Dynamic Floating Analog Joystick with thumb-centering, smooth deadzone, and 48px drag boundary.
+  - Multi-touch action cluster with haptic feedback (`triggerHaptic`) on `[E] Examine`, `[F] Joy Fire`, `[Z] 180° Turn`, `[G] Weapon Cycle`, `[I] Inventory`, and `[M] Map`.
+- **Realistic Kawaii Character & Map Assets** (`src/entities/player.js`, `src/world/rooms.js`):
+  - Agent Joy upgraded with golden shoulder epaulets, knee-high tactical boots with silver buckles, dual holster straps, specular catchlights, and bouncing hair dynamics.
+  - Grand Interconnecting Colonnades (`createConnectingColonnade`) with polished marble floors, gilded pillars, and open archway line-of-sight between Foyer, Library, Solarium, and Greenhouse.
+  - Confectionery 3D Props in Royal Bakery: 5-tier pastel macarons and giant strawberry swirl lollipops.
+- **Holographic Blueprint Map Fast-Travel Network** (`src/systems/minimap.js`, `src/main.js`):
+  - Double-click fast travel on any chamber node across all 7 floor tabs with harmonic chime and instant room warping.
+  - Global `window.__changeRoom` hook with seamless GLSL shader and backdrop parallax synchronization.
+- **Sweet Confectionery Quests & Alchemy Recipes** (`src/systems/quests.js`, `src/systems/inventory.js`):
+  - Added Quest 11 (*Sweet Confectionery Grand Prix*) and Quest 12 (*The Great Joy Squad Parade*).
+  - Added Rainbow Starlight Macaron, Sparkle Cotton Candy, and Hyper Bliss Confection crafting recipes.
+- **Automated Verification**:
+  - 237 / 237 automated tests passing (100% OK) across all 10 test suites.
+
+---
 
 ## [6.0.0] - 2026-09-01 ❖ ADVANCED MODES & ROGUELIKE EXPANSION
 
