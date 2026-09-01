@@ -14,6 +14,16 @@
     if (typeof THREE === 'undefined') {
       document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
     }
+    window.onerror = function(msg, url, line, col, error) {
+      const errTxt = document.getElementById('loading-status-text');
+      if (errTxt) errTxt.textContent = "ERROR: " + msg + " at " + line + ":" + col;
+      console.error(msg, url, line, col, error);
+    };
+    window.addEventListener('unhandledrejection', function(event) {
+      const errTxt = document.getElementById('loading-status-text');
+      if (errTxt) errTxt.textContent = "PROMISE ERROR: " + (event.reason ? event.reason.message : "Unknown");
+      console.error(event.reason);
+    });
   </script>
 </head>
 <body>

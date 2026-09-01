@@ -1,4 +1,4 @@
-const CACHE_NAME = 'resident-lovely-v6.3.0-cache';
+const CACHE_NAME = 'resident-lovely-v6.3.1-cache';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -53,7 +53,21 @@ const ASSETS_TO_CACHE = [
   './assets/backdrops/backdrop_sunken_grotto.svg',
   './assets/backdrops/backdrop_tea_salon.svg',
   './assets/backdrops/backdrop_underground_river_cavern.svg',
-  './assets/backdrops/backdrop_village_district.svg'
+  './assets/backdrops/backdrop_village_district.svg',
+  './assets/backdrops/backdrop_foyer.svg',
+  './assets/backdrops/backdrop_library.svg',
+  './assets/backdrops/backdrop_garden.svg',
+  './assets/backdrops/backdrop_greenhouse.svg',
+  './assets/backdrops/backdrop_dining.svg',
+  './assets/backdrops/backdrop_gallery.svg',
+  './assets/backdrops/backdrop_bakery.svg',
+  './assets/backdrops/backdrop_observatory.svg',
+  './assets/backdrops/backdrop_clocktower.svg',
+  './assets/backdrops/backdrop_mastersuite.svg',
+  './assets/backdrops/backdrop_ballroom.svg',
+  './assets/backdrops/backdrop_cathedral.svg',
+  './assets/backdrops/backdrop_lab.svg',
+  './assets/backdrops/backdrop_crypt.svg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -79,7 +93,16 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResp) => {
-      return cachedResp || fetch(event.request).catch(() => caches.match('./index.html'));
+      return cachedResp || fetch(event.request).catch((err) => {
+        // Prevent JS modules from falling back to index.html (which causes opaque syntax errors)
+        if (event.request.url.endsWith('.js')) {
+          return new Response('console.error("SW: Failed to fetch module", "' + event.request.url + '");', {
+            status: 404,
+            headers: { 'Content-Type': 'application/javascript' }
+          });
+        }
+        return caches.match('./index.html');
+      });
     })
   );
 });

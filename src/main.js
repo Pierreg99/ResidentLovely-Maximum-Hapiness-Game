@@ -131,12 +131,18 @@ const persistenceSystem = new PersistenceSystem(gameState, lanternMeshes, QUESTS
   onToast: showToast
 });
 
-// Initialize 3D world & entities
-initRooms();
-initDestructibles();
-initPlayer();
-initGrumps();
-initBoss();
+try {
+  // Initialize 3D world & entities
+  initRooms();
+  initDestructibles();
+  initPlayer();
+  initGrumps();
+  initBoss();
+} catch (e) {
+  const errTxt = document.getElementById('loading-status-text');
+  if (errTxt) errTxt.textContent = "INIT ERROR: " + e.message;
+  console.error("Initialization Error:", e);
+}
 
 // Weapon selection handler
 const weaponOrder = ['pistol', 'shotgun', 'mortar', 'beam'];
@@ -843,51 +849,57 @@ function handleContextInteract() {
   }
 }
 
-// Input Integration
-initInput({
-  onToggleInventory: () => inventorySystem.toggle(),
-  onToggleQuestLog: () => questSystem.toggle(),
-  onToggleFullMap: () => minimapSystem.toggleFullMap(),
-  onContextInteract: handleContextInteract,
-  onQuickTurn: performQuickTurn,
-  onCycleViewMode: handleCycleViewMode,
-  onFire: () => triggerWeaponFire(gameState, cameraController, {
-    onToast: showToast,
-    onGrumpUplifted: () => {
-      const qUplift = QUESTS.find(q => q.id === 'quest_uplift');
-      if (qUplift) {
-        const t = qUplift.tasks[0];
-        t.count = gameState.grumpsUpliftedCount;
-        t.text = `Uplift all 10 Gloomy Grump plushies (${t.count}/10)`;
-        if (t.count >= 10) {
-          t.done = true;
-          questSystem.checkAllDone();
+try {
+  // Input Integration
+  initInput({
+    onToggleInventory: () => inventorySystem.toggle(),
+    onToggleQuestLog: () => questSystem.toggle(),
+    onToggleFullMap: () => minimapSystem.toggleFullMap(),
+    onContextInteract: handleContextInteract,
+    onQuickTurn: performQuickTurn,
+    onCycleViewMode: handleCycleViewMode,
+    onFire: () => triggerWeaponFire(gameState, cameraController, {
+      onToast: showToast,
+      onGrumpUplifted: () => {
+        const qUplift = QUESTS.find(q => q.id === 'quest_uplift');
+        if (qUplift) {
+          const t = qUplift.tasks[0];
+          t.count = gameState.grumpsUpliftedCount;
+          t.text = `Uplift all 10 Gloomy Grump plushies (${t.count}/10)`;
+          if (t.count >= 10) {
+            t.done = true;
+            questSystem.checkAllDone();
+          }
+          questSystem.render();
         }
-        questSystem.render();
       }
-    }
-  }),
-  onSetWeapon: setWeapon,
-  onCycleWeapon: cycleWeapon,
-  onToggleAim: toggleAim,
-  onRotateCamera: (deltaYaw, deltaPitch = 0) => {
-    player.rotation -= deltaYaw;
-    cameraController.addPitch(deltaPitch);
-  },
-  onToast: showToast
-});
-
-const btnRestart = document.getElementById('btn-restart-party');
-if (btnRestart) {
-  btnRestart.addEventListener('click', () => {
-    document.getElementById('party-banner').style.display = 'none';
-    showToast('KEEP SPREADING MAXIMUM HAPPINESS ACROSS THE WORLD!');
+    }),
+    onSetWeapon: setWeapon,
+    onCycleWeapon: cycleWeapon,
+    onToggleAim: toggleAim,
+    onRotateCamera: (deltaYaw, deltaPitch = 0) => {
+      player.rotation -= deltaYaw;
+      cameraController.addPitch(deltaPitch);
+    },
+    onToast: showToast
   });
-}
 
-// Load Save Data & Initial Render
-loadGame(gameState, lanternMeshes, QUESTS, inventorySystem, questSystem);
-questSystem.render();
+  const btnRestart = document.getElementById('btn-restart-party');
+  if (btnRestart) {
+    btnRestart.addEventListener('click', () => {
+      document.getElementById('party-banner').style.display = 'none';
+      showToast('KEEP SPREADING MAXIMUM HAPPINESS ACROSS THE WORLD!');
+    });
+  }
+
+  // Load Save Data & Initial Render
+  loadGame(gameState, lanternMeshes, QUESTS, inventorySystem, questSystem);
+  questSystem.render();
+} catch(e) {
+  const errTxt = document.getElementById('loading-status-text');
+  if (errTxt) errTxt.textContent = "SETUP ERROR: " + e.message;
+  console.error("Setup Error:", e);
+}
 
 window.__petCompanion = (idx) => {
   companionSquad.petCompanion(idx, { onToast: showToast });
