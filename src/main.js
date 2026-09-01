@@ -115,6 +115,13 @@ const inventorySystem = new InventorySystem(gameState, {
         q5.tasks[2].done = true;
         questSystem.render();
       }
+    } else if (itemId === 'macaron_rainbow' || itemId === 'bliss_cupcake') {
+      const q11 = QUESTS.find(q => q.id === 'quest_confectionery_gp');
+      if (q11) {
+        q11.tasks[0].done = true;
+        questSystem.checkAllDone();
+        questSystem.render();
+      }
     }
   }
 });

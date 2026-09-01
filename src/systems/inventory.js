@@ -99,6 +99,20 @@ export const ITEMS_DB = {
     type: 'consumable',
     icon: '<path d="M4 14h16l-2 8H6z" fill="#f59e0b"/><circle cx="12" cy="9" r="7" fill="#a855f7"/><polygon points="12 2 14 7 9 7" fill="#22d3ee"/>'
   },
+  macaron_rainbow: {
+    id: 'macaron_rainbow',
+    name: 'RAINBOW STARLIGHT MACARON',
+    desc: 'Crisp meringue pastry with stardust cream. Restores 100% Joy and grants 20s Sparkle Dash buff!',
+    type: 'consumable',
+    icon: '<ellipse cx="12" cy="8" rx="8" ry="4" fill="#f472b6"/><rect x="4" y="8" width="16" height="4" fill="#fff"/><ellipse cx="12" cy="12" rx="8" ry="4" fill="#38bdf8"/>'
+  },
+  cotton_candy: {
+    id: 'cotton_candy',
+    name: 'SPARKLE COTTON CANDY',
+    desc: 'Fluffy cloud of spun sugar on a golden stick. Fully protects against gloom for 30 seconds!',
+    type: 'consumable',
+    icon: '<circle cx="12" cy="9" r="7" fill="#ec4899" opacity="0.85"/><line x1="12" y1="14" x2="12" y2="22" stroke="#f59e0b" stroke-width="2"/>'
+  },
   diary_page_1: {
     id: 'diary_page_1',
     name: 'CHÂTEAU DIARY: THE GRAND ROTUNDA',
@@ -496,8 +510,33 @@ export class InventorySystem {
       this.consumeSlot(idx2);
       this.addItem('elixir_hyper', 1);
       audio.playCheer();
+      audio.playKawaiiSparkleChime();
       if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: HYPER BLISS CONFECTION! ★');
       if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('elixir_hyper');
+      return;
+    }
+
+    // 7. Double Herb + Prismatic Sugar = Rainbow Starlight Macaron
+    if (ids === 'herb_double+sugar_crystal') {
+      this.consumeSlot(idx1);
+      this.consumeSlot(idx2);
+      this.addItem('macaron_rainbow', 1);
+      audio.playCheer();
+      audio.playKawaiiSparkleChime();
+      if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: RAINBOW STARLIGHT MACARON! ★');
+      if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('macaron_rainbow');
+      return;
+    }
+
+    // 8. Sweet Red Powder + Gold Ribbon = Sparkle Cotton Candy
+    if (ids === 'powder_red+ribbon_gold') {
+      this.consumeSlot(idx1);
+      this.consumeSlot(idx2);
+      this.addItem('cotton_candy', 1);
+      audio.playCheer();
+      audio.playKawaiiSparkleChime();
+      if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: SPARKLE COTTON CANDY! ★');
+      if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('cotton_candy');
       return;
     }
 

@@ -78,6 +78,20 @@ class TestSweetKawaiiOverhaul(unittest.TestCase):
         self.assertIn("updateHeartBubbles", self.main_js)
         self.assertIn("updateSparkleFootsteps", self.main_js)
 
+    # 7. Sweet Items & Confectionery Alchemy
+    def test_sweet_items_and_recipes(self):
+        self.assertIn("macaron_rainbow", self.inventory_js)
+        self.assertIn("cotton_candy", self.inventory_js)
+        self.assertIn("RAINBOW STARLIGHT MACARON", self.inventory_js)
+        self.assertIn("SPARKLE COTTON CANDY", self.inventory_js)
+
+    # 8. Sweet Kawaii Quests (Quest 11 & 12)
+    def test_sweet_kawaii_quests_registered(self):
+        with open(os.path.join(SRC_DIR, "systems", "quests.js"), "r", encoding="utf-8") as f:
+            quests_js = f.read()
+        self.assertIn("QUEST 11: SWEET CONFECTIONERY GRAND PRIX", quests_js)
+        self.assertIn("QUEST 12: THE GREAT JOY SQUAD PARADE", quests_js)
+
 
 if __name__ == '__main__':
     unittest.main()

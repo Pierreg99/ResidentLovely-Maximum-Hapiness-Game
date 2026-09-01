@@ -106,6 +106,26 @@ export const QUESTS = [
       { id: 't_boss_uplift', text: 'Uplift the Grand Gloom Behemoth Boss (0/300 HP)', done: false },
       { id: 't_spread_joy', text: 'Spread eternal happiness across the entire Château de la Joie', done: false }
     ]
+  },
+  {
+    id: 'quest_confectionery_gp',
+    name: 'QUEST 11: SWEET CONFECTIONERY GRAND PRIX',
+    desc: 'Craft a Rainbow Starlight Macaron or Mega Bliss Cupcake and inspect the Royal Confectionery Oven in S07 Bakery.',
+    status: 'active',
+    tasks: [
+      { id: 't_craft_macaron', text: 'Craft a Rainbow Starlight Macaron in inventory', done: false },
+      { id: 't_inspect_oven', text: 'Inspect the Royal Confectionery Oven in S07 Bakery', done: false }
+    ]
+  },
+  {
+    id: 'quest_joy_parade',
+    name: 'QUEST 12: THE GREAT JOY SQUAD PARADE',
+    desc: 'Recruit 4 Grump companions into the Joy Parade and pet them to activate the +25% Speed Joy Buff.',
+    status: 'active',
+    tasks: [
+      { id: 't_recruit_parade', text: 'Recruit 4 Companion followers into the Joy Squad', done: false },
+      { id: 't_pet_all_squad', text: 'Pet your companion to activate the +25% Speed Joy Buff', done: false }
+    ]
   }
 ];
 
