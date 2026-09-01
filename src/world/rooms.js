@@ -370,6 +370,44 @@ export function setupRoomMetadata(roomGroup, sectorId, dimensions, interactables
   };
 }
 
+/**
+ * Creates an illuminated connecting colonnade/corridor with marble floor, pillars, and sconces.
+ */
+export function createConnectingColonnade({
+  length = 18,
+  width = 6.0,
+  height = 8.0,
+  wallMat,
+  trimMat,
+  floorMat,
+  isZAxis = true
+}) {
+  const g = new THREE.Group();
+  g.name = 'connecting_colonnade';
+
+  // Floor
+  const floorGeo = isZAxis ? new THREE.BoxGeometry(width, 0.2, length) : new THREE.BoxGeometry(length, 0.2, width);
+  const floor = new THREE.Mesh(floorGeo, floorMat || new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.18 }));
+  floor.position.y = -0.1;
+  floor.receiveShadow = true;
+  g.add(floor);
+
+  // Pillars & Archways along sides
+  const pillarCount = Math.floor(length / 4);
+  for (let i = 0; i <= pillarCount; i++) {
+    const offset = -length / 2 + i * 4;
+    for (let sign of [-1, 1]) {
+      const p = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, height, 16), trimMat || new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 }));
+      p.position.y = height / 2;
+      if (isZAxis) p.position.set(sign * (width / 2), height / 2, offset);
+      else p.position.set(offset, height / 2, sign * (width / 2));
+      p.castShadow = true;
+      g.add(p);
+    }
+  }
+  return g;
+}
+
 // =========================================================================
 // INIT ROOMS - 32 SECTORS FULL 3D PROCEDURAL ARCHITECTURE
 // =========================================================================
@@ -468,6 +506,19 @@ export function initRooms() {
     gramophone.add(horn);
     gramophone.position.set(-8.5, 0, -8.5);
     g.add(gramophone);
+
+    // Grand Interconnecting Colonnades to Library (+X), Solarium (-X), and Greenhouse (+Z)
+    const eastColonnade = createConnectingColonnade({ length: 18, width: 5.5, height: 7.5, wallMat, trimMat: goldTrimMat, isZAxis: false });
+    eastColonnade.position.set(23, 0, 0);
+    g.add(eastColonnade);
+
+    const westColonnade = createConnectingColonnade({ length: 18, width: 5.5, height: 7.5, wallMat, trimMat: goldTrimMat, isZAxis: false });
+    westColonnade.position.set(-23, 0, 0);
+    g.add(westColonnade);
+
+    const northColonnade = createConnectingColonnade({ length: 18, width: 5.5, height: 7.5, wallMat, trimMat: goldTrimMat, isZAxis: true });
+    northColonnade.position.set(0, 0, 23);
+    g.add(northColonnade);
 
     setupRoomMetadata(g, 'S01', [28, 12, 28], [
       { id: 'foyer_piano', name: 'Grand Concert Piano', position: [6.5, 0, -3], type: 'piano' },

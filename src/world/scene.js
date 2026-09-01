@@ -785,3 +785,20 @@ export function updateSceneLighting(roomName) {
 
 export const muzzleLight = new THREE.PointLight(0xf59e0b, 0, 10);
 scene.add(muzzleLight);
+
+// Spatial Culling & Dynamic Point Light Throttling for 32+ Connected Chambers
+export function updateSpatialCulling(playerPos, maxDistance = 75.0) {
+  if (!playerPos) return;
+  const pX = playerPos.x;
+  const pZ = playerPos.z;
+
+  Object.values(sectorPointLights).forEach(ptLight => {
+    if (!ptLight) return;
+    const dx = ptLight.position.x - pX;
+    const dz = ptLight.position.z - pZ;
+    const distSq = dx * dx + dz * dz;
+    const isNearby = distSq < (maxDistance * maxDistance);
+    
+    ptLight.visible = isNearby;
+  });
+}
