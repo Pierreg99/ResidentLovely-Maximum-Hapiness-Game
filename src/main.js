@@ -1,4 +1,4 @@
-import { scene, renderer, updateParticles, spawnConfetti, updateStardust, updatePetals, updateSceneLighting } from './world/scene.js';
+import { scene, renderer, updateParticles, spawnConfetti, updateHeartBubbles, updateSparkleFootsteps, updateStardust, updatePetals, updateSceneLighting } from './world/scene.js';
 import { rooms, initRooms, lanternMeshes, groundItems, spawnGroundItem, updateGroundItems } from './world/rooms.js';
 import { SECTOR_REGISTRY, getSector } from './world/sectors.js';
 import { BackdropManager, createSectorBackdrop } from './world/backdrops.js';
@@ -930,6 +930,8 @@ function animate() {
   updateDestructibles(time);
   updateGroundItems(delta, time);
   updateParticles(delta);
+  updateHeartBubbles(delta, time);
+  updateSparkleFootsteps(delta);
   updateStardust(time, gameState.room);
   updatePetals(delta, time);
   GameModes.update(delta);

@@ -587,6 +587,109 @@ export function spawnConfetti(pos, count = 35) {
   }
 }
 
+// Floating Sweet Heart Bubbles
+export const heartBubbles = [];
+const heartShapeGeo = new THREE.OctahedronGeometry(0.22);
+const heartColors = [0xec4899, 0xf43f5e, 0xfb7185, 0xf472b6, 0xa855f7, 0x22d3ee];
+
+export function spawnHeartBubbles(pos, count = 16) {
+  for (let i = 0; i < count; i++) {
+    const color = heartColors[Math.floor(Math.random() * heartColors.length)];
+    const mat = new THREE.MeshBasicMaterial({
+      color,
+      wireframe: i % 2 === 0,
+      transparent: true,
+      opacity: 0.95
+    });
+    const mesh = new THREE.Mesh(heartShapeGeo, mat);
+    mesh.position.copy(pos).add(new THREE.Vector3((Math.random() - 0.5) * 0.8, Math.random() * 0.5, (Math.random() - 0.5) * 0.8));
+    mesh.scale.setScalar(0.4 + Math.random() * 0.6);
+
+    const vel = new THREE.Vector3(
+      (Math.random() - 0.5) * 1.8,
+      1.5 + Math.random() * 2.2,
+      (Math.random() - 0.5) * 1.8
+    );
+
+    heartBubbles.push({
+      mesh,
+      vel,
+      life: 1.8,
+      maxLife: 1.8,
+      swayPhase: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 4
+    });
+    scene.add(mesh);
+  }
+}
+
+export function updateHeartBubbles(delta, time) {
+  for (let i = heartBubbles.length - 1; i >= 0; i--) {
+    const b = heartBubbles[i];
+    b.life -= delta;
+    b.swayPhase += delta * 3.5;
+    
+    b.mesh.position.y += b.vel.y * delta;
+    b.mesh.position.x += (b.vel.x + Math.sin(b.swayPhase) * 0.8) * delta;
+    b.mesh.position.z += (b.vel.z + Math.cos(b.swayPhase) * 0.8) * delta;
+    
+    b.mesh.rotation.y += b.rotSpeed * delta;
+    b.mesh.rotation.z += b.rotSpeed * 0.5 * delta;
+
+    const alpha = Math.max(0, b.life / b.maxLife);
+    if (b.mesh.material) b.mesh.material.opacity = alpha;
+
+    if (b.life <= 0) {
+      scene.remove(b.mesh);
+      b.mesh.geometry.dispose();
+      b.mesh.material.dispose();
+      heartBubbles.splice(i, 1);
+    }
+  }
+}
+
+// Sparkle Footstep Stardust
+export const sparkleFootsteps = [];
+const sparkleGeo = new THREE.OctahedronGeometry(0.09);
+const sparkleColors = [0xfde047, 0xf472b6, 0x38bdf8, 0x4ade80, 0xc084fc];
+
+export function spawnSparkleFootstep(pos) {
+  if (sparkleFootsteps.length > 40) return; // Pool cap for performance
+  for (let i = 0; i < 3; i++) {
+    const color = sparkleColors[Math.floor(Math.random() * sparkleColors.length)];
+    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9 });
+    const mesh = new THREE.Mesh(sparkleGeo, mat);
+    mesh.position.copy(pos).add(new THREE.Vector3((Math.random() - 0.5) * 0.35, 0.08, (Math.random() - 0.5) * 0.35));
+    
+    sparkleFootsteps.push({
+      mesh,
+      life: 0.6,
+      maxLife: 0.6,
+      velY: 0.4 + Math.random() * 0.5
+    });
+    scene.add(mesh);
+  }
+}
+
+export function updateSparkleFootsteps(delta) {
+  for (let i = sparkleFootsteps.length - 1; i >= 0; i--) {
+    const s = sparkleFootsteps[i];
+    s.life -= delta;
+    s.mesh.position.y += s.velY * delta;
+    s.mesh.rotation.y += 6.0 * delta;
+    
+    const alpha = Math.max(0, s.life / s.maxLife);
+    if (s.mesh.material) s.mesh.material.opacity = alpha;
+
+    if (s.life <= 0) {
+      scene.remove(s.mesh);
+      s.mesh.geometry.dispose();
+      s.mesh.material.dispose();
+      sparkleFootsteps.splice(i, 1);
+    }
+  }
+}
+
 export function updateParticles(delta) {
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];

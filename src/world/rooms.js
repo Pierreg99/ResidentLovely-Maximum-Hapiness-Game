@@ -676,6 +676,37 @@ export function initRooms() {
       g.add(wheel);
     });
 
+    // 3D Sweet Kawaii Confectionery Display (Pastel Macarons & Giant Swirl Lollipops)
+    const macaronColors = [0xf472b6, 0x38bdf8, 0x4ade80, 0xfde047, 0xc084fc];
+    macaronColors.forEach((col, i) => {
+      const macMat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.3 });
+      const creamMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      
+      const macGroup = new THREE.Group();
+      const topShell = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.12, 16), macMat);
+      topShell.position.y = 0.08;
+      const cream = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.06, 16), creamMat);
+      const btmShell = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.12, 16), macMat);
+      btmShell.position.y = -0.08;
+      macGroup.add(topShell, cream, btmShell);
+      
+      macGroup.position.set(-2.5 + i * 1.25, 1.4, 0);
+      g.add(macGroup);
+    });
+
+    // Giant Swirling Candy Lollipops
+    for (let lx of [-3.2, 3.2]) {
+      const stickMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.2 });
+      const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.2, 12), stickMat);
+      stick.position.set(lx, 2.2, 1.2);
+      
+      const candyMat = new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xdb2777, emissiveIntensity: 0.3, roughness: 0.2 });
+      const candyHead = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.14, 24), candyMat);
+      candyHead.rotation.x = Math.PI / 2;
+      candyHead.position.set(lx, 3.1, 1.2);
+      g.add(stick, candyHead);
+    }
+
     setupRoomMetadata(g, 'S07', [26, 10, 26], [
       { id: 'royal_oven', name: 'Royal Confectionery Oven', position: [0, 1.8, -8.7], type: 'royal_oven' },
       { id: 'sugar_valve_cyan', name: 'Cyan Sugar Valve', position: [-6.5, 2.4, 10.5], type: 'sugar_valve_cyan' },

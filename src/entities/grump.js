@@ -2,6 +2,7 @@ import { rooms } from '../world/rooms.js';
 import { audio } from '../engine/audio.js';
 import { player } from './player.js';
 import { companionSquad } from './companion.js';
+import { spawnHeartBubbles, spawnConfetti } from '../world/scene.js';
 
 export const grumps = [];
 
@@ -230,6 +231,9 @@ export function upliftGrump(grump, amount, gameState, callbacks) {
   grump.barFill.geometry = new THREE.PlaneGeometry((grump.happiness / 100) * 1.15, 0.12);
   grump.barFill.position.x = -0.58 + (grump.happiness / 100) * 0.575;
 
+  // Emits small heart bubbles on every joyous hit
+  spawnHeartBubbles(grump.group.position, 4);
+
   if (grump.happiness >= 100 && !grump.isDancing) {
     grump.isDancing = true;
     grump.furMat.color.setHex(0xf59e0b);
@@ -239,7 +243,13 @@ export function upliftGrump(grump, amount, gameState, callbacks) {
 
     gameState.grumpsUpliftedCount++;
     companionSquad.addCompanion(grump);
+    
+    // Grand heart burst & celebratory kawaii chime
+    spawnHeartBubbles(grump.group.position.clone().add(new THREE.Vector3(0, 1.0, 0)), 24);
+    spawnConfetti(grump.group.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 40);
     audio.playCheer();
+    audio.playKawaiiSparkleChime();
+    
     if (callbacks.onToast) callbacks.onToast('★ GRUMP UPLIFTED! JOINED JOY PARADE! ★');
     if (callbacks.onGrumpUplifted) callbacks.onGrumpUplifted();
   }

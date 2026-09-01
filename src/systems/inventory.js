@@ -439,6 +439,7 @@ export class InventorySystem {
       this.consumeSlot(idx2);
       this.addItem('herb_double', 1);
       audio.playCheer();
+      audio.playKawaiiSparkleChime();
       if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: DOUBLE SPARKLE HERB (G+G)! ★');
       return;
     }
@@ -449,6 +450,7 @@ export class InventorySystem {
       this.consumeSlot(idx2);
       this.addItem('elixir_ultra', 1);
       audio.playCheer();
+      audio.playKawaiiSparkleChime();
       if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: ULTRA JOY ELIXIR (G+G+G)! ★');
       return;
     }
@@ -459,6 +461,7 @@ export class InventorySystem {
       this.consumeSlot(idx2);
       this.addItem('bliss_cupcake', 1);
       audio.playCheer();
+      audio.playKawaiiSparkleChime();
       if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: MEGA BLISS CUPCAKE! ★');
       if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('bliss_cupcake');
       return;
@@ -470,6 +473,7 @@ export class InventorySystem {
       this.consumeSlot(idx2);
       this.addItem('key_master', 1);
       audio.playCheer();
+      audio.playKawaiiSparkleChime();
       if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: MASTER BALLROOM KEY! ★');
       if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('key_master');
       return;

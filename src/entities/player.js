@@ -1,4 +1,4 @@
-import { scene } from '../world/scene.js';
+import { scene, spawnSparkleFootstep } from '../world/scene.js';
 import { rooms } from '../world/rooms.js';
 import { input } from '../engine/input.js';
 import { audio } from '../engine/audio.js';
@@ -212,7 +212,8 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
     player.position.x = THREE.MathUtils.clamp(player.position.x, roomCenter.x - roomBounds, roomCenter.x + roomBounds);
     player.position.z = THREE.MathUtils.clamp(player.position.z, roomCenter.z - roomBounds, roomCenter.z + roomBounds);
 
-    // Kawaii foot-hop and hair bounce physics
+    // Kawaii foot-hop, hair bounce physics, and sparkle footstep trail
+    spawnSparkleFootstep(player.position);
     player.meshBody.position.y = 0.65 + Math.abs(Math.sin(time * 14)) * 0.08;
     player.headGroup.position.y = Math.abs(Math.sin(time * 14)) * 0.08;
 

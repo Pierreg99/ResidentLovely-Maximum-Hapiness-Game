@@ -1,4 +1,4 @@
-import { scene, spawnConfetti } from '../world/scene.js';
+import { scene, spawnConfetti, spawnHeartBubbles } from '../world/scene.js';
 import { player } from './player.js';
 import { audio } from '../engine/audio.js';
 
@@ -70,7 +70,9 @@ export class CompanionSquad {
     player.speed = 9.2; // Buffed speed
 
     audio.playPop();
-    spawnConfetti(c.group.position.clone().add(new THREE.Vector3(0, 1, 0)), 30);
+    audio.playHeartPop();
+    spawnHeartBubbles(c.group.position.clone().add(new THREE.Vector3(0, 0.8, 0)), 16);
+    spawnConfetti(c.group.position.clone().add(new THREE.Vector3(0, 1, 0)), 20);
     if (callbacks.onToast) callbacks.onToast('★ PETTED COMPANION! +25% SPEED BUFF ACTIVE! ★');
     this.updateHUD();
   }
@@ -87,7 +89,9 @@ export class CompanionSquad {
       player.speed = 9.8;
 
       audio.playCheer();
-      spawnConfetti(c.group.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 50);
+      audio.playKawaiiSparkleChime();
+      spawnHeartBubbles(c.group.position.clone().add(new THREE.Vector3(0, 1.0, 0)), 28);
+      spawnConfetti(c.group.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 40);
       if (callbacks.onToast) callbacks.onToast('★ FED MEGA BLISS CUPCAKE! MAXIMUM PARADE JOY! ★');
       this.updateHUD();
     } else {
