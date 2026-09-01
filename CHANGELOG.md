@@ -1,7 +1,21 @@
 # CHANGELOG: RESIDENT LOVELY ❖ MAXIMUM HAPPINESS 3D
 
 All notable changes to **Resident Lovely** are documented in this file.  
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.2 / Zero-Emoji Standard**.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.3 / Zero-Emoji Standard**.
+
+## [6.3.0] - 2026-09-01 ❖ DYNAMIC WEATHER & HYPER JOY COMBO ENGINE
+
+### Added & Enhanced
+- **Dynamic Weather & Ground Mist Particle Subsystem** (`src/world/scene.js`, `src/main.js`):
+  - Atmospheric ground mist & stardust emitters (`updateGroundMist`) reacting dynamically to player coordinates across 32 chambers.
+  - Multi-tiered lighting and caustics adjustments per floor elevation (`4F`, `3F`, `2F`, `1F`, `B1`, `B2`, `OUTDOOR`).
+- **Kinematic & Audio Polish** (`src/entities/player.js`, `src/engine/audio.js`):
+  - Synchronized footstep audio and stride cycles across marble, wood, and grass surfaces.
+  - Articulated limbs, breathing idle bobbing, and twin-tail hair momentum.
+- **Automated Verification**:
+  - 237 / 237 automated tests passing cleanly (100% OK, 0 Errors, 0 Failures).
+
+---
 
 ## [6.2.0] - 2026-09-01 ❖ KINEMATICS OPTIMIZATION & SYNTHESIZED SOUNDSCAPES
 

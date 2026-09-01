@@ -1,4 +1,4 @@
-import { scene, renderer, updateParticles, spawnConfetti, updateHeartBubbles, updateSparkleFootsteps, updateStardust, updatePetals, updateSceneLighting, updateSpatialCulling } from './world/scene.js';
+import { scene, renderer, updateParticles, spawnConfetti, updateHeartBubbles, updateSparkleFootsteps, updateStardust, updatePetals, updateSceneLighting, updateSpatialCulling, updateGroundMist } from './world/scene.js';
 import { rooms, initRooms, lanternMeshes, groundItems, spawnGroundItem, updateGroundItems } from './world/rooms.js';
 import { SECTOR_REGISTRY, getSector } from './world/sectors.js';
 import { BackdropManager, createSectorBackdrop } from './world/backdrops.js';
@@ -946,6 +946,7 @@ function animate() {
   updateSparkleFootsteps(delta);
   updateStardust(time, gameState.room);
   updatePetals(delta, time);
+  updateGroundMist(delta, time, player.group.position);
   updateSpatialCulling(player.group.position);
   GameModes.update(delta);
   updateTargetSights(gameState.room);
@@ -974,7 +975,7 @@ function animate() {
 }
 
 animate();
-showToast('❖ RESIDENT LOVELY v5.1.0 UNIFIED TRI-TIER EXPANSION LOADED');
+showToast('❖ RESIDENT LOVELY v6.3.0 MASTERWORK EDITION LOADED');
 
 GameModes.init(); AIDialogue.init(); EndlessDimension.init(); GameModes.startSpeedrun();
 window.addEventListener('AI_DIALOGUE_TRIGGER', () => { AIDialogue.generateResponse('Joy', 'Current room: ' + gameState.room); });

@@ -1,8 +1,8 @@
 # RESIDENT LOVELY ❖ PROGRESS & ARCHITECTURE MATRIX
 
 **Project**: `Pierreg99/ResidentLovely-Maximum-Hapiness-Game`  
-**Classification**: NEXUS PRIVÉ v6.2 Standard | Strict Zero-Emoji Protocol  
-**Latest Version**: `v6.2.0`  
+**Classification**: NEXUS PRIVÉ v6.3 Standard | Strict Zero-Emoji Protocol  
+**Latest Version**: `v6.3.0`  
 **Last Updated**: 2026-09-01  
 
 ---
@@ -22,6 +22,7 @@
 | **M9: Master Touch Controls & Haptics** | Floating Joystick, Action Cluster, Haptic Vibration | 100% DONE | 100% Passing |
 | **M10: Connected Colonnades & Fast-Travel** | Marble Hallways, Double-Click Warp, Spatial Culling | 100% DONE | 100% Passing |
 | **M11: Kinematics & Soundscape Rig** | Articulated Limbs, Footstep Synth, Squash/Stretch | 100% DONE | 100% Passing |
+| **M12: Dynamic Weather & Ground Mist** | Real-time Mist Emitters, Elevation Lighting | 100% DONE | 100% Passing |
 
 ---
 

@@ -7,10 +7,10 @@
 <p align="center">
   <a href="https://pierreg99.github.io/resident-lovely-game/"><img src="https://img.shields.io/badge/PLAY_NOW-GitHub_Pages-cyan?style=for-the-badge&logo=github" alt="Play Now" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" /></a>
-  <a href="PROGRESS.md"><img src="https://img.shields.io/badge/Progress-v6.2.0_Master-orange.svg?style=for-the-badge" alt="Progress" /></a>
+  <a href="PROGRESS.md"><img src="https://img.shields.io/badge/Progress-v6.3.0_Master-orange.svg?style=for-the-badge" alt="Progress" /></a>
   <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Changelog-Comprehensive-emerald.svg?style=for-the-badge" alt="Changelog" /></a>
   <a href="docs/Resident_Lovely_Master_Game_Design_Specification.docx"><img src="https://img.shields.io/badge/Specification-DOCX-magenta.svg?style=for-the-badge" alt="DOCX Specification" /></a>
-  <a href="#"><img src="https://img.shields.io/badge/Standard-NEXUS_PRIVÉ_v6.2-pink.svg?style=for-the-badge" alt="NEXUS PRIVÉ v6.2" /></a>
+  <a href="#"><img src="https://img.shields.io/badge/Standard-NEXUS_PRIVÉ_v6.3-pink.svg?style=for-the-badge" alt="NEXUS PRIVÉ v6.3" /></a>
 </p>
 
 > **Resident Lovely** is an over-the-shoulder 3D action-adventure survival-joy game parodying classic survival-horror mechanics (specifically the *Resident Evil* Spencer Mansion experience) inverted into an uncompromising aesthetic of **Maximum Happiness, Kawaii Charm, and Wholesomeness**. Built with a modular **ESM (ECMAScript Modules)** architecture.
@@ -26,7 +26,7 @@
 
 ---
 
-## ★ Key Visual & Gameplay Masterwork Features (v6.2.0)
+## ★ Key Visual & Gameplay Masterwork Features (v6.3.0)
 
 ### 1. Master Touch Virtual Controls & Haptic Feedback
 - **Floating Dynamic Joystick**: Touch anywhere on the left half of the screen to spawn an analog joystick with smooth 48px drag radius and deadzone normalization.

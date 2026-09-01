@@ -802,3 +802,44 @@ export function updateSpatialCulling(playerPos, maxDistance = 75.0) {
     ptLight.visible = isNearby;
   });
 }
+
+// Ground Mist & Floating Stardust Weather System
+export const groundMistParticles = [];
+const mistGeo = new THREE.PlaneGeometry(2.4, 2.4);
+const mistMat = new THREE.MeshBasicMaterial({
+  color: 0xfbcfe8,
+  transparent: true,
+  opacity: 0.12,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+  side: THREE.DoubleSide
+});
+
+export function updateGroundMist(delta, time, playerPos) {
+  if (!playerPos) return;
+  if (groundMistParticles.length < 24 && Math.random() < 0.2) {
+    const mesh = new THREE.Mesh(mistGeo, mistMat);
+    const offsetX = (Math.random() - 0.5) * 32.0;
+    const offsetZ = (Math.random() - 0.5) * 32.0;
+    mesh.position.set(playerPos.x + offsetX, 0.15 + Math.random() * 0.35, playerPos.z + offsetZ);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.rotation.z = Math.random() * Math.PI * 2;
+    groundMistParticles.push({
+      mesh,
+      life: 4.5,
+      maxLife: 4.5,
+      rotVel: (Math.random() - 0.5) * 0.25
+    });
+    scene.add(mesh);
+  }
+
+  for (let i = groundMistParticles.length - 1; i >= 0; i--) {
+    const p = groundMistParticles[i];
+    p.life -= delta;
+    p.mesh.rotation.z += p.rotVel * delta;
+    if (p.life <= 0) {
+      scene.remove(p.mesh);
+      groundMistParticles.splice(i, 1);
+    }
+  }
+}
