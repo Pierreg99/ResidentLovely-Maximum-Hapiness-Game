@@ -8,11 +8,14 @@
   <link rel="manifest" href="./manifest.json">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="./css/style.css">
-  <!-- Three.js (r128 Local with CDN Fallback) -->
-  <script src="./js/three.min.js"></script>
+  <!-- Three.js (r128 CDN with Local Fallback) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     if (typeof THREE === 'undefined') {
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+      const s = document.createElement('script');
+      s.src = './js/three.min.js';
+      s.async = false;
+      document.head.appendChild(s);
     }
   </script>
 </head>
@@ -482,7 +485,7 @@
   </div>
 
   <!-- 3D ITEM INSPECTION MODAL -->
-  <div id="inspect-modal">
+  <div id="inspect-modal" style="display:none;">
     <div class="inspect-box">
       <div id="inspect-title" class="save-title">INSPECT ITEM</div>
       <canvas id="inspect-canvas" width="220" height="220"></canvas>
@@ -493,7 +496,7 @@
   </div>
 
   <!-- AUTHENTIC TYPEWRITER / GRAMOPHONE SAVE DIALOG MODAL -->
-  <div id="save-modal">
+  <div id="save-modal" style="display:none;">
     <div class="save-card">
       <div class="save-title">★ GRAND MEMORY CHRONICLE ★</div>
       <div class="save-sub">Will you record your joyful journey in the Château Chronicle?<br><span style="color:var(--gold-accent);">Data will be saved to Memory Card Slot 1.</span></div>
@@ -505,7 +508,7 @@
   </div>
 
   <!-- QUEST & TASK LOG MODAL -->
-  <div id="quest-modal" class="modal-overlay">
+  <div id="quest-modal" class="modal-overlay" style="display:none;">
     <div class="modal-header">
       <div class="modal-title">★ CHÂTEAU MISSION & QUEST LOG ★</div>
       <button id="quest-close-btn" class="modal-close-btn">[X] CLOSE (ESC)</button>
@@ -515,7 +518,7 @@
   </div>
 
   <!-- PIANO MELODY PUZZLE MODAL -->
-  <div id="piano-modal">
+  <div id="piano-modal" style="display:none;">
     <div class="piano-title">❖ GRAND PIANO: PLAY THE HAPPINESS TRIAD ❖</div>
     <div style="font-family:var(--font-mono);font-size:9.5px;color:var(--text-dim);">Sequence: [C] ➔ [E] ➔ [G]</div>
     <div class="piano-keys">
@@ -530,7 +533,7 @@
   </div>
 
   <!-- Door Transition Curtain -->
-  <div id="door-curtain">
+  <div id="door-curtain" style="display:none;">
     <svg class="door-svg" viewBox="0 0 100 140">
       <rect x="10" y="10" width="80" height="120" rx="4" />
       <circle cx="25" cy="70" r="6" />
@@ -540,7 +543,7 @@
   </div>
 
   <!-- Victory Banner -->
-  <div id="party-banner">
+  <div id="party-banner" style="display:none;">
     <div class="party-title">★ ALL QUESTS ACCOMPLISHED! ★</div>
     <div class="party-sub">The Gloom has vanished! The Château de la Joie is illuminated in eternal confetti bliss!</div>
     <button id="btn-restart-party" class="modal-close-btn" style="border-color:var(--magenta-bliss);color:var(--magenta-bliss);">CONTINUE CELEBRATING</button>

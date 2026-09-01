@@ -5,6 +5,9 @@ scene.background = new THREE.Color(0x05070a);
 // Clean Linear Fog that preserves room clarity across all wings
 scene.fog = new THREE.Fog(0x05070a, 35, 110);
 
+const initW = (typeof window !== 'undefined' && window.innerWidth) ? window.innerWidth : 800;
+const initH = (typeof window !== 'undefined' && window.innerHeight) ? window.innerHeight : 600;
+
 export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -13,20 +16,28 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.25;
 
-const container = document.getElementById('canvas-container');
-if (container) container.appendChild(renderer.domElement);
+if (typeof document !== 'undefined') {
+  const container = document.getElementById('canvas-container');
+  if (container && renderer.domElement) {
+    container.appendChild(renderer.domElement);
+  }
+}
 
-window.addEventListener('resize', () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-});
+if (typeof window !== 'undefined') {
+  window.addEventListener('resize', () => {
+    const w = window.innerWidth || 800;
+    const h = window.innerHeight || 600;
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  });
+}
 
-// Dynamic Ambient Light
-export const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.65);
+// Dynamic Ambient Light (Bright & Vibrant)
+export const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.85);
 scene.add(ambientLight);
 
 // Primary Directional Sun Light
-export const sunLight = new THREE.DirectionalLight(0xffedd5, 1.1);
+export const sunLight = new THREE.DirectionalLight(0xffedd5, 1.35);
 sunLight.position.set(15, 32, 15);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.width = 1024;

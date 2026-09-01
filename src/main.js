@@ -974,6 +974,8 @@ function animate() {
   }
 }
 
+// Initial camera setup before render
+cameraController.update(player, 0.016, gameState.room);
 animate();
 showToast('❖ RESIDENT LOVELY v6.3.0 MASTERWORK EDITION LOADED');
 
