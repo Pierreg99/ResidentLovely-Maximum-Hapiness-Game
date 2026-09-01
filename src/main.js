@@ -347,6 +347,12 @@ function checkContextualInteractions() {
         promptBox.style.display = 'flex';
         return;
       }
+      if (pPos.distanceTo(new THREE.Vector3(0, 1.0, 10)) < 3.0) {
+        currentInteractable = { type: "endless" };
+        promptText.textContent = "ENTER ENDLESS ROGUELIKE DIMENSION";
+        promptBox.style.display = "flex";
+        return;
+      }
       if (pPos.distanceTo(new THREE.Vector3(13.5, 0, 0)) < 2.8) {
         currentInteractable = { type: 'door_library' };
         promptText.textContent = gameState.unlockedDoors.library ? 'ENTER EAST WING LIBRARY' : 'LOCKED: REQUIRES FOYER KEY';
@@ -545,6 +551,7 @@ function handleContextInteract() {
     return;
   }
 
+  if (currentInteractable.type === 'endless') { EndlessDimension.enterPortal(); showToast('ENTERING ENDLESS DIMENSION'); audio.playPop(); return; }
   if (currentInteractable.type === 'piano') { openPianoPuzzle(); return; }
 
   // Stair Traversals
@@ -661,6 +668,11 @@ function handleContextInteract() {
   if (currentInteractable.type === 'sugar_harvest') {
     const added = inventorySystem.addItem('sugar_crystal', 1);
     if (added) {
+      audio.playPop();
+      showToast("OBTAINED: PRISMATIC SUGAR CRYSTAL");
+    }
+    return;
+  }
   // Sugar Pressure Valves in Royal Bakery (S07)
   if (currentInteractable.type === 'sugar_valve_cyan') {
     audio.playValveTurnChime(523.25);
@@ -949,4 +961,5 @@ function animate() {
 animate();
 showToast('❖ RESIDENT LOVELY v5.1.0 UNIFIED TRI-TIER EXPANSION LOADED');
 
-GameModes.init(); AIDialogue.init(); GameModes.startSpeedrun();
+GameModes.init(); AIDialogue.init(); EndlessDimension.init(); GameModes.startSpeedrun();
+window.addEventListener('AI_DIALOGUE_TRIGGER', () => { AIDialogue.generateResponse('Joy', 'Current room: ' + gameState.room); });

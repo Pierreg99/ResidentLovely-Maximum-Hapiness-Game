@@ -61,8 +61,10 @@ RESIDENT LOVELY OVERALL COMPLETION MATRIX: [████████████
 - [x] 14 new navigable chambers — S19-S32 with collision, props, point lights
 - [x] Full E2E test suite — 109/109 tests passing
 
-## v6.0.0 — AI Companions & Advanced Modes Expansion (WIP)
-### Status: PHASE 1-3 BASE IMPLEMENTED
-- [x] AI-Driven Dialogue Engine (`ai_dialogue.js`) with LLM fallback support
-- [x] Time-Attack Speedrun Mode (`game_modes.js`) with persistent PB tracking
-- [x] Endless Dimension Roguelike Base (`endless_generator.js`)
+## v6.0.0 — AI Companions & Advanced Modes Expansion (2026-09-01)
+### Status: USER-APPROVED ✔ — Implementation & Verification Complete
+- [x] AI-Driven Dialogue Engine (`ai_dialogue.js`) with multi-companion personality support & procedural fallbacks
+- [x] Time-Attack Speedrun Mode (`game_modes.js`) with persistent PB tracking, split recording, and dedicated HUD
+- [x] Endless Dimension Roguelike Engine (`endless_generator.js`) with 7 biomes, 5 blessing modifiers, scaling difficulty, and rewards
+- [x] Companion Squad AI (`companion.js`) with marching formation, affection meter, petting speed buff, and feeding mechanics
+- [x] Full Automated Test Suite (`tests/test_v6_advanced_modes.py`) — 227/227 tests passing (100% OK)

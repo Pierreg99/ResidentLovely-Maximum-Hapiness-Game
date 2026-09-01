@@ -3,6 +3,23 @@
 All notable changes to **Resident Lovely** are documented in this file.  
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.0 / Zero-Emoji Standard**.
 
+## [6.0.0] - 2026-09-01 ❖ ADVANCED MODES & ROGUELIKE EXPANSION
+
+### Added & Enhanced
+- **Endless Dimension Roguelike Engine** (`src/systems/endless_generator.js`):
+  - Procedural floor generation across 7 biomes (`estate`, `gothic`, `kawaii`, `subterranean`, `crystal`, `astronomical`, `clockwork`).
+  - 5 procedural blessing modifiers (`Joy Surge`, `Sparkle Haste`, `Balloon Bounty`, `Prismatic Aura`, `Grump Swarm`).
+  - Depth-scaling difficulty, randomized reward loot drops, and floor completion score multipliers.
+- **Time-Attack Speedrun Mode & HUD** (`src/systems/game_modes.js`):
+  - In-game precision split timer HUD with Personal Best (PB) persistence in `localStorage`.
+  - Boss split checkpoint recording (`recordSplit`) and mode switching API (`setMode`).
+- **AI Companion Dialogue System** (`src/systems/ai_dialogue.js`):
+  - Multi-companion personality fallback database for Agent Joy, Gloom Bear, Bun-Bun, and Master Chef.
+  - Contextual triggering for combat encounters, low joy vitality, boss battles, and endless dimension navigation.
+- **Automated Verification**:
+  - Added `tests/test_v6_advanced_modes.py` with 8 dedicated unit test cases.
+  - 227/227 total unit and adversarial stress tests passing (100% OK).
+
 ---
 
 ## [5.0.0] - 2026-08-30 ❖ CRYO OMEGA v5.0 UNIFIED MAJOR UPGRADE

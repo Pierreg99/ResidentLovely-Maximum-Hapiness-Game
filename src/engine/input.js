@@ -35,6 +35,7 @@ export function initInput(callbacks) {
     if (e.code === 'KeyQ') onToggleQuestLog();
     if (e.code === 'KeyM') onToggleFullMap();
     if (e.code === 'KeyE') onContextInteract();
+    if (e.code === 'KeyT') window.dispatchEvent(new CustomEvent('AI_DIALOGUE_TRIGGER'));
     if (e.code === 'KeyV') {
       if (onCycleViewMode) onCycleViewMode();
     }

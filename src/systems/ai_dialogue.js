@@ -72,12 +72,39 @@ export const AIDialogue = {
   },
 
   getProceduralFallback(speaker, context) {
+    const ctx = (context || '').toLowerCase();
+    
     if (speaker === 'Joy') {
-      if (context.includes('low HP')) return "Be careful! You look gravely injured. We must find some herbs.";
-      if (context.includes('boss')) return "That presence... The Master Chef is close. Stay alert!";
-      return "I'll follow your lead. Let's explore this sector carefully.";
+      if (ctx.includes('low') || ctx.includes('hp') || ctx.includes('vitality')) {
+        return "Be careful! Your joy vitality is running low. Let's combine some sparkle herbs right away.";
+      }
+      if (ctx.includes('boss') || ctx.includes('chef') || ctx.includes('clockwork')) {
+        return "That powerful aura ahead... It must be the sector guardian! Ready your confetti blaster!";
+      }
+      if (ctx.includes('puzzle') || ctx.includes('piano') || ctx.includes('valve')) {
+        return "There's a subtle harmonic resonance in this chamber. Look closely at the glyph markings.";
+      }
+      if (ctx.includes('endless') || ctx.includes('dimension') || ctx.includes('void')) {
+        return "The Endless Dimension shifts beneath our feet. Keep your guard up and collect the blessing modifiers!";
+      }
+      return "The air feels warm with stardust. Let's explore every corner of this estate together.";
     }
-    return "The silence of the estate answers you.";
+
+    if (speaker === 'Gloom Bear') {
+      if (ctx.includes('boss')) return "The big boss is scary, but our sparkling friendship is stronger!";
+      return "I feel much happier following you! Look, shiny sparkles over there!";
+    }
+
+    if (speaker === 'Bun-Bun') {
+      if (ctx.includes('low')) return "Hop hop! Quick, munch on a Mega Bliss Cupcake!";
+      return "Hop! I smell fresh strawberry confetti around the corner!";
+    }
+
+    if (speaker === 'Master Chef') {
+      return "The secret ingredient to maximum joy was love and sweetness all along!";
+    }
+
+    return "A radiant shimmer of wholesome joy echoes softly through the chamber.";
   },
 
   typeText(speaker, text) {
