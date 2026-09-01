@@ -15,12 +15,17 @@ export const player = {
   speed: 7.4,
   meshBody: null,
   headGroup: new THREE.Group(),
+  leftLegGroup: new THREE.Group(),
+  rightLegGroup: new THREE.Group(),
+  leftArmGroup: new THREE.Group(),
+  rightArmGroup: new THREE.Group(),
   meshGun: null,
   eyes: [],
   leftPigtail: null,
   rightPigtail: null,
   laserGuide: null,
   beamMesh: null,
+  hairInertia: 0,
   setHeadVisibility: function(visible) {
     if (this.headGroup) this.headGroup.visible = visible;
   }
@@ -29,8 +34,18 @@ export const player = {
 export function initPlayer() {
   const pGroup = player.group;
 
-  // 1. Chibi Torso with Tactical Pastel Vest
+  // Shared Optimized Materials
   const vestMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.25 });
+  const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.2 });
+  const bootMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.4 });
+  const silverMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.1 });
+  const headMat = new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.45 });
+  const hairMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.4 });
+  const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.3 });
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x09090b });
+  const eyeHighlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+  // 1. Chibi Torso with Tactical Pastel Vest
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.44, 1.2, 16), vestMat);
   body.position.y = 0.65;
   body.castShadow = true;
@@ -38,7 +53,7 @@ export function initPlayer() {
   player.meshBody = body;
 
   // Gold S.M.I.L.E. Belt Buckle (+Z Front)
-  const buckle = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.46), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 }));
+  const buckle = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 0.46), goldTrimMat);
   buckle.position.set(0, 0.35, 0.2);
   pGroup.add(buckle);
 
@@ -48,41 +63,43 @@ export function initPlayer() {
   pGroup.add(pouch);
 
   // Golden Shoulder Epaulets
-  const epauletMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.2 });
   for (let sign of [-1, 1]) {
-    const epaulet = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.26), epauletMat);
+    const epaulet = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.26), goldTrimMat);
     epaulet.position.set(sign * 0.4, 1.15, 0);
     pGroup.add(epaulet);
   }
 
-  // Knee-High Tactical Boots with Buckles
-  const bootMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.4 });
-  const silverMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.1 });
+  // Articulated Left & Right Legs
   for (let sign of [-1, 1]) {
-    const boot = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.42, 12), bootMat);
-    boot.position.set(sign * 0.2, 0.2, 0);
+    const legGroup = sign < 0 ? player.leftLegGroup : player.rightLegGroup;
+    legGroup.position.set(sign * 0.2, 0.42, 0);
+
+    const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.26, 12), vestMat);
+    thigh.position.y = -0.12;
+    legGroup.add(thigh);
+
+    const boot = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.38, 12), bootMat);
+    boot.position.y = -0.32;
     boot.castShadow = true;
-    pGroup.add(boot);
+    legGroup.add(boot);
 
     const bootBuckle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 0.18), silverMat);
-    bootBuckle.position.set(sign * 0.2, 0.32, 0.08);
-    pGroup.add(bootBuckle);
+    bootBuckle.position.set(0, -0.22, 0.08);
+    legGroup.add(bootBuckle);
+
+    pGroup.add(legGroup);
   }
 
   // 2. Head Group (Can be culled in ADS First-Person Mode)
   const hGroup = player.headGroup;
   pGroup.add(hGroup);
 
-  const headMat = new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.45 });
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 20), headMat);
   head.position.y = 1.55;
   head.castShadow = true;
   hGroup.add(head);
 
   // Large Glossy Anime Eyes facing +Z Front
-  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x09090b });
-  const eyeHighlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-
   for (let x of [-0.16, 0.16]) {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), eyeMat);
     eye.scale.set(1, 1.3, 0.4);
@@ -90,7 +107,7 @@ export function initPlayer() {
     hGroup.add(eye);
     player.eyes.push(eye);
 
-    // Specular Star Highlight
+    // Specular Star Highlights
     const h1 = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), eyeHighlightMat);
     h1.position.set(x - 0.03, 1.62, 0.42);
     hGroup.add(h1);
@@ -112,13 +129,11 @@ export function initPlayer() {
   beret.rotation.z = 0.12;
   hGroup.add(beret);
 
-  const starBadge = new THREE.Mesh(new THREE.OctahedronGeometry(0.08), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 }));
+  const starBadge = new THREE.Mesh(new THREE.OctahedronGeometry(0.08), goldTrimMat);
   starBadge.position.set(-0.25, 1.92, 0.32);
   hGroup.add(starBadge);
 
   // 4. Bouncing Twin-Tail Hair Meshes with Pink Ribbon Bows (-Z Back)
-  const hairMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.4 });
-  const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.3 });
   const tailGeo = new THREE.ConeGeometry(0.12, 0.6, 12);
   tailGeo.rotateX(Math.PI);
 
@@ -142,25 +157,32 @@ export function initPlayer() {
   rightBow.position.set(0.38, 1.72, -0.12);
   hGroup.add(rightBow);
 
-  // Tactical Wrist Cuffs with Golden Clasps
+  // Articulated Arms & Tactical Wrist Cuffs
   const cuffMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.3 });
-  const goldCuffMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85 });
   for (let sign of [-1, 1]) {
-    const cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.09, 0.12, 12), cuffMat);
-    cuff.position.set(sign * 0.46, 0.82, 0.2);
-    pGroup.add(cuff);
+    const armGroup = sign < 0 ? player.leftArmGroup : player.rightArmGroup;
+    armGroup.position.set(sign * 0.44, 1.05, 0);
 
-    const clasp = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.08), goldCuffMat);
-    clasp.position.set(sign * 0.5, 0.82, 0.2);
-    pGroup.add(clasp);
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.44, 12), vestMat);
+    arm.position.y = -0.18;
+    armGroup.add(arm);
+
+    const cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.09, 0.12, 12), cuffMat);
+    cuff.position.y = -0.34;
+    armGroup.add(cuff);
+
+    const clasp = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.08), goldTrimMat);
+    clasp.position.set(sign * 0.04, -0.34, 0);
+    armGroup.add(clasp);
+
+    pGroup.add(armGroup);
   }
 
   // 5. Custom Mk-IV Confetti Blaster with Heart Tip (+Z Forward)
   const gunGroup = new THREE.Group();
-  gunGroup.position.set(0.42, 1.05, 0.4);
+  gunGroup.position.set(0.38, 0.95, 0.35);
 
-  const gunMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.2 });
-  const gun = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.22, 0.65), gunMat);
+  const gun = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.22, 0.65), goldTrimMat);
   gunGroup.add(gun);
 
   const muzzleHeart = new THREE.Mesh(new THREE.OctahedronGeometry(0.09), new THREE.MeshStandardMaterial({ color: 0xec4899 }));
@@ -200,18 +222,23 @@ export function performQuickTurn() {
   player.isQuickTurning = true;
   player.quickTurnTimer = 0.22; // 220ms quick-turn
   player.targetRotation = player.rotation + Math.PI;
+  player.hairInertia = Math.PI * 0.75;
   audio.playQuickTurn();
 }
 
 export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
-  // Eye Blinking Logic
+  // Eye Blinking & Sharpshooter Focus Logic
   player.blinkTimer -= delta;
   if (player.blinkTimer <= 0) {
     player.eyes.forEach(e => { e.scale.y = 0.1; });
     setTimeout(() => {
-      player.eyes.forEach(e => { e.scale.y = 1.3; });
+      const targetScaleY = player.isAiming ? 0.95 : 1.3;
+      player.eyes.forEach(e => { e.scale.y = targetScaleY; });
       player.blinkTimer = Math.random() * 3.5 + 2.5; // Next blink in 2.5-6s
     }, 120);
+  } else {
+    const targetScaleY = player.isAiming ? 0.95 : 1.3;
+    player.eyes.forEach(e => { e.scale.y = THREE.MathUtils.lerp(e.scale.y, targetScaleY, 0.2); });
   }
 
   // Handle 180 Quick-Turn Animation
@@ -224,9 +251,15 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
     }
   }
 
-  // Pitch weapon when aiming
+  // Pitch weapon & arm positioning when aiming
   if (player.isAiming && player.meshGun) {
     player.meshGun.rotation.x = -cameraPitch * 0.8;
+    if (player.leftArmGroup && player.rightArmGroup) {
+      player.rightArmGroup.rotation.x = -0.85 - cameraPitch * 0.7;
+      player.rightArmGroup.rotation.z = -0.25;
+      player.leftArmGroup.rotation.x = -0.75 - cameraPitch * 0.7;
+      player.leftArmGroup.rotation.z = 0.45;
+    }
   } else if (player.meshGun) {
     player.meshGun.rotation.x = 0;
   }
@@ -243,7 +276,9 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
     moveDir.z += input.moveY;
   }
 
-  if (moveDir.lengthSq() > 0.001) {
+  const isMoving = moveDir.lengthSq() > 0.001;
+
+  if (isMoving) {
     moveDir.normalize();
     const rotatedMove = moveDir.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
     player.position.addScaledVector(rotatedMove, player.speed * delta);
@@ -256,21 +291,68 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
     player.position.x = THREE.MathUtils.clamp(player.position.x, roomCenter.x - roomBounds, roomCenter.x + roomBounds);
     player.position.z = THREE.MathUtils.clamp(player.position.z, roomCenter.z - roomBounds, roomCenter.z + roomBounds);
 
-    // Kawaii foot-hop, hair bounce physics, and sparkle footstep trail
+    // Kawaii foot-hop, leg stride cycle, and sparkle footstep trail
     spawnSparkleFootstep(player.position);
     player.meshBody.position.y = 0.65 + Math.abs(Math.sin(time * 14)) * 0.08;
     player.headGroup.position.y = Math.abs(Math.sin(time * 14)) * 0.08;
 
+    // Articulated Leg Stride Swing
+    const stride = Math.sin(time * 14);
+    if (player.leftLegGroup && player.rightLegGroup) {
+      player.leftLegGroup.rotation.x = stride * 0.55;
+      player.rightLegGroup.rotation.x = -stride * 0.55;
+    }
+
+    // Arm Counter-Swing (when not aiming)
+    if (!player.isAiming && player.leftArmGroup && player.rightArmGroup) {
+      player.leftArmGroup.rotation.x = stride * 0.35;
+      player.leftArmGroup.rotation.z = 0.1;
+      player.rightArmGroup.rotation.x = -stride * 0.35;
+      player.rightArmGroup.rotation.z = -0.1;
+    }
+
+    // Bouncing Twin-Tail Dynamics
     if (player.leftPigtail && player.rightPigtail) {
-      player.leftPigtail.rotation.x = Math.sin(time * 14) * 0.32;
-      player.rightPigtail.rotation.x = -Math.sin(time * 14) * 0.32;
+      player.leftPigtail.rotation.x = Math.sin(time * 14) * 0.35;
+      player.rightPigtail.rotation.x = -Math.sin(time * 14) * 0.35;
+      player.leftPigtail.rotation.z = -0.3 + Math.sin(time * 7) * 0.15;
+      player.rightPigtail.rotation.z = 0.3 - Math.sin(time * 7) * 0.15;
     }
   } else {
-    player.meshBody.position.y = 0.65;
-    player.headGroup.position.y = 0;
+    // Breathing Idle Animation
+    const breath = Math.sin(time * 2.5);
+    player.meshBody.position.y = 0.65 + breath * 0.015;
+    player.headGroup.position.y = breath * 0.015;
+
+    // Settle legs
+    if (player.leftLegGroup && player.rightLegGroup) {
+      player.leftLegGroup.rotation.x = THREE.MathUtils.lerp(player.leftLegGroup.rotation.x, 0, 0.2);
+      player.rightLegGroup.rotation.x = THREE.MathUtils.lerp(player.rightLegGroup.rotation.x, 0, 0.2);
+    }
+
+    // Settle arms
+    if (!player.isAiming && player.leftArmGroup && player.rightArmGroup) {
+      player.leftArmGroup.rotation.x = THREE.MathUtils.lerp(player.leftArmGroup.rotation.x, breath * 0.06, 0.2);
+      player.leftArmGroup.rotation.z = THREE.MathUtils.lerp(player.leftArmGroup.rotation.z, 0.05, 0.2);
+      player.rightArmGroup.rotation.x = THREE.MathUtils.lerp(player.rightArmGroup.rotation.x, -breath * 0.06, 0.2);
+      player.rightArmGroup.rotation.z = THREE.MathUtils.lerp(player.rightArmGroup.rotation.z, -0.05, 0.2);
+    }
+
+    // Gentle Twin-Tail Sway
     if (player.leftPigtail && player.rightPigtail) {
-      player.leftPigtail.rotation.x = Math.sin(time * 3) * 0.08;
-      player.rightPigtail.rotation.x = Math.sin(time * 3) * 0.08;
+      player.leftPigtail.rotation.x = THREE.MathUtils.lerp(player.leftPigtail.rotation.x, breath * 0.08, 0.15);
+      player.rightPigtail.rotation.x = THREE.MathUtils.lerp(player.rightPigtail.rotation.x, breath * 0.08, 0.15);
+      player.leftPigtail.rotation.z = THREE.MathUtils.lerp(player.leftPigtail.rotation.z, -0.3, 0.15);
+      player.rightPigtail.rotation.z = THREE.MathUtils.lerp(player.rightPigtail.rotation.z, 0.3, 0.15);
+    }
+  }
+
+  // Apply hair inertia during quick turns
+  if (player.hairInertia > 0) {
+    player.hairInertia -= delta * 3.5;
+    if (player.leftPigtail && player.rightPigtail) {
+      player.leftPigtail.rotation.y = Math.sin(time * 20) * player.hairInertia;
+      player.rightPigtail.rotation.y = -Math.sin(time * 20) * player.hairInertia;
     }
   }
 

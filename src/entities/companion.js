@@ -126,13 +126,20 @@ export class CompanionSquad {
       // Face player direction
       c.group.rotation.y = pRot;
 
-      // Cute Bouncing Hop Animation
+      // Cute Bouncing Hop & Squash-and-Stretch Animation
       c.hopPhase += delta * 8.0;
       const isMoving = pPos.distanceTo(c.group.position) > 0.8;
       if (isMoving) {
-        c.group.position.y = targetY + Math.abs(Math.sin(c.hopPhase)) * 0.28;
+        const hop = Math.abs(Math.sin(c.hopPhase));
+        c.group.position.y = targetY + hop * 0.28;
+        if (c.body) {
+          c.body.scale.set(1.0 - hop * 0.12, 1.0 + hop * 0.22, 1.0 - hop * 0.12);
+        }
       } else {
         c.group.position.y = targetY + Math.sin(time * 3 + idx) * 0.06;
+        if (c.body) {
+          c.body.scale.set(1.0, 1.0, 1.0);
+        }
       }
     });
   }
