@@ -255,7 +255,11 @@ function changeRoom(newRoom, targetSpawnPos) {
 
   setTimeout(() => {
     gameState.room = newRoom;
-    player.group.position.copy(targetSpawnPos);
+    if (targetSpawnPos) player.group.position.copy(targetSpawnPos);
+    if (typeof window !== 'undefined') {
+      window.__changeRoom = changeRoom;
+      window.__playerPos = player.group.position;
+    }
 
     const sector = getSector(newRoom);
     if (sector) {
@@ -307,6 +311,7 @@ function changeRoom(newRoom, targetSpawnPos) {
     }, 450);
   }, 650);
 }
+if (typeof window !== 'undefined') window.__changeRoom = changeRoom;
 
 // Contextual Interaction Proximity Check
 const promptBox = document.getElementById('prompt-box');

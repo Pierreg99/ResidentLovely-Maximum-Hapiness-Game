@@ -419,6 +419,12 @@ export class MinimapSystem {
         const sectorSlug = el.getAttribute('data-sector-slug');
         this.inspectSector(sectorId || sectorSlug);
       });
+      el.addEventListener('dblclick', () => {
+        const sectorId = el.getAttribute('data-sector-id');
+        const sectorSlug = el.getAttribute('data-sector-slug');
+        this.fastTravel(sectorId || sectorSlug);
+        this.toggle();
+      });
     });
   }
 
