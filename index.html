@@ -8,14 +8,11 @@
   <link rel="manifest" href="./manifest.json">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="./css/style.css">
-  <!-- Three.js (r128 CDN with Local Fallback) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Three.js (Local Primary with Synchronous CDN Fallback) -->
+  <script src="./js/three.min.js"></script>
   <script>
     if (typeof THREE === 'undefined') {
-      const s = document.createElement('script');
-      s.src = './js/three.min.js';
-      s.async = false;
-      document.head.appendChild(s);
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
     }
   </script>
 </head>

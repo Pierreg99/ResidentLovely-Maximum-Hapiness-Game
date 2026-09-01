@@ -16,18 +16,28 @@ export class SoundEngine {
   }
 
   init() {
-    if (!this.ctx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioContext();
+    if (!this.ctx && typeof window !== 'undefined') {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        try {
+          this.ctx = new AudioContextClass();
+        } catch (e) {
+          console.warn('[AudioEngine]: AudioContext initialization deferred:', e);
+          this.ctx = null;
+        }
+      }
     }
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+    if (this.ctx && this.ctx.state === 'suspended') {
+      try {
+        this.ctx.resume().catch(() => {});
+      } catch (e) {}
     }
   }
 
   playPistol() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';
@@ -44,6 +54,7 @@ export class SoundEngine {
   playBubbleShot() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     for (let i = 0; i < 5; i++) {
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
@@ -62,6 +73,7 @@ export class SoundEngine {
   playMortarFire() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sawtooth';
@@ -78,6 +90,7 @@ export class SoundEngine {
   playExplosion() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const freqs = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
     freqs.forEach((f, i) => {
       const osc = this.ctx.createOscillator();
@@ -96,6 +109,7 @@ export class SoundEngine {
   startBeamSound() {
     if (this.muted || this.beamOsc) return;
     this.init();
+    if (!this.ctx) return;
     this.beamOsc = this.ctx.createOscillator();
     this.beamGain = this.ctx.createGain();
     this.beamOsc.type = 'sawtooth';
@@ -107,7 +121,7 @@ export class SoundEngine {
   }
 
   stopBeamSound() {
-    if (this.beamOsc) {
+    if (this.beamOsc && this.ctx) {
       try {
         this.beamGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.05);
         this.beamOsc.stop(this.ctx.currentTime + 0.05);
@@ -120,6 +134,7 @@ export class SoundEngine {
   playPop() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sine';
@@ -136,6 +151,7 @@ export class SoundEngine {
   playCheer() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const chord = [523.25, 659.25, 783.99, 1046.50, 1318.51];
     chord.forEach((freq, idx) => {
       const osc = this.ctx.createOscillator();
@@ -154,6 +170,7 @@ export class SoundEngine {
   playTypewriter() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';
@@ -181,6 +198,7 @@ export class SoundEngine {
   playQuickTurn() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sine';
@@ -197,6 +215,7 @@ export class SoundEngine {
   playPianoNote(freq) {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';
@@ -212,6 +231,7 @@ export class SoundEngine {
   playDoorChime() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const oscClick = this.ctx.createOscillator();
     const gainClick = this.ctx.createGain();
     oscClick.type = 'triangle';
@@ -241,6 +261,7 @@ export class SoundEngine {
   playGramophone() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50, 1318.51, 1567.98];
     notes.forEach((f, i) => {
       const osc = this.ctx.createOscillator();
@@ -259,6 +280,7 @@ export class SoundEngine {
   playLanternIgnite() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sawtooth';
@@ -351,6 +373,7 @@ export class SoundEngine {
   playRollingPinSlam() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'sine';
@@ -367,6 +390,7 @@ export class SoundEngine {
   playValveTurnChime(noteFreq = 440) {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';
@@ -383,6 +407,7 @@ export class SoundEngine {
   playTartSuccessJingle() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
     notes.forEach((freq, i) => {
       const osc = this.ctx.createOscillator();
@@ -401,6 +426,7 @@ export class SoundEngine {
   playKawaiiSparkleChime() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const notes = [659.25, 830.61, 987.77, 1318.51, 1567.98]; // E5, G#5, B5, E6, G6
     notes.forEach((freq, i) => {
       const osc = this.ctx.createOscillator();
@@ -419,6 +445,7 @@ export class SoundEngine {
   playHeartPop() {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';
@@ -435,6 +462,7 @@ export class SoundEngine {
   playFootstep(surface = 'marble') {
     if (this.muted) return;
     this.init();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     osc.type = 'triangle';

@@ -1028,6 +1028,17 @@ cameraController.update(player, 0.016, gameState.room);
 updateSceneLighting(gameState.room);
 updateLoadingStep(70, 'CALIBRATING AMBIENT LIGHT & GLSL SHADERS...');
 
+// Universal first user interaction audio unlock
+const unlockAudio = () => {
+  audio.init();
+  window.removeEventListener('pointerdown', unlockAudio);
+  window.removeEventListener('keydown', unlockAudio);
+  window.removeEventListener('touchstart', unlockAudio);
+};
+window.addEventListener('pointerdown', unlockAudio, { once: true });
+window.addEventListener('keydown', unlockAudio, { once: true });
+window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+
 // Stage 3: Shader Pre-warming & Ready Gate
 setTimeout(() => {
   prewarmShaders();
@@ -1042,5 +1053,8 @@ setTimeout(() => {
 
 animate();
 
-GameModes.init(); AIDialogue.init(); EndlessDimension.init(); GameModes.startSpeedrun();
+GameModes.init();
+AIDialogue.init();
+EndlessDimension.init();
+GameModes.startSpeedrun();
 window.addEventListener('AI_DIALOGUE_TRIGGER', () => { AIDialogue.generateResponse('Joy', 'Current room: ' + gameState.room); });
