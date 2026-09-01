@@ -1,4 +1,4 @@
-const CACHE_NAME = 'resident-lovely-v6.3.1-cache';
+const CACHE_NAME = 'resident-lovely-v6.3.2-cache';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -54,20 +54,6 @@ const ASSETS_TO_CACHE = [
   './assets/backdrops/backdrop_tea_salon.svg',
   './assets/backdrops/backdrop_underground_river_cavern.svg',
   './assets/backdrops/backdrop_village_district.svg',
-  './assets/backdrops/backdrop_foyer.svg',
-  './assets/backdrops/backdrop_library.svg',
-  './assets/backdrops/backdrop_garden.svg',
-  './assets/backdrops/backdrop_greenhouse.svg',
-  './assets/backdrops/backdrop_dining.svg',
-  './assets/backdrops/backdrop_gallery.svg',
-  './assets/backdrops/backdrop_bakery.svg',
-  './assets/backdrops/backdrop_observatory.svg',
-  './assets/backdrops/backdrop_clocktower.svg',
-  './assets/backdrops/backdrop_mastersuite.svg',
-  './assets/backdrops/backdrop_ballroom.svg',
-  './assets/backdrops/backdrop_cathedral.svg',
-  './assets/backdrops/backdrop_lab.svg',
-  './assets/backdrops/backdrop_crypt.svg'
 ];
 
 self.addEventListener('install', (event) => {
