@@ -64,11 +64,17 @@ const _initGraphics = () => {
     backdropManager = null;
   }
   try {
-    postProcessingComposer = createPostProcessingPipeline(renderer, scene, null, {
-      bloomStrength: 0.65,
-      bloomRadius: 0.4,
-      bloomThreshold: 0.72
-    });
+    const isMobile = (typeof window !== 'undefined' && window.innerWidth < 768);
+    if (!isMobile) {
+      postProcessingComposer = createPostProcessingPipeline(renderer, scene, null, {
+        bloomStrength: 0.65,
+        bloomRadius: 0.4,
+        bloomThreshold: 0.72
+      });
+    } else {
+      console.log('[v6.3.0] Mobile device detected. Disabled heavy post-processing (Bloom) for 60FPS.');
+      postProcessingComposer = null;
+    }
   } catch (e) {
     // EffectComposer not bundled in Three.js r128 CDN — graceful degradation
     postProcessingComposer = null;
