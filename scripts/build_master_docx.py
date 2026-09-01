@@ -1,6 +1,6 @@
 """
-Pure Python OpenXML DOCX Generator for Resident Lovely v6.1 Master Specification
-NEXUS PRIVE v6.1 Executive Standard | Zero-Emoji Protocol
+Pure Python OpenXML DOCX Generator for Resident Lovely v6.2 Master Specification
+NEXUS PRIVE v6.2 Executive Standard | Zero-Emoji Protocol
 """
 import os
 import zipfile
@@ -85,7 +85,7 @@ def build_docx(target_path):
                     <w:sz w:val="20"/>
                     <w:color w:val="64748B"/>
                 </w:rPr>
-                <w:t>Version 6.1.0 | Standard: NEXUS PRIVE v6.1 | Pierrefektion Architecture</w:t>
+                <w:t>Version 6.2.0 | Standard: NEXUS PRIVE v6.2 | Pierrefektion Architecture</w:t>
             </w:r>
         </w:p>
 

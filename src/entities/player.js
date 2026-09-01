@@ -26,6 +26,7 @@ export const player = {
   laserGuide: null,
   beamMesh: null,
   hairInertia: 0,
+  footstepTimer: 0,
   setHeadVisibility: function(visible) {
     if (this.headGroup) this.headGroup.visible = visible;
   }
@@ -296,8 +297,15 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
     player.meshBody.position.y = 0.65 + Math.abs(Math.sin(time * 14)) * 0.08;
     player.headGroup.position.y = Math.abs(Math.sin(time * 14)) * 0.08;
 
-    // Articulated Leg Stride Swing
+    // Articulated Leg Stride Swing & Synthesized Footstep Audio
     const stride = Math.sin(time * 14);
+    player.footstepTimer -= delta;
+    if (Math.abs(stride) > 0.85 && player.footstepTimer <= 0) {
+      const surface = (currentRoom === 'garden' || currentRoom === 'sacred_forest_trail') ? 'grass' : (currentRoom === 'library' ? 'wood' : 'marble');
+      audio.playFootstep(surface);
+      player.footstepTimer = 0.22; // Throttle to prevent audio overlapping
+    }
+
     if (player.leftLegGroup && player.rightLegGroup) {
       player.leftLegGroup.rotation.x = stride * 0.55;
       player.rightLegGroup.rotation.x = -stride * 0.55;

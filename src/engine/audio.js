@@ -432,6 +432,23 @@ export class SoundEngine {
     osc.stop(this.ctx.currentTime + 0.14);
   }
 
+  playFootstep(surface = 'marble') {
+    if (this.muted) return;
+    this.init();
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    const pitch = surface === 'grass' ? 180 : (surface === 'wood' ? 240 : 380);
+    osc.frequency.setValueAtTime(pitch, this.ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(pitch * 0.5, this.ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.06);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start();
+    osc.stop(this.ctx.currentTime + 0.06);
+  }
+
   stopBGM() {
     if (this.bgmTimer) {
       clearInterval(this.bgmTimer);

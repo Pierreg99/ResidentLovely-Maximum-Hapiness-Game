@@ -1,7 +1,27 @@
 # CHANGELOG: RESIDENT LOVELY ❖ MAXIMUM HAPPINESS 3D
 
 All notable changes to **Resident Lovely** are documented in this file.  
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.1 / Zero-Emoji Standard**.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.2 / Zero-Emoji Standard**.
+
+## [6.2.0] - 2026-09-01 ❖ KINEMATICS OPTIMIZATION & SYNTHESIZED SOUNDSCAPES
+
+### Added & Enhanced
+- **Articulated Kinematics & Locomotion Rig** (`src/entities/player.js`):
+  - Articulated `leftLegGroup` and `rightLegGroup` with natural counter-phase running strides (`stride = Math.sin(time * 14) * 0.55`).
+  - Articulated `leftArmGroup` and `rightArmGroup` supporting realistic arm swinging in sprint mode and two-handed weapon stabilization in aiming mode.
+  - Idle breathing dynamics (`Math.sin(time * 2.5) * 0.015`) and twin-tail angular momentum hair whipping during 180° quick-turns.
+  - Sharpshooter eye squinting when Aiming Down Sights (ADS).
+- **Plushie Grump & Companion Squash-and-Stretch Polish** (`src/entities/grump.js`, `src/entities/companion.js`):
+  - Added satin bowties, felt ear cushions, and stitched belly heart patches to Gloom Teddy Bear.
+  - Added white cotton tails and blush cheeks to Bunny, bell choker collars to Kitten, knit winter scarves to Penguin, and floating crowns to Ghostling.
+  - Rescued parade companions dynamically deform with squash-and-stretch volume preservation during bounding hops.
+- **Synthesized Footsteps Audio Engine** (`src/engine/audio.js`):
+  - Added `playFootstep(surface)` synthesized sound generation with material-aware pitch variation (marble clicks, wood thuds, and grass rustles).
+  - Synchronized footstep audio triggers on stride footfalls.
+- **Automated Verification**:
+  - 237 / 237 automated tests passing cleanly (100% OK, 0 Errors, 0 Failures).
+
+---
 
 ## [6.1.0] - 2026-09-01 ❖ MASTER TOUCH CONTROLS, REALISTIC ASSETS & FAST-TRAVEL NETWORK
 
