@@ -974,10 +974,73 @@ function animate() {
   }
 }
 
-// Initial camera setup before render
+// --- Master Kawaii Loading Screen & WebGL Pre-Warm Orchestrator ---
+const loadingScreen = document.getElementById('loading-screen');
+const loadingBarFill = document.getElementById('loading-bar-fill');
+const loadingStatusText = document.getElementById('loading-status-text');
+const btnEnterChateau = document.getElementById('btn-enter-chateau');
+
+let loadingProgress = 0;
+let gameStarted = false;
+
+function updateLoadingStep(progress, text) {
+  loadingProgress = Math.min(100, Math.max(loadingProgress, progress));
+  if (loadingBarFill) loadingBarFill.style.width = `${loadingProgress}%`;
+  if (loadingStatusText) loadingStatusText.textContent = `${text} ${loadingProgress}%`;
+}
+
+function prewarmShaders() {
+  try {
+    if (renderer && scene && cameraController && cameraController.camera) {
+      renderer.compile(scene, cameraController.camera);
+    }
+  } catch (e) {
+    console.warn('[Shader Pre-warm Notice]:', e);
+  }
+}
+
+function launchGame() {
+  if (gameStarted) return;
+  gameStarted = true;
+
+  try {
+    audio.init();
+    audio.updateBGMRoom(gameState.room);
+  } catch (e) {
+    // AudioContext unlock fallback
+  }
+
+  if (loadingScreen) {
+    loadingScreen.classList.add('fade-out');
+    setTimeout(() => {
+      loadingScreen.style.display = 'none';
+    }, 650);
+  }
+
+  showToast('❖ RESIDENT LOVELY v6.3.0 MASTERWORK EDITION READY ❖');
+}
+
+// Stage 1: Geometry and Entities Initialized
+updateLoadingStep(35, 'BUILDING CHÂTEAU SECTORS...');
+
+// Stage 2: Camera and Atmosphere Sync
 cameraController.update(player, 0.016, gameState.room);
+updateSceneLighting(gameState.room);
+updateLoadingStep(70, 'CALIBRATING AMBIENT LIGHT & GLSL SHADERS...');
+
+// Stage 3: Shader Pre-warming & Ready Gate
+setTimeout(() => {
+  prewarmShaders();
+  updateLoadingStep(100, 'CHÂTEAU DE LA JOIE READY!');
+
+  if (btnEnterChateau) {
+    btnEnterChateau.style.display = 'block';
+    btnEnterChateau.addEventListener('click', launchGame);
+    btnEnterChateau.addEventListener('touchstart', launchGame, { passive: true });
+  }
+}, 120);
+
 animate();
-showToast('❖ RESIDENT LOVELY v6.3.0 MASTERWORK EDITION LOADED');
 
 GameModes.init(); AIDialogue.init(); EndlessDimension.init(); GameModes.startSpeedrun();
 window.addEventListener('AI_DIALOGUE_TRIGGER', () => { AIDialogue.generateResponse('Joy', 'Current room: ' + gameState.room); });

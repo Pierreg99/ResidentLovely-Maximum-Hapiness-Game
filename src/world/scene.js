@@ -28,8 +28,21 @@ if (typeof window !== 'undefined') {
     const w = window.innerWidth || 800;
     const h = window.innerHeight || 600;
     renderer.setSize(w, h);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   });
+
+  if (renderer.domElement && typeof renderer.domElement.addEventListener === 'function') {
+    renderer.domElement.addEventListener('webglcontextlost', (event) => {
+      event.preventDefault();
+      console.warn('[WebGL Warning]: Context lost. Waiting for GPU restoration...');
+    }, false);
+
+    renderer.domElement.addEventListener('webglcontextrestored', () => {
+      console.info('[WebGL Info]: Context restored successfully.');
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    }, false);
+  }
 }
 
 // Dynamic Ambient Light (Bright & Vibrant)

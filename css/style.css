@@ -1317,3 +1317,120 @@ body, html {
   margin-bottom: 14px;
   line-height: 1.4;
 }
+
+/* Master Kawaii Loading Screen & WebGL Pre-Warm Splash */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at center, #0f172a 0%, #05070a 100%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+  pointer-events: auto;
+}
+
+#loading-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loading-card {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1.5px solid var(--border-cyan);
+  border-radius: 16px;
+  padding: 32px 28px;
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(34, 211, 238, 0.25);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loading-emblem {
+  font-size: 36px;
+  color: var(--cyan-glow);
+  filter: drop-shadow(0 0 10px var(--cyan-glow));
+  animation: emblemSpin 4s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes emblemSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.loading-title {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--cyan-glow);
+  text-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
+  margin-bottom: 4px;
+}
+
+.loading-subtitle {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--gold-accent);
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.loading-bar-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(2, 6, 23, 0.8);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.loading-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #22d3ee, #ec4899);
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
+  transition: width 0.25s ease-out;
+}
+
+.loading-status-text {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  min-height: 16px;
+}
+
+.btn-enter-chateau {
+  margin-top: 16px;
+  background: linear-gradient(135deg, #0284c7 0%, #ec4899 100%);
+  color: #ffffff;
+  border: 1px solid #fbcfe8;
+  border-radius: 24px;
+  padding: 10px 22px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+  animation: pulseButton 1.5s infinite alternate;
+  width: 100%;
+}
+
+@keyframes pulseButton {
+  0% { transform: scale(0.98); box-shadow: 0 0 10px rgba(34, 211, 238, 0.4); }
+  100% { transform: scale(1.02); box-shadow: 0 0 20px rgba(236, 72, 153, 0.8); }
+}
