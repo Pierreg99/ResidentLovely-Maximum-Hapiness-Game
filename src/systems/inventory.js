@@ -140,6 +140,34 @@ export const ITEMS_DB = {
     desc: '"Deep below in the Whispering Crypt sleeps the Grand Gloom Behemoth. He is not evil, just lonely. A direct beam of concentrated joy will restore his smile!"',
     type: 'lore',
     icon: '<rect x="4" y="3" width="16" height="18" rx="2" fill="#1e293b" stroke="#ec4899"/><line x1="7" y1="7" x2="17" y2="7" stroke="#ec4899"/><line x1="7" y1="11" x2="17" y2="11" stroke="#94a3b8"/><line x1="7" y1="15" x2="14" y2="15" stroke="#94a3b8"/>'
+  },
+  stardust_prism_core: {
+    id: 'stardust_prism_core',
+    name: 'STARDUST PRISM CORE',
+    desc: 'Synthesized matrix of star sapphire and crystalline sugar. Combine with Golden Ribbon for the Astral Supernova Wand!',
+    type: 'material',
+    icon: '<polygon points="12 2 22 12 12 22 2 12" fill="#38bdf8" stroke="#f59e0b" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="#f472b6"/>'
+  },
+  astral_supernova_wand: {
+    id: 'astral_supernova_wand',
+    name: 'ASTRAL SUPERNOVA WAND',
+    desc: 'The Sovereign Joy Tool of 5F Astral Spire. Emits concentrated starlight shockwaves that instantly radiate max joy!',
+    type: 'weapon',
+    icon: '<line x1="4" y1="20" x2="16" y2="8" stroke="#f59e0b" stroke-width="3"/><polygon points="18 4 21 9 16 11 13 6" fill="#38bdf8"/><circle cx="18" cy="6" r="3" fill="#ec4899"/>'
+  },
+  celestial_elixir: {
+    id: 'celestial_elixir',
+    name: 'CELESTIAL AMBROSIA ELIXIR',
+    desc: 'Divine nectar of the Astral Realm. Permanent 100% Joy Vitality and grants magnetic joy attraction!',
+    type: 'consumable',
+    icon: '<polygon points="12 2 20 18 4 18" fill="#38bdf8"/><circle cx="12" cy="12" r="5" fill="#f59e0b"/>'
+  },
+  aurora_sugar_cake: {
+    id: 'aurora_sugar_cake',
+    name: 'AURORA SUGAR CAKE',
+    desc: 'Celestial multi-tiered cake infused with starlight. Restores 100% Joy and triggers companion squad cheer parade!',
+    type: 'consumable',
+    icon: '<path d="M3 15h18l-2 7H5z" fill="#f472b6"/><path d="M5 10h14l-1 5H6z" fill="#38bdf8"/><circle cx="12" cy="6" r="3" fill="#f59e0b"/>'
   }
 };
 
@@ -537,6 +565,54 @@ export class InventorySystem {
       audio.playKawaiiSparkleChime();
       if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: SPARKLE COTTON CANDY! ★');
       if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('cotton_candy');
+      return;
+    }
+
+    // 9. Star Sapphire Gem + Prismatic Sugar = Stardust Prism Core
+    if (ids === 'gem_star+sugar_crystal') {
+      this.consumeSlot(idx1);
+      this.consumeSlot(idx2);
+      this.addItem('stardust_prism_core', 1);
+      audio.playCheer();
+      audio.playKawaiiSparkleChime();
+      if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: STARDUST PRISM CORE! ★');
+      if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('stardust_prism_core');
+      return;
+    }
+
+    // 10. Stardust Prism Core + Golden Ribbon = Astral Supernova Wand
+    if (ids === 'ribbon_gold+stardust_prism_core') {
+      this.consumeSlot(idx1);
+      this.consumeSlot(idx2);
+      this.addItem('astral_supernova_wand', 1);
+      audio.playCheer();
+      audio.playKawaiiSparkleChime();
+      if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: ASTRAL SUPERNOVA WAND! ★');
+      if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('astral_supernova_wand');
+      return;
+    }
+
+    // 11. Ultra Joy Elixir + Prismatic Sugar = Celestial Ambrosia Elixir
+    if (ids === 'elixir_ultra+sugar_crystal') {
+      this.consumeSlot(idx1);
+      this.consumeSlot(idx2);
+      this.addItem('celestial_elixir', 1);
+      audio.playCheer();
+      audio.playKawaiiSparkleChime();
+      if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: CELESTIAL AMBROSIA ELIXIR! ★');
+      if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('celestial_elixir');
+      return;
+    }
+
+    // 12. Mega Bliss Cupcake + Star Sapphire Gem = Aurora Sugar Cake
+    if (ids === 'bliss_cupcake+gem_star') {
+      this.consumeSlot(idx1);
+      this.consumeSlot(idx2);
+      this.addItem('aurora_sugar_cake', 1);
+      audio.playCheer();
+      audio.playKawaiiSparkleChime();
+      if (this.callbacks.onToast) this.callbacks.onToast('★ CRAFTED: AURORA SUGAR CAKE! ★');
+      if (this.callbacks.onItemCombined) this.callbacks.onItemCombined('aurora_sugar_cake');
       return;
     }
 

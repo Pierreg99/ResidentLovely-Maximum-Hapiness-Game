@@ -130,6 +130,20 @@ export function launchProjectile(type, origin, dir, currentRoom) {
     vel.multiplyScalar(26);
     life = 1.5;
     blastRadius = 4.0;
+  } else if (type === 'supernova_wand' || type === 'wand') {
+    const wandStar = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.32),
+      new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0xf59e0b, emissiveIntensity: 0.9 })
+    );
+    pGroup.add(wandStar);
+    const starRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.42, 0.04, 8, 16),
+      new THREE.MeshBasicMaterial({ color: 0x22d3ee })
+    );
+    pGroup.add(starRing);
+    vel.multiplyScalar(35);
+    life = 2.0;
+    blastRadius = 6.0;
   }
 
   scene.add(pGroup);
@@ -172,7 +186,11 @@ export function triggerWeaponFire(gameState, cameraController, callbacks) {
   } else if (gameState.currentWeapon === 'prism_blaster') {
     audio.playBubbleShot();
     launchProjectile('prism_blaster', muzzlePos, fwd, gameState.room);
-
+  } else if (gameState.currentWeapon === 'supernova_wand' || gameState.currentWeapon === 'wand') {
+    audio.playPistol();
+    audio.playKawaiiSparkleChime();
+    launchProjectile('supernova_wand', muzzlePos, fwd, gameState.room);
+    cameraController.addShake(0.3);
   } else if (gameState.currentWeapon === 'shotgun') {
     audio.playBubbleShot();
     for (let i = -2; i <= 2; i++) {
@@ -258,6 +276,10 @@ export function updateProjectiles(delta, gameState, callbacks) {
           audio.playExplosion();
           spawnConfetti(p.mesh.position, 65);
           upliftGrump(g, 75, gameState, callbacks);
+        } else if (p.type === 'supernova_wand' || p.type === 'wand') {
+          audio.playCheer();
+          spawnConfetti(p.mesh.position, 85);
+          upliftGrump(g, 90, gameState, callbacks);
         } else {
           upliftGrump(g, 40, gameState, callbacks);
         }
@@ -268,7 +290,7 @@ export function updateProjectiles(delta, gameState, callbacks) {
       const bossPos = rooms.crypt.position.clone().add(bossInstance.group.position).add(new THREE.Vector3(0, 2.4, 0));
       if (p.mesh.position.distanceTo(bossPos) < 2.8) {
         hit = true;
-        const dmg = p.type === 'mortar' ? 60 : (p.type === 'shotgun' ? 30 : 15);
+        const dmg = (p.type === 'supernova_wand' || p.type === 'wand') ? 75 : (p.type === 'mortar' ? 60 : (p.type === 'shotgun' ? 30 : 15));
         bossInstance.takeDamage(dmg, gameState, callbacks);
         spawnConfetti(p.mesh.position, 35);
       }
@@ -284,7 +306,7 @@ export function updateProjectiles(delta, gameState, callbacks) {
       }
     });
 
-    if (p.type === 'mortar' && (p.mesh.position.y <= 0.2 || hit)) {
+    if ((p.type === 'mortar' || p.type === 'supernova_wand' || p.type === 'wand') && (p.mesh.position.y <= 0.2 || hit)) {
       audio.playExplosion();
       spawnConfetti(p.mesh.position, 65);
       grumps.forEach(g => {

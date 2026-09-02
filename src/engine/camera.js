@@ -8,6 +8,8 @@ export class CameraController {
     this.viewMode = 'ots'; // 'ots' (Over-The-Shoulder), 'fixed' (Classic RE Cinematic), 'ads' (First-Person ADS)
     this.pitch = 0; // Vertical pitch tilt (-0.45 to +0.45)
     this.currentLookAt = new THREE.Vector3(0, 1.4, 8); // Smoothly interpolated lookAt target
+    this.dramaticTimer = 0;
+    this.dramaticTarget = null;
 
     // Room Bounding Boxes for Camera Collision Clamping
     this.roomBounds = {
@@ -173,12 +175,17 @@ export class CameraController {
       const rotatedOffset = camOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), pRot);
       const rawCamPos = pPos.clone().add(rotatedOffset);
 
-      // Camera Wall Collision Clamping
+      // Camera Wall Collision Clamping with Feeler Soft-Pullback
       const targetCamPos = new THREE.Vector3(
         THREE.MathUtils.clamp(rawCamPos.x, bounds.minX, bounds.maxX),
         THREE.MathUtils.clamp(rawCamPos.y, bounds.minY, bounds.maxY),
         THREE.MathUtils.clamp(rawCamPos.z, bounds.minZ, bounds.maxZ)
       );
+
+      // If pushed against a wall, softly pull towards player to avoid mesh clipping
+      if (targetCamPos.distanceTo(rawCamPos) > 0.05) {
+        targetCamPos.lerp(pPos.clone().add(new THREE.Vector3(0, 1.5, 0)), 0.22);
+      }
 
       // Camera Shake
       if (this.shake > 0) {
@@ -246,5 +253,12 @@ export class CameraController {
       this.currentLookAt.lerp(aimTarget, 0.35);
       this.camera.lookAt(this.currentLookAt);
     }
+  }
+
+  triggerDramaticFraming(targetPos, duration = 3.0) {
+    if (targetPos && typeof targetPos.clone === 'function') {
+      this.dramaticTarget = targetPos.clone();
+    }
+    this.dramaticTimer = duration;
   }
 }

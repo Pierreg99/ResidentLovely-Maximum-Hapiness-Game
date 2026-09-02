@@ -3,6 +3,34 @@
 All notable changes to **Resident Lovely** are documented in this file.  
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.3 / Zero-Emoji Standard**.
 
+## [7.0.0] - 2026-09-02 ❖ THE ASTRAL CELESTIAL SPIRE & SPRING-BONE CHIBI RIG
+
+### Added & Overhauled
+- **40-Sector Mega World & 9-Tier Elevation Architecture** (`src/world/sectors.js`, `src/world/rooms.js`, `src/systems/minimap.js`):
+  - Added Floor 5F (Celestial Zenith: S33 Astral Spire Peak, S34 Starlight Sanctuary, S35 Celestial Chamber, S36 Moonbeam Zenith).
+  - Added Floor B3 (Abyssal Trench: S37 Abyssal Trench Gateway, S38 Coral Trench, S39 Deep Alchemical Vault, S40 Ancient Core Crucible).
+  - Bidirectional navigation links between 4F Rooftops and 5F Spire, and B2 Subterranean and B3 Abyssal Trench.
+  - Interactive SVG minimap updated with 9-floor tab navigation and responsive sector layouts.
+- **Spring-Bone Articulated Chibi Rig & Kawaii Emote Emitter** (`src/entities/player.js`):
+  - Analytical Verlet/Euler spring-damper solver for pigtails and ribbons with physical inertia, bounce, and drag.
+  - Dynamic 180° quick-turn rotational hair whipping with impulse damping.
+  - Expressive kawaii emote indicator crown pulsing above character head.
+- **Next-Gen Procedural PBR GLSL Shaders** (`src/world/shaders/surface-shaders.js`):
+  - Iridescent Opal Velvet, Celestial Aurora, Prismatic Water Caustics, and Crystalline Subsurface shaders.
+  - Real-time time-based uniforms, procedural simplex/FBM noise, and Fresnel rim lighting.
+- **Smart Director Camera v3** (`src/engine/camera.js`):
+  - Dynamic wall-push feeler soft-pullback damping preventing camera clipping against chamber bounds.
+  - Cinematic dramatic framing API for narrative events and boss intros.
+- **Astral Supernova Wand & Confectionery Alchemy (Recipes 9–12)** (`src/weapons/arsenal.js`, `src/systems/inventory.js`):
+  - Stardust Prism Core synthesis (Star Sapphire Gem + Prismatic Sugar Crystal).
+  - Astral Supernova Wand weapon forging (Golden Ribbon + Stardust Prism Core).
+  - Celestial Ambrosia Elixir (Ultra Joy Elixir + Prismatic Sugar Crystal).
+  - Aurora Sugar Cake (Mega Bliss Cupcake + Star Sapphire Gem).
+- **Automated Verification**:
+  - 251 / 251 automated tests passing cleanly across 11 test suites (100% OK, 0 Errors, 0 Failures).
+
+---
+
 ## [6.3.0] - 2026-09-01 ❖ DYNAMIC WEATHER & HYPER JOY COMBO ENGINE
 
 ### Added & Enhanced

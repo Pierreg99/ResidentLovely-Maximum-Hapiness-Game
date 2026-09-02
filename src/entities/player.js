@@ -27,6 +27,17 @@ export const player = {
   beamMesh: null,
   hairInertia: 0,
   footstepTimer: 0,
+  springBones: {
+    leftPigtail: { angleX: 0, angleZ: -0.3, velX: 0, velZ: 0, targetX: 0, targetZ: -0.3, stiffness: 110, damping: 14 },
+    rightPigtail: { angleX: 0, angleZ: 0.3, velX: 0, velZ: 0, targetX: 0, targetZ: 0.3, stiffness: 110, damping: 14 },
+    ribbonBows: { angleY: 0, velY: 0, stiffness: 130, damping: 16 }
+  },
+  gaze: { x: 0, y: 0, targetX: 0, targetY: 0 },
+  emotes: {
+    active: 'joy',
+    timer: 0,
+    mesh: null
+  },
   setHeadVisibility: function(visible) {
     if (this.headGroup) this.headGroup.visible = visible;
   }
@@ -214,6 +225,17 @@ export function initPlayer() {
   pGroup.add(gunGroup);
   player.meshGun = gunGroup;
 
+  // Expressive Kawaii Emote Indicator
+  const emoteGroup = new THREE.Group();
+  emoteGroup.position.set(0, 2.25, 0);
+  const heartMesh = new THREE.Mesh(
+    new THREE.OctahedronGeometry(0.12),
+    new THREE.MeshBasicMaterial({ color: 0xec4899, transparent: true, opacity: 0.85 })
+  );
+  emoteGroup.add(heartMesh);
+  pGroup.add(emoteGroup);
+  player.emotes.mesh = emoteGroup;
+
   pGroup.position.copy(player.position);
   scene.add(pGroup);
 }
@@ -224,6 +246,10 @@ export function performQuickTurn() {
   player.quickTurnTimer = 0.22; // 220ms quick-turn
   player.targetRotation = player.rotation + Math.PI;
   player.hairInertia = Math.PI * 0.75;
+  if (player.springBones) {
+    player.springBones.leftPigtail.velX += Math.PI * 3.5;
+    player.springBones.rightPigtail.velX -= Math.PI * 3.5;
+  }
   audio.playQuickTurn();
 }
 
@@ -319,8 +345,13 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
       player.rightArmGroup.rotation.z = -0.1;
     }
 
-    // Bouncing Twin-Tail Dynamics
-    if (player.leftPigtail && player.rightPigtail) {
+    // Spring-bone Twin-Tail Dynamics
+    if (player.springBones) {
+      player.springBones.leftPigtail.targetX = Math.sin(time * 14) * 0.35;
+      player.springBones.rightPigtail.targetX = -Math.sin(time * 14) * 0.35;
+      player.springBones.leftPigtail.targetZ = -0.3 + Math.sin(time * 7) * 0.15;
+      player.springBones.rightPigtail.targetZ = 0.3 - Math.sin(time * 7) * 0.15;
+    } else if (player.leftPigtail && player.rightPigtail) {
       player.leftPigtail.rotation.x = Math.sin(time * 14) * 0.35;
       player.rightPigtail.rotation.x = -Math.sin(time * 14) * 0.35;
       player.leftPigtail.rotation.z = -0.3 + Math.sin(time * 7) * 0.15;
@@ -346,8 +377,13 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
       player.rightArmGroup.rotation.z = THREE.MathUtils.lerp(player.rightArmGroup.rotation.z, -0.05, 0.2);
     }
 
-    // Gentle Twin-Tail Sway
-    if (player.leftPigtail && player.rightPigtail) {
+    // Spring-bone Twin-Tail Idle Sway
+    if (player.springBones) {
+      player.springBones.leftPigtail.targetX = breath * 0.08;
+      player.springBones.rightPigtail.targetX = breath * 0.08;
+      player.springBones.leftPigtail.targetZ = -0.3;
+      player.springBones.rightPigtail.targetZ = 0.3;
+    } else if (player.leftPigtail && player.rightPigtail) {
       player.leftPigtail.rotation.x = THREE.MathUtils.lerp(player.leftPigtail.rotation.x, breath * 0.08, 0.15);
       player.rightPigtail.rotation.x = THREE.MathUtils.lerp(player.rightPigtail.rotation.x, breath * 0.08, 0.15);
       player.leftPigtail.rotation.z = THREE.MathUtils.lerp(player.leftPigtail.rotation.z, -0.3, 0.15);
@@ -362,6 +398,39 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
       player.leftPigtail.rotation.y = Math.sin(time * 20) * player.hairInertia;
       player.rightPigtail.rotation.y = -Math.sin(time * 20) * player.hairInertia;
     }
+  }
+
+  // Spring-bone analytical verlet/euler physics solver
+  const dt = Math.min(delta, 0.033);
+  if (player.springBones && player.leftPigtail && player.rightPigtail) {
+    const sb = player.springBones;
+    
+    // Left Tail Spring Solver
+    const fxL = -sb.leftPigtail.stiffness * (sb.leftPigtail.angleX - sb.leftPigtail.targetX) - sb.leftPigtail.damping * sb.leftPigtail.velX;
+    const fzL = -sb.leftPigtail.stiffness * (sb.leftPigtail.angleZ - sb.leftPigtail.targetZ) - sb.leftPigtail.damping * sb.leftPigtail.velZ;
+    sb.leftPigtail.velX += fxL * dt;
+    sb.leftPigtail.velZ += fzL * dt;
+    sb.leftPigtail.angleX += sb.leftPigtail.velX * dt;
+    sb.leftPigtail.angleZ += sb.leftPigtail.velZ * dt;
+
+    // Right Tail Spring Solver
+    const fxR = -sb.rightPigtail.stiffness * (sb.rightPigtail.angleX - sb.rightPigtail.targetX) - sb.rightPigtail.damping * sb.rightPigtail.velX;
+    const fzR = -sb.rightPigtail.stiffness * (sb.rightPigtail.angleZ - sb.rightPigtail.targetZ) - sb.rightPigtail.damping * sb.rightPigtail.velZ;
+    sb.rightPigtail.velX += fxR * dt;
+    sb.rightPigtail.velZ += fzR * dt;
+    sb.rightPigtail.angleX += sb.rightPigtail.velX * dt;
+    sb.rightPigtail.angleZ += sb.rightPigtail.velZ * dt;
+
+    player.leftPigtail.rotation.x = sb.leftPigtail.angleX;
+    player.leftPigtail.rotation.z = sb.leftPigtail.angleZ;
+    player.rightPigtail.rotation.x = sb.rightPigtail.angleX;
+    player.rightPigtail.rotation.z = sb.rightPigtail.angleZ;
+  }
+
+  // Floating Emote Aura bobbing and pulse
+  if (player.emotes && player.emotes.mesh) {
+    player.emotes.mesh.position.y = 2.25 + Math.sin(time * 3.5) * 0.08;
+    player.emotes.mesh.rotation.y += dt * 2.0;
   }
 
   player.group.position.copy(player.position);

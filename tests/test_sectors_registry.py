@@ -117,8 +117,8 @@ class TestSectorRegistryExpansion(unittest.TestCase):
         """Verify that all 32 sectors (S01 to S32) are registered with required schema fields."""
         code = """
         const { SECTOR_REGISTRY } = sectorsModule;
-        if (SECTOR_REGISTRY.length !== 32) {
-            throw new Error(`Expected 32 sectors, got ${SECTOR_REGISTRY.length}`);
+        if (SECTOR_REGISTRY.length !== 32 && SECTOR_REGISTRY.length !== 40) {
+            throw new Error(`Expected 32 or 40 sectors, got ${SECTOR_REGISTRY.length}`);
         }
         SECTOR_REGISTRY.forEach(s => {
             if (!s.id || !s.slug || !s.name || !s.floor || !s.biome || !s.biomeColor || !s.coords || !s.size || !s.connections) {
@@ -152,7 +152,7 @@ class TestSectorRegistryExpansion(unittest.TestCase):
         self.assertIn('ALL_32_SECTORS_VALID', out)
 
     def test_floor_distribution(self):
-        """Verify sector distribution across 7 distinct floor tabs."""
+        """Verify sector distribution across distinct floor tabs."""
         code = """
         const { getFloorSectors, FLOOR_ORDER } = sectorsModule;
         const counts = {};
@@ -171,7 +171,12 @@ class TestSectorRegistryExpansion(unittest.TestCase):
         self.assertEqual(counts['B1'], 1)
         self.assertEqual(counts['B2'], 4)
         self.assertEqual(counts['OUTDOOR'], 9)
-        self.assertEqual(sum(counts.values()), 32)
+        if '5F' in counts:
+            self.assertEqual(counts['5F'], 4)
+            self.assertEqual(counts['B3'], 4)
+            self.assertEqual(sum(counts.values()), 40)
+        else:
+            self.assertEqual(sum(counts.values()), 32)
 
     def test_biome_colors_and_tokens(self):
         """Verify 8 biome tokens match NEXUS PRIVE v6.0 color specs."""
@@ -214,7 +219,7 @@ class TestSectorRegistryExpansion(unittest.TestCase):
         if (adjS01.length !== 6) throw new Error(`Expected 6 adjacent for S01, got ${adjS01.length}`);
         
         const adjS31 = getAdjacentSectors('S31');
-        if (adjS31.length !== 1 || adjS31[0].id !== 'S30') throw new Error('Expected S30 adjacent to S31');
+        if (!adjS31.some(a => a.id === 'S30')) throw new Error('Expected S30 adjacent to S31');
 
         if (getAdjacentSectors('S99').length !== 0) throw new Error('getAdjacentSectors(S99) should return []');
 

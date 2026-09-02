@@ -820,6 +820,319 @@ void main() {
 `;
 
 // =========================================================================
+// 9. IRIDESCENT OPAL VELVET SHADER (S35 Celestial Chamber, S36 Moonbeam Zenith)
+// =========================================================================
+
+export const iridescentOpalVelvetVertexShader = `
+uniform float uTime;
+uniform float uAdjacentInfluence;
+
+varying vec2 vUv;
+varying vec3 vWorldPosition;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
+
+void main() {
+  vUv = uv;
+  vec3 pos = position;
+
+  // Gentle velvet fabric drape micro-undulation
+  float drape = sin(pos.x * 3.0 + uTime * 0.8) * cos(pos.z * 3.0 + uTime * 0.6) * 0.015 * uAdjacentInfluence;
+  pos += normal * drape;
+
+  vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
+  vWorldPosition = worldPosition.xyz;
+  vNormal = normalize(normalMatrix * normal);
+
+  vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+  vViewPosition = -mvPosition.xyz;
+
+  gl_Position = projectionMatrix * mvPosition;
+}
+`;
+
+export const iridescentOpalVelvetFragmentShader = `
+uniform float uTime;
+uniform vec2 uResolution;
+uniform vec3 uBaseColor;
+uniform vec3 uSheenColor;
+uniform vec3 uGoldTrimColor;
+uniform float uIridescenceScale;
+uniform float uAdjacentInfluence;
+uniform float uActive;
+
+varying vec2 vUv;
+varying vec3 vWorldPosition;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
+
+${GLSL_COMMON_NOISE}
+
+void main() {
+  if (uActive < 0.05) {
+    gl_FragColor = vec4(uBaseColor, 1.0);
+    return;
+  }
+
+  vec3 N = normalize(vNormal);
+  vec3 V = normalize(vViewPosition);
+  float NdotV = max(0.0, dot(N, V));
+
+  // Thin-film interference iridescence phase
+  float phase = (1.0 - NdotV) * uIridescenceScale + uTime * 0.15;
+  vec3 spectral = 0.5 + 0.5 * cos(6.28318 * (vec3(0.0, 0.33, 0.67) + phase));
+
+  // Velvet retro-reflective rim sheen
+  float velvetRim = pow(1.0 - NdotV, 3.2);
+
+  // Micro-weave texture noise
+  float weave = valueNoise2D(vUv * 48.0) * 0.12;
+
+  vec3 col = mix(uBaseColor, spectral, velvetRim * 0.65 + weave);
+  col += uSheenColor * velvetRim * 0.55;
+  col = mix(col, uGoldTrimColor, smoothstep(0.78, 0.95, velvetRim) * 0.35);
+  col *= (1.0 + uAdjacentInfluence * 0.25);
+
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+// =========================================================================
+// 10. CELESTIAL AURORA SHADER (S33 Astral Spire, S34 Starlight Sanctuary)
+// =========================================================================
+
+export const celestialAuroraVertexShader = `
+uniform float uTime;
+uniform float uAdjacentInfluence;
+
+varying vec2 vUv;
+varying vec3 vWorldPosition;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
+
+void main() {
+  vUv = uv;
+  vec3 pos = position;
+
+  // Floating curtain sway
+  float sway = sin(pos.y * 1.8 + uTime * 1.2) * cos(pos.x * 1.5 + uTime * 0.9) * 0.03 * uAdjacentInfluence;
+  pos.x += sway;
+
+  vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
+  vWorldPosition = worldPosition.xyz;
+  vNormal = normalize(normalMatrix * normal);
+
+  vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+  vViewPosition = -mvPosition.xyz;
+
+  gl_Position = projectionMatrix * mvPosition;
+}
+`;
+
+export const celestialAuroraFragmentShader = `
+uniform float uTime;
+uniform vec2 uResolution;
+uniform vec3 uZenithColor;
+uniform vec3 uAuroraCyan;
+uniform vec3 uAuroraPink;
+uniform float uCurtainSpeed;
+uniform float uAdjacentInfluence;
+uniform float uActive;
+
+varying vec2 vUv;
+varying vec3 vWorldPosition;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
+
+${GLSL_COMMON_NOISE}
+
+void main() {
+  if (uActive < 0.05) {
+    gl_FragColor = vec4(uZenithColor, 1.0);
+    return;
+  }
+
+  vec2 uv = vUv;
+  float t = uTime * uCurtainSpeed;
+  vec2 p1 = vec2(uv.x * 4.0 + t * 0.3, uv.y * 2.0);
+  vec2 p2 = vec2(uv.x * 6.0 - t * 0.2, uv.y * 3.0 + sin(t * 0.5) * 0.2);
+
+  float curtain1 = fbm2D(p1);
+  float curtain2 = fbm2D(p2);
+  float aurora = pow(max(0.0, curtain1 * 0.6 + curtain2 * 0.4), 2.2);
+
+  float verticalFade = smoothstep(0.05, 0.4, uv.y) * (1.0 - smoothstep(0.7, 0.98, uv.y));
+  aurora *= verticalFade;
+
+  float stardust = hash21(floor(uv * 90.0) + vec2(floor(uTime * 4.0)));
+  float twinkle = step(0.985, stardust) * (0.5 + 0.5 * sin(uTime * 12.0));
+
+  vec3 col = mix(uZenithColor, uAuroraCyan, aurora * 1.4);
+  col = mix(col, uAuroraPink, pow(aurora, 1.8) * 0.9);
+  col += vec3(0.95, 0.98, 1.0) * twinkle * 1.5;
+  col *= (1.0 + uAdjacentInfluence * 0.3);
+
+  gl_FragColor = vec4(col, 0.92);
+}
+`;
+
+// =========================================================================
+// 11. PRISMATIC WATER CAUSTICS SHADER (S37 Abyssal Gateway, S38 Coral Trench)
+// =========================================================================
+
+export const prismaticWaterCausticsVertexShader = `
+uniform float uTime;
+uniform float uAdjacentInfluence;
+
+varying vec2 vUv;
+varying vec3 vWorldPosition;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
+
+void main() {
+  vUv = uv;
+  vec3 pos = position;
+
+  // Dual underwater wave ripple displacement
+  float wave = (sin(pos.x * 2.2 + uTime * 2.0) + cos(pos.z * 2.2 + uTime * 1.6)) * 0.025 * uAdjacentInfluence;
+  pos.y += wave;
+
+  vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
+  vWorldPosition = worldPosition.xyz;
+  vNormal = normalize(normalMatrix * normal);
+
+  vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+  vViewPosition = -mvPosition.xyz;
+
+  gl_Position = projectionMatrix * mvPosition;
+}
+`;
+
+export const prismaticWaterCausticsFragmentShader = `
+uniform float uTime;
+uniform vec2 uResolution;
+uniform vec3 uDeepWaterColor;
+uniform vec3 uShallowWaterColor;
+uniform vec3 uCausticGlowColor;
+uniform float uCausticScale;
+uniform float uAdjacentInfluence;
+uniform float uActive;
+
+varying vec2 vUv;
+varying vec3 vWorldPosition;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
+
+${GLSL_COMMON_NOISE}
+
+void main() {
+  if (uActive < 0.05) {
+    gl_FragColor = vec4(uDeepWaterColor, 0.9);
+    return;
+  }
+
+  vec2 uv = vUv * uCausticScale;
+  float t = uTime * 1.1;
+
+  vec2 v1 = voronoi2D(uv + vec2(t * 0.25, -t * 0.15));
+  vec2 v2 = voronoi2D(uv * 1.4 - vec2(-t * 0.2, t * 0.3));
+
+  float cR = pow(1.0 - min(v1.x, v2.x), 3.5);
+  float cG = pow(1.0 - min(v1.x * 0.98, v2.x * 1.02), 3.5);
+  float cB = pow(1.0 - min(v1.x * 0.95, v2.x * 1.05), 3.5);
+  vec3 caustic = vec3(cR, cG, cB) * uCausticGlowColor * 1.8;
+
+  vec3 N = normalize(vNormal);
+  vec3 V = normalize(vViewPosition);
+  float fresnel = pow(1.0 - max(0.0, dot(N, V)), 2.5);
+
+  vec3 col = mix(uDeepWaterColor, uShallowWaterColor, fresnel * 0.65);
+  col += caustic;
+  col *= (1.0 + uAdjacentInfluence * 0.25);
+
+  gl_FragColor = vec4(col, 0.88);
+}
+`;
+
+// =========================================================================
+// 12. CRYSTALLINE SUBSURFACE SHADER (S39 Deep Alchemical Vault, S40 Ancient Crucible)
+// =========================================================================
+
+export const crystallineSubsurfaceVertexShader = `
+uniform float uTime;
+uniform float uAdjacentInfluence;
+
+varying vec2 vUv;
+varying vec3 vWorldPosition;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
+
+void main() {
+  vUv = uv;
+  vec3 pos = position;
+
+  // Subtle crystal resonance harmonic
+  float harmonic = sin(pos.y * 5.0 + uTime * 2.5) * 0.012 * uAdjacentInfluence;
+  pos += normal * harmonic;
+
+  vec4 worldPosition = modelMatrix * vec4(pos, 1.0);
+  vWorldPosition = worldPosition.xyz;
+  vNormal = normalize(normalMatrix * normal);
+
+  vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+  vViewPosition = -mvPosition.xyz;
+
+  gl_Position = projectionMatrix * mvPosition;
+}
+`;
+
+export const crystallineSubsurfaceFragmentShader = `
+uniform float uTime;
+uniform vec2 uResolution;
+uniform vec3 uCrystalBaseColor;
+uniform vec3 uSubsurfaceColor;
+uniform vec3 uInternalGlowColor;
+uniform float uCrystalFacets;
+uniform float uAdjacentInfluence;
+uniform float uActive;
+
+varying vec2 vUv;
+varying vec3 vWorldPosition;
+varying vec3 vNormal;
+varying vec3 vViewPosition;
+
+${GLSL_COMMON_NOISE}
+
+void main() {
+  if (uActive < 0.05) {
+    gl_FragColor = vec4(uCrystalBaseColor, 1.0);
+    return;
+  }
+
+  vec3 N = normalize(vNormal);
+  vec3 V = normalize(vViewPosition);
+  float NdotV = max(0.0, dot(N, V));
+
+  vec2 cell = voronoi2D(vUv * uCrystalFacets);
+  float facetEdge = smoothstep(0.05, 0.18, cell.x);
+
+  float sss = pow(max(0.0, (1.0 - NdotV) + 0.25), 2.2);
+
+  float corePulse = 0.5 + 0.5 * sin(uTime * 3.0 + cell.y * 6.28);
+  vec3 internalLight = uInternalGlowColor * corePulse * (1.0 - facetEdge * 0.5);
+
+  vec3 col = mix(uCrystalBaseColor, uSubsurfaceColor, sss * 0.75);
+  col += internalLight * 1.2;
+
+  float rim = pow(1.0 - NdotV, 3.5);
+  col += vec3(0.95, 0.98, 1.0) * rim * 0.85;
+  col *= (1.0 + uAdjacentInfluence * 0.3);
+
+  gl_FragColor = vec4(col, 0.95);
+}
+`;
+
+// =========================================================================
 // SHADER REGISTRY & DEFINITION TABLE
 // =========================================================================
 
@@ -951,6 +1264,66 @@ export const SURFACE_SHADER_DEFINITIONS = {
       uTunnelDepth: 0.18,
       uFadingFactor: 0.72,
       uIterationCount: 8.0,
+      uAdjacentInfluence: 1.0,
+      uActive: 1.0
+    }
+  },
+  iridescent_opal_velvet: {
+    name: 'iridescent_opal_velvet',
+    vertexShader: iridescentOpalVelvetVertexShader,
+    fragmentShader: iridescentOpalVelvetFragmentShader,
+    defaultUniforms: {
+      uTime: 0.0,
+      uResolution: [1.0, 1.0],
+      uBaseColor: [0.08, 0.12, 0.22],
+      uSheenColor: [0.13, 0.83, 0.93],
+      uGoldTrimColor: [0.96, 0.62, 0.04],
+      uIridescenceScale: 2.5,
+      uAdjacentInfluence: 1.0,
+      uActive: 1.0
+    }
+  },
+  celestial_aurora: {
+    name: 'celestial_aurora',
+    vertexShader: celestialAuroraVertexShader,
+    fragmentShader: celestialAuroraFragmentShader,
+    defaultUniforms: {
+      uTime: 0.0,
+      uResolution: [1.0, 1.0],
+      uZenithColor: [0.06, 0.09, 0.16],
+      uAuroraCyan: [0.13, 0.83, 0.93],
+      uAuroraPink: [0.96, 0.45, 0.71],
+      uCurtainSpeed: 0.85,
+      uAdjacentInfluence: 1.0,
+      uActive: 1.0
+    }
+  },
+  prismatic_water_caustics: {
+    name: 'prismatic_water_caustics',
+    vertexShader: prismaticWaterCausticsVertexShader,
+    fragmentShader: prismaticWaterCausticsFragmentShader,
+    defaultUniforms: {
+      uTime: 0.0,
+      uResolution: [1.0, 1.0],
+      uDeepWaterColor: [0.01, 0.18, 0.28],
+      uShallowWaterColor: [0.13, 0.83, 0.93],
+      uCausticGlowColor: [0.22, 0.83, 0.97],
+      uCausticScale: 5.0,
+      uAdjacentInfluence: 1.0,
+      uActive: 1.0
+    }
+  },
+  crystalline_subsurface: {
+    name: 'crystalline_subsurface',
+    vertexShader: crystallineSubsurfaceVertexShader,
+    fragmentShader: crystallineSubsurfaceFragmentShader,
+    defaultUniforms: {
+      uTime: 0.0,
+      uResolution: [1.0, 1.0],
+      uCrystalBaseColor: [0.18, 0.14, 0.28],
+      uSubsurfaceColor: [0.65, 0.55, 0.98],
+      uInternalGlowColor: [0.13, 0.83, 0.93],
+      uCrystalFacets: 6.0,
       uAdjacentInfluence: 1.0,
       uActive: 1.0
     }

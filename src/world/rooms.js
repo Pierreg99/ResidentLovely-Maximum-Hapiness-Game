@@ -48,7 +48,17 @@ export const rooms = {
   crypt: new THREE.Group(),
   underground_river_cavern: new THREE.Group(),
   crystal_vault: new THREE.Group(),
-  ancient_ruins: new THREE.Group()
+  ancient_ruins: new THREE.Group(),
+
+  // --- 5F Astral Spire & B3 Deep Trench (S33 - S40) ---
+  astral_spire_peak: new THREE.Group(),
+  starlight_sanctuary: new THREE.Group(),
+  celestial_chamber: new THREE.Group(),
+  moonbeam_zenith: new THREE.Group(),
+  abyssal_trench_gateway: new THREE.Group(),
+  coral_trench: new THREE.Group(),
+  deep_alchemical_vault: new THREE.Group(),
+  ancient_core_crucible: new THREE.Group()
 };
 
 // Aliases by Sector ID and Alternate Slugs for direct indexing
@@ -1948,6 +1958,389 @@ export function initRooms() {
     setupRoomMetadata(g, 'S32', [28, 12, 28], [
       { id: 'ruins_altar_channel', name: 'Ancient Runed Altar Slab', position: [0, 0.8, 0], type: 'channel' },
       { id: 'archway_activate', name: 'Megalithic Stone Archway', position: [0, 3.0, -9], type: 'activate' }
+    ]);
+  })();
+
+  // -------------------------------------------------------------------------
+  // 33. ASTRAL SPIRE PEAK (S33) - 5F Astral Spire Peak
+  // Connections: S27 (South), S34 (East)
+  // -------------------------------------------------------------------------
+  (function buildAstralSpirePeak() {
+    const g = rooms.astral_spire_peak;
+    g.position.set(0, 48, 0);
+
+    // Iridescent celestial tiled floor
+    g.add(createChamberFloor(26, 26, 0x0f172a, 0x1e1b4b, 0.2, 0.4));
+
+    // Starlight perimeter walls with open arches
+    g.add(createChamberPerimeterWalls({
+      w: 26,
+      d: 26,
+      h: 14,
+      wallMat: new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.5 }),
+      trimMat: goldTrimMat,
+      openSides: { north: false, south: true, east: true, west: false }
+    }));
+
+    // Glass observatory dome ceiling
+    g.add(createChamberCeiling({ w: 26, d: 26, h: 14, style: 'glass_dome', trimMat: goldTrimMat, beamMat: goldTrimMat }));
+
+    // Prop 1: Astral Starlight Spire
+    const spireGroup = new THREE.Group();
+    spireGroup.name = 'astral_starlight_spire';
+    const spireBase = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.8, 1.5, 16), marbleWhiteMat);
+    spireBase.position.y = 0.75;
+    spireGroup.add(spireBase);
+    const spirePillar = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.6, 6.0, 16), goldTrimMat);
+    spirePillar.position.y = 4.5;
+    spireGroup.add(spirePillar);
+    const starTop = new THREE.Mesh(new THREE.OctahedronGeometry(0.8), crystalCyanMat);
+    starTop.position.y = 7.8;
+    spireGroup.add(starTop);
+    g.add(spireGroup);
+
+    // Prop 2: Celestial Telescope Dais
+    const daisGroup = new THREE.Group();
+    daisGroup.name = 'celestial_telescope_dais';
+    const daisSteps = new THREE.Mesh(new THREE.CylinderGeometry(2.8, 3.2, 0.6, 24), marbleWhiteMat);
+    daisSteps.position.set(5, 0.3, 4);
+    daisGroup.add(daisSteps);
+    const telescope = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 2.5, 12), goldTrimMat);
+    telescope.rotation.x = -Math.PI / 4;
+    telescope.position.set(5, 1.8, 4);
+    daisGroup.add(telescope);
+    g.add(daisGroup);
+
+    // Prop 3: Orbiting Luminescent Halo
+    const haloGroup = new THREE.Group();
+    haloGroup.name = 'orbiting_luminescent_halo';
+    const haloMesh = new THREE.Mesh(new THREE.TorusGeometry(3.5, 0.15, 16, 48), crystalCyanMat);
+    haloMesh.rotation.x = Math.PI / 3;
+    haloMesh.position.set(0, 5.0, 0);
+    haloGroup.add(haloMesh);
+    g.add(haloGroup);
+
+    setupRoomMetadata(g, 'S33', [26, 14, 26], [
+      { id: 'spire_star_beacon', name: 'Astral Star Beacon', position: [0, 2.0, 0], type: 'activate' },
+      { id: 'telescope_inspect', name: 'Celestial Telescope', position: [5, 1.5, 4], type: 'inspect' }
+    ]);
+  })();
+
+  // -------------------------------------------------------------------------
+  // 34. STARLIGHT OBSERVATORY SANCTUARY (S34) - 5F Crystal Sanctuary
+  // Connections: S33 (West), S35 (South)
+  // -------------------------------------------------------------------------
+  (function buildStarlightSanctuary() {
+    const g = rooms.starlight_sanctuary;
+    g.position.set(45, 48, 0);
+
+    g.add(createChamberFloor(24, 24, 0x2e1065, 0x3b0764, 0.15, 0.6));
+    g.add(createChamberPerimeterWalls({
+      w: 24,
+      d: 24,
+      h: 12,
+      wallMat: gothicStoneMat,
+      trimMat: crystalVioletMat,
+      openSides: { north: false, south: true, east: false, west: true }
+    }));
+    g.add(createChamberCeiling({ w: 24, d: 24, h: 12, style: 'ribbed_vault', trimMat: crystalVioletMat, beamMat: crystalVioletMat }));
+
+    // Prop 1: Sanctuary Prism Altar
+    const prismAltar = new THREE.Group();
+    prismAltar.name = 'sanctuary_prism_altar';
+    const pBase = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 2.0, 1.0, 12), obsidianMat);
+    pBase.position.y = 0.5;
+    prismAltar.add(pBase);
+    const pShard = new THREE.Mesh(new THREE.OctahedronGeometry(0.9), crystalVioletMat);
+    pShard.position.y = 1.8;
+    prismAltar.add(pShard);
+    g.add(prismAltar);
+
+    // Prop 2: Constellation Dome Mobile
+    const domeMobile = new THREE.Group();
+    domeMobile.name = 'celestial_constellation_dome';
+    const centerGlobe = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 16), crystalCyanMat);
+    centerGlobe.position.set(0, 6.5, 0);
+    domeMobile.add(centerGlobe);
+    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 2) {
+      const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.2, 8), goldTrimMat);
+      arm.rotation.z = Math.PI / 2;
+      arm.rotation.y = angle;
+      arm.position.set(Math.cos(angle) * 1.1, 6.5, Math.sin(angle) * 1.1);
+      domeMobile.add(arm);
+    }
+    g.add(domeMobile);
+
+    setupRoomMetadata(g, 'S34', [24, 12, 24], [
+      { id: 'sanctuary_prism_channel', name: 'Sanctuary Prism Altar', position: [0, 1.0, 0], type: 'channel' }
+    ]);
+  })();
+
+  // -------------------------------------------------------------------------
+  // 35. CELESTIAL GRAND CHAMBER (S35) - 5F Royal Estate Chamber
+  // Connections: S34 (North), S36 (West)
+  // -------------------------------------------------------------------------
+  (function buildCelestialChamber() {
+    const g = rooms.celestial_chamber;
+    g.position.set(45, 48, -45);
+
+    g.add(createChamberFloor(28, 28, 0x083344, 0x164e63, 0.25, 0.5));
+    g.add(createChamberPerimeterWalls({
+      w: 28,
+      d: 28,
+      h: 12,
+      wallMat: new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6 }),
+      trimMat: goldTrimMat,
+      openSides: { north: true, south: false, east: false, west: true }
+    }));
+    g.add(createChamberCeiling({ w: 28, d: 28, h: 12, style: 'coffered', trimMat: goldTrimMat, beamMat: goldTrimMat }));
+
+    // Prop 1: Opal Velvet Canopy & Dais
+    const canopy = new THREE.Group();
+    canopy.name = 'opal_velvet_canopy';
+    const cDais = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.5, 4.5), marbleWhiteMat);
+    cDais.position.set(0, 0.25, -6);
+    canopy.add(cDais);
+    const cCover = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.2, 4.2), velvetMat);
+    cCover.position.set(0, 4.5, -6);
+    canopy.add(cCover);
+    g.add(canopy);
+
+    // Prop 2: Gilded Astral Throne
+    const throne = new THREE.Group();
+    throne.name = 'gilded_astral_throne';
+    const tBase = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.8, 1.4), goldTrimMat);
+    tBase.position.set(0, 0.7, -6);
+    throne.add(tBase);
+    const tBack = new THREE.Mesh(new THREE.BoxGeometry(1.4, 2.0, 0.3), goldTrimMat);
+    tBack.position.set(0, 2.0, -6.5);
+    throne.add(tBack);
+    g.add(throne);
+
+    setupRoomMetadata(g, 'S35', [28, 12, 28], [
+      { id: 'astral_throne_commune', name: 'Gilded Astral Throne', position: [0, 1.2, -6], type: 'commune' }
+    ]);
+  })();
+
+  // -------------------------------------------------------------------------
+  // 36. MOONBEAM CLOCK ZENITH (S36) - 5F Estate Clockwork Chamber
+  // Connections: S28 (South), S35 (East)
+  // -------------------------------------------------------------------------
+  (function buildMoonbeamZenith() {
+    const g = rooms.moonbeam_zenith;
+    g.position.set(-45, 48, 0);
+
+    g.add(createChamberFloor(22, 22, 0x18181b, 0x27272a, 0.3, 0.7));
+    g.add(createChamberPerimeterWalls({
+      w: 22,
+      d: 22,
+      h: 16,
+      wallMat: gothicStoneMat,
+      trimMat: goldTrimMat,
+      openSides: { north: false, south: true, east: true, west: false }
+    }));
+    g.add(createChamberCeiling({ w: 22, d: 22, h: 16, style: 'ribbed_vault', trimMat: goldTrimMat, beamMat: goldTrimMat }));
+
+    // Prop 1: Zenith Escapement Wheel
+    const gearGroup = new THREE.Group();
+    gearGroup.name = 'zenith_escapement_wheel';
+    const gear = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 0.3, 24), goldTrimMat);
+    gear.rotation.x = Math.PI / 2;
+    gear.position.set(0, 5.0, -8);
+    gearGroup.add(gear);
+    g.add(gearGroup);
+
+    // Prop 2: Moonbeam Pendulum Shaft
+    const pendulumGroup = new THREE.Group();
+    pendulumGroup.name = 'moonbeam_pendulum_shaft';
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 6.0, 12), ironMat);
+    rod.position.set(0, 6.0, 0);
+    pendulumGroup.add(rod);
+    const bob = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), goldTrimMat);
+    bob.position.set(0, 2.5, 0);
+    pendulumGroup.add(bob);
+    g.add(pendulumGroup);
+
+    setupRoomMetadata(g, 'S36', [22, 16, 22], [
+      { id: 'zenith_chronometer', name: 'Zenith Master Chronometer', position: [0, 2.0, 0], type: 'puzzle' }
+    ]);
+  })();
+
+  // -------------------------------------------------------------------------
+  // 37. ABYSSAL TRENCH GATEWAY (S37) - B3 Subterranean Trench Gateway
+  // Connections: S30 (North), S38 (East)
+  // -------------------------------------------------------------------------
+  (function buildAbyssalTrenchGateway() {
+    const g = rooms.abyssal_trench_gateway;
+    g.position.set(0, -56, -45);
+
+    g.add(createChamberFloor(30, 30, 0x082f49, 0x0c4a6e, 0.35, 0.3));
+    g.add(createChamberPerimeterWalls({
+      w: 30,
+      d: 30,
+      h: 14,
+      wallMat: gothicStoneMat,
+      trimMat: crystalCyanMat,
+      openSides: { north: true, south: false, east: true, west: false }
+    }));
+    g.add(createChamberCeiling({ w: 30, d: 30, h: 14, style: 'cross_vault', trimMat: crystalCyanMat, beamMat: crystalCyanMat }));
+
+    // Prop 1: Trench Stone Arch
+    const arch = new THREE.Group();
+    arch.name = 'trench_stone_arch';
+    const pillarL = new THREE.Mesh(new THREE.BoxGeometry(1.4, 6.0, 1.4), obsidianMat);
+    pillarL.position.set(-4, 3.0, 0);
+    arch.add(pillarL);
+    const pillarR = new THREE.Mesh(new THREE.BoxGeometry(1.4, 6.0, 1.4), obsidianMat);
+    pillarR.position.set(4, 3.0, 0);
+    arch.add(pillarR);
+    const topBar = new THREE.Mesh(new THREE.BoxGeometry(10.0, 1.4, 1.6), obsidianMat);
+    topBar.position.set(0, 6.5, 0);
+    arch.add(topBar);
+    g.add(arch);
+
+    // Prop 2: Ancient Diving Bell
+    const bellGroup = new THREE.Group();
+    bellGroup.name = 'ancient_diving_bell';
+    const bell = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.8, 2.8, 16), ironMat);
+    bell.position.set(7, 1.4, -6);
+    bellGroup.add(bell);
+    g.add(bellGroup);
+
+    setupRoomMetadata(g, 'S37', [30, 14, 30], [
+      { id: 'trench_diving_bell', name: 'Ancient Pressure Diving Bell', position: [7, 1.4, -6], type: 'inspect' }
+    ]);
+  })();
+
+  // -------------------------------------------------------------------------
+  // 38. BIOLUMINESCENT CORAL TRENCH (S38) - B3 Crystal Trench
+  // Connections: S37 (West), S39 (South)
+  // -------------------------------------------------------------------------
+  (function buildCoralTrench() {
+    const g = rooms.coral_trench;
+    g.position.set(45, -56, -45);
+
+    g.add(createChamberFloor(26, 26, 0x164e63, 0x0e7490, 0.2, 0.5));
+    g.add(createChamberPerimeterWalls({
+      w: 26,
+      d: 26,
+      h: 12,
+      wallMat: gothicStoneMat,
+      trimMat: crystalVioletMat,
+      openSides: { north: false, south: true, east: false, west: true }
+    }));
+    g.add(createChamberCeiling({ w: 26, d: 26, h: 12, style: 'glass_dome', trimMat: crystalVioletMat, beamMat: crystalVioletMat }));
+
+    // Prop 1: Glowing Sugar Coral
+    const coralGroup = new THREE.Group();
+    coralGroup.name = 'glowing_sugar_coral';
+    for (let sign of [-1, 1]) {
+      const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.5, 3.2, 8), crystalCyanMat);
+      stalk.position.set(sign * 2.5, 1.6, 0);
+      stalk.rotation.z = sign * 0.2;
+      coralGroup.add(stalk);
+    }
+    g.add(coralGroup);
+
+    // Prop 2: Trench Caustic Shelf
+    const shelf = new THREE.Group();
+    shelf.name = 'trench_caustic_shelf';
+    const sPlate = new THREE.Mesh(new THREE.BoxGeometry(4.0, 0.4, 2.0), obsidianMat);
+    sPlate.position.set(0, 1.2, 6);
+    shelf.add(sPlate);
+    g.add(shelf);
+
+    setupRoomMetadata(g, 'S38', [26, 12, 26], [
+      { id: 'sugar_coral_harvest', name: 'Bioluminescent Sugar Coral', position: [0, 1.5, 0], type: 'harvest' }
+    ]);
+  })();
+
+  // -------------------------------------------------------------------------
+  // 39. DEEP ALCHEMICAL VAULT (S39) - B3 Subterranean Laboratory
+  // Connections: S31 (North), S38 (West), S40 (South)
+  // -------------------------------------------------------------------------
+  (function buildDeepAlchemicalVault() {
+    const g = rooms.deep_alchemical_vault;
+    g.position.set(45, -56, 0);
+
+    g.add(createChamberFloor(24, 24, 0x064e3b, 0x065f46, 0.2, 0.6));
+    g.add(createChamberPerimeterWalls({
+      w: 24,
+      d: 24,
+      h: 10,
+      wallMat: gothicStoneMat,
+      trimMat: goldTrimMat,
+      openSides: { north: true, south: true, east: false, west: true }
+    }));
+    g.add(createChamberCeiling({ w: 24, d: 24, h: 10, style: 'coffered', trimMat: goldTrimMat, beamMat: goldTrimMat }));
+
+    // Prop 1: Pressurized Alchemical Crucible
+    const crucibleGroup = new THREE.Group();
+    crucibleGroup.name = 'pressurized_alchemical_crucible';
+    const vat = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.4, 2.2, 16), ironMat);
+    vat.position.set(0, 1.1, 0);
+    crucibleGroup.add(vat);
+    const pressureGuage = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.06, 8, 16), goldTrimMat);
+    pressureGuage.position.set(0, 2.4, 0);
+    crucibleGroup.add(pressureGuage);
+    g.add(crucibleGroup);
+
+    // Prop 2: Subsurface Crystal Pedestal
+    const pedGroup = new THREE.Group();
+    pedGroup.name = 'subsurface_crystal_pedestal';
+    const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 1.2, 12), obsidianMat);
+    ped.position.set(5, 0.6, -4);
+    pedGroup.add(ped);
+    const shard = new THREE.Mesh(new THREE.OctahedronGeometry(0.5), crystalVioletMat);
+    shard.position.set(5, 1.6, -4);
+    pedGroup.add(shard);
+    g.add(pedGroup);
+
+    setupRoomMetadata(g, 'S39', [24, 10, 24], [
+      { id: 'deep_vault_crucible', name: 'Pressurized Alchemical Crucible', position: [0, 1.5, 0], type: 'alchemy' }
+    ]);
+  })();
+
+  // -------------------------------------------------------------------------
+  // 40. ANCIENT CORE CRUCIBLE (S40) - B3 Gothic Primordial Hearth
+  // Connections: S32 (North), S39 (East)
+  // -------------------------------------------------------------------------
+  (function buildAncientCoreCrucible() {
+    const g = rooms.ancient_core_crucible;
+    g.position.set(-45, -56, -45);
+
+    g.add(createChamberFloor(28, 28, 0x3b0764, 0x4c1d95, 0.3, 0.4));
+    g.add(createChamberPerimeterWalls({
+      w: 28,
+      d: 28,
+      h: 14,
+      wallMat: gothicStoneMat,
+      trimMat: goldTrimMat,
+      openSides: { north: true, south: false, east: true, west: false }
+    }));
+    g.add(createChamberCeiling({ w: 28, d: 28, h: 14, style: 'ribbed_vault', trimMat: goldTrimMat, beamMat: goldTrimMat }));
+
+    // Prop 1: Primordial Joy Furnace
+    const furnaceGroup = new THREE.Group();
+    furnaceGroup.name = 'primordial_joy_furnace';
+    const fBase = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.0, 3.6), obsidianMat);
+    fBase.position.set(0, 1.0, 0);
+    furnaceGroup.add(fBase);
+    const fHeart = new THREE.Mesh(new THREE.DodecahedronGeometry(1.0), crystalCyanMat);
+    fHeart.position.set(0, 2.6, 0);
+    furnaceGroup.add(fHeart);
+    g.add(furnaceGroup);
+
+    // Prop 2: Confectionery Steam Regulator
+    const steamGroup = new THREE.Group();
+    steamGroup.name = 'confectionery_steam_regulator';
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 4.5, 12), ironMat);
+    pipe.position.set(-6, 2.25, -6);
+    steamGroup.add(pipe);
+    g.add(steamGroup);
+
+    setupRoomMetadata(g, 'S40', [28, 14, 28], [
+      { id: 'core_furnace_joy', name: 'Primordial Joy Furnace', position: [0, 2.5, 0], type: 'furnace' }
     ]);
   })();
 

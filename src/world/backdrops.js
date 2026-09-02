@@ -133,7 +133,25 @@ export const BACKDROP_ASSET_MAP = {
   planetarium: 'assets/backdrops/backdrop_planetarium.svg',
   S26: 'assets/backdrops/backdrop_sunken_grotto.svg',
   crystal_grotto: 'assets/backdrops/backdrop_crystal_grotto.svg',
-  sunken_grotto: 'assets/backdrops/backdrop_sunken_grotto.svg'
+  sunken_grotto: 'assets/backdrops/backdrop_sunken_grotto.svg',
+
+  // S33 - S40 (5F Astral Spire & B3 Abyssal Trench)
+  S33: 'assets/backdrops/backdrop_astral_spire_peak.svg',
+  astral_spire_peak: 'assets/backdrops/backdrop_astral_spire_peak.svg',
+  S34: 'assets/backdrops/backdrop_starlight_sanctuary.svg',
+  starlight_sanctuary: 'assets/backdrops/backdrop_starlight_sanctuary.svg',
+  S35: 'assets/backdrops/backdrop_celestial_chamber.svg',
+  celestial_chamber: 'assets/backdrops/backdrop_celestial_chamber.svg',
+  S36: 'assets/backdrops/backdrop_moonbeam_zenith.svg',
+  moonbeam_zenith: 'assets/backdrops/backdrop_moonbeam_zenith.svg',
+  S37: 'assets/backdrops/backdrop_abyssal_trench_gateway.svg',
+  abyssal_trench_gateway: 'assets/backdrops/backdrop_abyssal_trench_gateway.svg',
+  S38: 'assets/backdrops/backdrop_coral_trench.svg',
+  coral_trench: 'assets/backdrops/backdrop_coral_trench.svg',
+  S39: 'assets/backdrops/backdrop_deep_alchemical_vault.svg',
+  deep_alchemical_vault: 'assets/backdrops/backdrop_deep_alchemical_vault.svg',
+  S40: 'assets/backdrops/backdrop_ancient_core_crucible.svg',
+  ancient_core_crucible: 'assets/backdrops/backdrop_ancient_core_crucible.svg'
 };
 
 /**

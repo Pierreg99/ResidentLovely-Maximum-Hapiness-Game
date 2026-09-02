@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 .system_generated/
+*.tar.gz
+dev_server.py
+update_sw.py

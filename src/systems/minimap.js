@@ -15,12 +15,14 @@ import {
 } from '../world/sectors.js';
 
 export const FLOOR_METADATA = {
+  '5F': { label: '5F (ASTRAL SPIRE)', subtitle: 'CELESTIAL PEAK & STAR SANCTUARY' },
   '4F': { label: '4F (ROOFTOP)', subtitle: 'MOONLIT ROOFTOP & BELFRY' },
   '3F': { label: '3F (CATHEDRAL)', subtitle: 'CRYSTAL CATHEDRAL & MIRROR MAZE' },
   '2F': { label: '2F (MEZZANINE)', subtitle: 'OBSERVATORY, SUITES & BALLROOM' },
   '1F': { label: '1F (GROUND)', subtitle: 'ESTATE WINGS, FOYER & SALONS' },
   'B1': { label: 'B1 (LABORATORY)', subtitle: 'SUBTERRANEAN SUGAR LAB' },
   'B2': { label: 'B2 (SUBTERRANEAN)', subtitle: 'CRYPT, UNDERGROUND RIVER & VAULT' },
+  'B3': { label: 'B3 (ABYSSAL TRENCH)', subtitle: 'CORAL TRENCH & ANCIENT CRUCIBLE' },
   'OUTDOOR': { label: 'OUTDOOR (GROUNDS)', subtitle: 'VILLAGE, DOCKS, FOREST & MEADOW' }
 };
 
@@ -53,6 +55,14 @@ export const FLOOR_LAYOUTS = {
       S29: { x: 530, y: 250, w: 140, h: 90 }
     }
   },
+  '5F': {
+    positions: {
+      S36: { x: 260, y: 170, w: 140, h: 90 },
+      S33: { x: 540, y: 170, w: 140, h: 90 },
+      S34: { x: 540, y: 330, w: 140, h: 90 },
+      S35: { x: 260, y: 330, w: 140, h: 90 }
+    }
+  },
   '4F': {
     positions: {
       S28: { x: 290, y: 250, w: 140, h: 90 },
@@ -70,6 +80,14 @@ export const FLOOR_LAYOUTS = {
       S30: { x: 400, y: 260, w: 150, h: 90 },
       S32: { x: 210, y: 385, w: 135, h: 85 },
       S31: { x: 590, y: 385, w: 135, h: 85 }
+    }
+  },
+  'B3': {
+    positions: {
+      S37: { x: 260, y: 170, w: 140, h: 90 },
+      S38: { x: 540, y: 170, w: 140, h: 90 },
+      S39: { x: 540, y: 330, w: 140, h: 90 },
+      S40: { x: 260, y: 330, w: 140, h: 90 }
     }
   },
   'OUTDOOR': {
