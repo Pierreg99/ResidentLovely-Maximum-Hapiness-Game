@@ -44,7 +44,7 @@ float fbm2D(vec2 p) {
   mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
   for (int i = 0; i < 4; i++) {
     v += a * valueNoise2D(p);
-    p = rot * p * 2.0 + vec2(100.0);
+    p = rot * p * 2.0 + vec2(100.0, 100.0);
     a *= 0.5;
   }
   return v;
@@ -780,7 +780,7 @@ void main() {
   }
 
   vec2 centerUv = vUv - 0.5;
-  vec3 accumulatedLight = vec3(0.0);
+  vec3 accumulatedLight = vec3(0.0, 0.0, 0.0);
   float totalWeight = 0.0;
 
   // Recursive depth tunnel step loop
@@ -964,7 +964,7 @@ void main() {
   float verticalFade = smoothstep(0.05, 0.4, uv.y) * (1.0 - smoothstep(0.7, 0.98, uv.y));
   aurora *= verticalFade;
 
-  float stardust = hash21(floor(uv * 90.0) + vec2(floor(uTime * 4.0)));
+  float stardust = hash21(floor(uv * 90.0) + vec2(floor(uTime * 4.0), floor(uTime * 4.0)));
   float twinkle = step(0.985, stardust) * (0.5 + 0.5 * sin(uTime * 12.0));
 
   vec3 col = mix(uZenithColor, uAuroraCyan, aurora * 1.4);
@@ -1407,7 +1407,7 @@ vec3 perturbNormal(vec3 worldPos, vec3 surfNormal, vec2 uv, float roughness, flo
   float hy = fbm2D(p + vec2(0.0, 0.01));
   vec2 grad = vec2(hx - h0, hy - h0) / 0.01;
   vec3 N = normalize(surfNormal);
-  vec3 T = normalize(cross(N, vec3(0.0, 1.0, 0.0) + vec3(0.001)));
+  vec3 T = normalize(cross(N, vec3(0.0, 1.0, 0.0) + vec3(0.001, 0.001, 0.001)));
   vec3 B = cross(N, T);
   vec3 bumpNormal = normalize(N - (T * grad.x + B * grad.y) * (1.0 - roughness) * 0.5);
   return bumpNormal;

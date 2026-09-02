@@ -314,7 +314,7 @@ void main() {
   // Apply camera parallax offset to texture UV coordinates
   vec2 uv = clamp(vUv + uParallaxOffset, 0.0, 1.0);
 
-  vec4 baseColor = vec4(0.0);
+  vec4 baseColor = vec4(0.0, 0.0, 0.0, 0.0);
 
   if (uUseTexture > 0.5) {
     baseColor = texture2D(uTexture, uv);
@@ -325,9 +325,9 @@ void main() {
     
     // Subtle animated ambient wave and star shimmer
     float wave = sin(uv.x * 12.0 + uTime * 1.2) * cos(uv.y * 10.0 + uTime * 0.8) * 0.04;
-    float starMote = hash(floor(uv * 90.0) + floor(uTime * 0.5)) * 0.08;
+    float starMote = hash(floor(uv * 90.0) + vec2(floor(uTime * 0.5), floor(uTime * 0.5))) * 0.08;
     
-    vec3 proceduralRgb = mix(skyGradient, uBiomeColor, 0.22) + vec3(wave + starMote);
+    vec3 proceduralRgb = mix(skyGradient, uBiomeColor, 0.22) + vec3(wave + starMote, wave + starMote, wave + starMote);
     baseColor = vec4(proceduralRgb, 1.0);
   }
 

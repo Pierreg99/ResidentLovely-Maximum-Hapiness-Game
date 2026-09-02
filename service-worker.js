@@ -1,4 +1,4 @@
-const CACHE_NAME = 'resident-lovely-v7.0.0-cache';
+const CACHE_NAME = 'resident-lovely-v7.0.1-cache';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -80,11 +80,18 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResp) => {
       return cachedResp || fetch(event.request).catch((err) => {
-        // Prevent JS modules from falling back to index.html (which causes opaque syntax errors)
-        if (event.request.url.endsWith('.js')) {
+        const url = event.request.url.split('?')[0].split('#')[0];
+        // Prevent JS modules/scripts from falling back to index.html (which causes "Unexpected token '<'" SyntaxError)
+        if (url.endsWith('.js') || event.request.destination === 'script') {
           return new Response('console.error("SW: Failed to fetch module", "' + event.request.url + '");', {
             status: 404,
             headers: { 'Content-Type': 'application/javascript' }
+          });
+        }
+        if (url.endsWith('.css') || event.request.destination === 'style') {
+          return new Response('/* SW: CSS fetch failed */', {
+            status: 404,
+            headers: { 'Content-Type': 'text/css' }
           });
         }
         return caches.match('./index.html');
