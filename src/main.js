@@ -1035,7 +1035,7 @@ function launchGame() {
     }, 650);
   }
 
-  showToast('❖ RESIDENT LOVELY v6.3.0 MASTERWORK EDITION READY ❖');
+  showToast('❖ RESIDENT LOVELY v7.0.0 MASTERWORK EDITION READY ❖');
 }
 
 // Stage 1: Geometry and Entities Initialized
@@ -1066,6 +1066,11 @@ setTimeout(() => {
     btnEnterChateau.style.display = 'block';
     btnEnterChateau.addEventListener('click', launchGame);
     btnEnterChateau.addEventListener('touchstart', launchGame, { passive: true });
+  }
+  if (loadingScreen) {
+    loadingScreen.style.cursor = 'pointer';
+    loadingScreen.addEventListener('click', launchGame);
+    loadingScreen.addEventListener('touchstart', launchGame, { passive: true });
   }
 }, 120);
 

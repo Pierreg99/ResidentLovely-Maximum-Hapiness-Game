@@ -44,6 +44,7 @@ export function createGrump(pos, roomName, type = 'bear') {
       star.visible = false;
       gGroup.add(star);
       stars.push(star);
+    }
 
     // Floppy Bear Ears with Inner Felt
     for (let x of [-0.2, 0.2]) {
