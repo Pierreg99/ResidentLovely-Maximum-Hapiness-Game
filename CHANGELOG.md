@@ -196,3 +196,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
 
 ### Added
 - **Core 3D WebGL Engine & 8-Slot Inventory Grid**.
+
+## v7.0.0 — R3F Maximum Happiness port (2026-09-03)
+
+- 20 playable maps with unique biomes, centerpieces, weather, and door gating
+- 20 quests (piano triad, alchemy, lanterns, behemoth, lighthouse, ice heart, glass rose, terrace bells)
+- Realistic kawaii 3D rigs for Agent Joy, six NPCs, and plush Grumps
+- Tank controls with verified A = left / D = right, touch sticks, local save
+- Source for the Grok web port lives in `r3f/`
