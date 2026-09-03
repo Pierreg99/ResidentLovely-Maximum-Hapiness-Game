@@ -10,7 +10,7 @@ import json
 import os
 import re
 
-PROJECT_ROOT = '/data/data/com.termux/files/home/projects/resident-lovely-game'
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 class TestChamberGeometryExpansion(unittest.TestCase):
 

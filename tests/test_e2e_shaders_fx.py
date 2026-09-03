@@ -33,7 +33,7 @@ import subprocess
 # DIRECTORY ROOTS & GLOBAL PATH RESOLUTION
 # -----------------------------------------------------------------------------
 GAME_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-WEBBY_DIR = '/data/data/com.termux/files/home/projects/cryo-omega/webby'
+WEBBY_DIR = os.path.abspath(os.path.join(GAME_DIR, 'webby'))
 WEBBY_RL_DIR = os.path.join(WEBBY_DIR, 'resident-lovely')
 
 SRC_DIR = os.path.join(GAME_DIR, 'src')

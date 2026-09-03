@@ -1,0 +1,18 @@
+{
+  "name": "Resident Lovely ❖ Maximum Happiness 3D",
+  "short_name": "Resident Lovely",
+  "description": "Over-the-shoulder 3D action-adventure survival-joy game parodying survival-horror mechanics with Maximum Happiness.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#05070a",
+  "theme_color": "#05070a",
+  "icons": [
+    {
+      "src": "assets/resident-lovely-banner.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
