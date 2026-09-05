@@ -2,7 +2,7 @@
 
 **Project**: `Pierreg99/ResidentLovely-Maximum-Hapiness-Game`  
 **Classification**: NEXUS PRIVÉ v6.3 Standard | Strict Zero-Emoji Protocol  
-**Latest Version**: `v7.4.0`  
+**Latest Version**: `v7.4.1`  
 **Last Updated**: 2026-09-06  
 
 ---
@@ -137,4 +137,10 @@ OUTDOOR (GROUNDS & NATURE):
 - Merged **PR #6** (v7.3 P1 Low-Retune presets) into main as foundation.
 - Delivered **v7.4.0**: richer kawaii graphics (pastel lighting, additive FX, petalCap), solid touch (floating stick + look + large actions), Pages SW `v7.4.0-cache`.
 - Desktop mouse/keyboard path unchanged; virtual controls hidden on fine-pointer hover devices.
+
+
+## 5b. ❖ v7.4.1 Ship-Complete (2026-09-06)
+
+- Patch release for progress-track 100%: no critical runtime FIXMEs; cache bust `v7.4.1`.
+- Pages deploy remains Actions-based; play URL unchanged.
 

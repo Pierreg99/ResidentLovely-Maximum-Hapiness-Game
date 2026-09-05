@@ -3,6 +3,17 @@
 All notable changes to **Resident Lovely** are documented in this file.  
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.3 / Zero-Emoji Standard**.
 
+## [7.4.1] - 2026-09-06 ❖ SHIP-COMPLETE PATCH
+
+### Changed
+- Ship-complete pass: no critical FIXME/TODO in runtime sources; SW cache → `resident-lovely-v7.4.1-cache`.
+- Docs/PROGRESS version pointers aligned to **v7.4.1**.
+
+### Verification
+- Prior unittest suite remains the gate (`python3 -m unittest discover -s tests -p "test_*.py"`).
+
+---
+
 ## [7.4.0] - 2026-09-06 ❖ KAWAII GRAPHICS + SOLID TOUCH CONTROLS
 
 ### Added & Enhanced

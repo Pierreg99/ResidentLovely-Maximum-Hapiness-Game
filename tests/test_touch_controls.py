@@ -47,7 +47,7 @@ class TestTouchControlsV74(unittest.TestCase):
         self.assertIn("AdditiveBlending", self.scene_js)
 
     def test_sw_cache_v74(self):
-        self.assertIn("resident-lovely-v7.4.0-cache", self.sw)
+        self.assertIn("resident-lovely-v7.4.1-cache", self.sw)
 
 
 if __name__ == "__main__":
