@@ -28,9 +28,9 @@ export const player = {
   hairInertia: 0,
   footstepTimer: 0,
   springBones: {
-    leftPigtail: { angleX: 0, angleZ: -0.3, velX: 0, velZ: 0, targetX: 0, targetZ: -0.3, stiffness: 110, damping: 14 },
-    rightPigtail: { angleX: 0, angleZ: 0.3, velX: 0, velZ: 0, targetX: 0, targetZ: 0.3, stiffness: 110, damping: 14 },
-    ribbonBows: { angleY: 0, velY: 0, stiffness: 130, damping: 16 }
+    leftPigtail: { angleX: 0, angleZ: -0.34, velX: 0, velZ: 0, targetX: 0, targetZ: -0.34, stiffness: 125, damping: 12 },
+    rightPigtail: { angleX: 0, angleZ: 0.34, velX: 0, velZ: 0, targetX: 0, targetZ: 0.34, stiffness: 125, damping: 12 },
+    ribbonBows: { angleY: 0, velY: 0, stiffness: 150, damping: 13 }
   },
   gaze: { x: 0, y: 0, targetX: 0, targetY: 0 },
   emotes: {
@@ -54,20 +54,32 @@ export function initPlayer() {
   });
   const bootMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.28, metalness: 0.48, envMapIntensity: 1.1 });
   const silverMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.92, roughness: 0.12, envMapIntensity: 1.25 });
+  // v7.2 kawaii-realistic face / hair (still MeshStandard PBR)
   const headMat = new THREE.MeshStandardMaterial({
-    color: 0xffedd5, roughness: 0.48, metalness: 0.02,
-    emissive: 0xfda4af, emissiveIntensity: 0.04
+    color: 0xffe4e6, roughness: 0.42, metalness: 0.02,
+    emissive: 0xfda4af, emissiveIntensity: 0.07
   });
   const hairMat = new THREE.MeshStandardMaterial({
-    color: 0x38bdf8, roughness: 0.32, metalness: 0.15,
-    emissive: 0x0284c7, emissiveIntensity: 0.18, envMapIntensity: 1.1
+    color: 0x7dd3fc, roughness: 0.22, metalness: 0.28,
+    emissive: 0x0284c7, emissiveIntensity: 0.28, envMapIntensity: 1.45
   });
   const ribbonMat = new THREE.MeshStandardMaterial({
-    color: 0xf472b6, roughness: 0.28, metalness: 0.08,
-    emissive: 0xdb2777, emissiveIntensity: 0.12
+    color: 0xfb7185, roughness: 0.18, metalness: 0.14,
+    emissive: 0xdb2777, emissiveIntensity: 0.22, envMapIntensity: 1.2
   });
-  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.15, metalness: 0.35 });
+  const eyeMat = new THREE.MeshStandardMaterial({
+    color: 0x0f172a, roughness: 0.08, metalness: 0.55,
+    emissive: 0x1e3a8a, emissiveIntensity: 0.06, envMapIntensity: 1.35
+  });
+  const eyeIrisMat = new THREE.MeshStandardMaterial({
+    color: 0x38bdf8, roughness: 0.12, metalness: 0.4,
+    emissive: 0x0ea5e9, emissiveIntensity: 0.35, envMapIntensity: 1.2
+  });
   const eyeHighlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const blushMat = new THREE.MeshStandardMaterial({
+    color: 0xfbcfe8, roughness: 0.55, metalness: 0.0,
+    emissive: 0xf472b6, emissiveIntensity: 0.45, transparent: true, opacity: 0.72
+  });
 
   // 1. Chibi Torso with Tactical Pastel Vest
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.44, 1.2, 16), vestMat);
@@ -119,71 +131,95 @@ export function initPlayer() {
   const hGroup = player.headGroup;
   pGroup.add(hGroup);
 
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 20), headMat);
-  head.position.y = 1.55;
+  // Rounder chibi head (slight Y squash for cute silhouette)
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.46, 22, 22), headMat);
+  head.scale.set(1.06, 0.96, 1.04);
+  head.position.y = 1.52;
   head.castShadow = true;
   hGroup.add(head);
 
-  // Large Glossy Anime Eyes facing +Z Front
-  for (let x of [-0.16, 0.16]) {
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), eyeMat);
-    eye.scale.set(1, 1.3, 0.4);
-    eye.position.set(x, 1.58, 0.38);
-    hGroup.add(eye);
-    player.eyes.push(eye);
+  // Bigger glossy anime eyes facing +Z Front (iris + wet specular)
+  for (let x of [-0.18, 0.18]) {
+    const eyeWhite = new THREE.Mesh(new THREE.SphereGeometry(0.128, 14, 14), eyeMat);
+    eyeWhite.scale.set(1.05, 1.45, 0.38);
+    eyeWhite.position.set(x, 1.56, 0.40);
+    hGroup.add(eyeWhite);
+    player.eyes.push(eyeWhite);
 
-    // Specular Star Highlights
-    const h1 = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), eyeHighlightMat);
-    h1.position.set(x - 0.03, 1.62, 0.42);
+    const iris = new THREE.Mesh(new THREE.SphereGeometry(0.072, 12, 12), eyeIrisMat);
+    iris.scale.set(1.0, 1.15, 0.45);
+    iris.position.set(x, 1.55, 0.445);
+    hGroup.add(iris);
+
+    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.032, 10, 10), eyeMat);
+    pupil.scale.set(1.0, 1.2, 0.5);
+    pupil.position.set(x, 1.545, 0.47);
+    hGroup.add(pupil);
+
+    // Specular star / catchlight stack
+    const h1 = new THREE.Mesh(new THREE.SphereGeometry(0.042, 8, 8), eyeHighlightMat);
+    h1.position.set(x - 0.04, 1.61, 0.48);
     hGroup.add(h1);
 
-    const h2 = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), eyeHighlightMat);
-    h2.position.set(x + 0.03, 1.54, 0.42);
+    const h2 = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), eyeHighlightMat);
+    h2.position.set(x + 0.035, 1.52, 0.48);
     hGroup.add(h2);
 
-    // Rosy Pink Blush Cheeks
-    const blush = new THREE.Mesh(new THREE.CircleGeometry(0.075, 12), new THREE.MeshBasicMaterial({ color: 0xf472b6, transparent: true, opacity: 0.75 }));
-    blush.position.set(x * 1.5, 1.46, 0.39);
+    const h3 = new THREE.Mesh(new THREE.SphereGeometry(0.014, 6, 6), eyeHighlightMat);
+    h3.position.set(x - 0.01, 1.50, 0.485);
+    hGroup.add(h3);
+
+    // Softer rosy blush cheeks (PBR emissive)
+    const blush = new THREE.Mesh(new THREE.CircleGeometry(0.095, 16), blushMat);
+    blush.position.set(x * 1.55, 1.42, 0.41);
     hGroup.add(blush);
   }
 
   // 3. Cyan S.M.I.L.E. Beret with Star Badge
   const beretMat = new THREE.MeshStandardMaterial({
-    color: 0x22d3ee, roughness: 0.28, metalness: 0.12,
-    emissive: 0x0891b2, emissiveIntensity: 0.16, envMapIntensity: 1.05
+    color: 0x67e8f9, roughness: 0.22, metalness: 0.18,
+    emissive: 0x0891b2, emissiveIntensity: 0.22, envMapIntensity: 1.2
   });
-  const beret = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.48, 0.16, 18), beretMat);
-  beret.position.set(0, 1.88, -0.05);
+  const beret = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.15, 18), beretMat);
+  beret.position.set(0, 1.90, -0.05);
   beret.rotation.z = 0.12;
   hGroup.add(beret);
 
-  const starBadge = new THREE.Mesh(new THREE.OctahedronGeometry(0.08), goldTrimMat);
-  starBadge.position.set(-0.25, 1.92, 0.32);
+  const starBadge = new THREE.Mesh(new THREE.OctahedronGeometry(0.09), goldTrimMat);
+  starBadge.position.set(-0.27, 1.94, 0.34);
   hGroup.add(starBadge);
 
-  // 4. Bouncing Twin-Tail Hair Meshes with Pink Ribbon Bows (-Z Back)
-  const tailGeo = new THREE.ConeGeometry(0.12, 0.6, 12);
+  // 4. Bouncier twin-tails + larger ribbon bows (stronger specular)
+  const tailGeo = new THREE.ConeGeometry(0.14, 0.68, 12);
   tailGeo.rotateX(Math.PI);
 
   const leftTail = new THREE.Mesh(tailGeo, hairMat);
-  leftTail.position.set(-0.42, 1.55, -0.15);
-  leftTail.rotation.z = -0.3;
+  leftTail.position.set(-0.46, 1.52, -0.16);
+  leftTail.rotation.z = -0.34;
+  leftTail.castShadow = true;
   hGroup.add(leftTail);
   player.leftPigtail = leftTail;
 
-  const leftBow = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.06), ribbonMat);
-  leftBow.position.set(-0.38, 1.72, -0.12);
+  const leftBow = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.10, 0.07), ribbonMat);
+  leftBow.position.set(-0.40, 1.74, -0.12);
   hGroup.add(leftBow);
+  const leftBowKnot = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), ribbonMat);
+  leftBowKnot.position.set(-0.40, 1.74, -0.08);
+  hGroup.add(leftBowKnot);
 
   const rightTail = new THREE.Mesh(tailGeo, hairMat);
-  rightTail.position.set(0.42, 1.55, -0.15);
-  rightTail.rotation.z = 0.3;
+  rightTail.position.set(0.46, 1.52, -0.16);
+  rightTail.rotation.z = 0.34;
+  rightTail.castShadow = true;
   hGroup.add(rightTail);
   player.rightPigtail = rightTail;
 
-  const rightBow = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.06), ribbonMat);
-  rightBow.position.set(0.38, 1.72, -0.12);
+  const rightBow = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.10, 0.07), ribbonMat);
+  rightBow.position.set(0.40, 1.74, -0.12);
   hGroup.add(rightBow);
+  const rightBowKnot = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8), ribbonMat);
+  rightBowKnot.position.set(0.40, 1.74, -0.08);
+  hGroup.add(rightBowKnot);
 
   // Articulated Arms & Tactical Wrist Cuffs
   const cuffMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.26, metalness: 0.55, envMapIntensity: 1.15 });
@@ -275,12 +311,12 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
   if (player.blinkTimer <= 0) {
     player.eyes.forEach(e => { e.scale.y = 0.1; });
     setTimeout(() => {
-      const targetScaleY = player.isAiming ? 0.95 : 1.3;
+      const targetScaleY = player.isAiming ? 1.05 : 1.45;
       player.eyes.forEach(e => { e.scale.y = targetScaleY; });
       player.blinkTimer = Math.random() * 3.5 + 2.5; // Next blink in 2.5-6s
     }, 120);
   } else {
-    const targetScaleY = player.isAiming ? 0.95 : 1.3;
+    const targetScaleY = player.isAiming ? 1.05 : 1.45;
     player.eyes.forEach(e => { e.scale.y = THREE.MathUtils.lerp(e.scale.y, targetScaleY, 0.2); });
   }
 

@@ -8,9 +8,35 @@ scene.fog = new THREE.Fog(0x05070a, 35, 110);
 const initW = (typeof window !== 'undefined' && window.innerWidth) ? window.innerWidth : 800;
 const initH = (typeof window !== 'undefined' && window.innerHeight) ? window.innerHeight : 600;
 
-export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+/** v7.2 mobile / low-DPR quality profile (Pages-friendly) */
+export function detectGraphicsQuality() {
+  const w = (typeof window !== 'undefined' && window.innerWidth) ? window.innerWidth : 1200;
+  const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
+  const narrow = (typeof window !== 'undefined' && typeof window.matchMedia === 'function')
+    ? window.matchMedia('(max-width: 768px)').matches
+    : w <= 768;
+  const lowDpr = dpr <= 1.25;
+  const isMobile = narrow || (w <= 768);
+  const maxPixelRatio = isMobile ? Math.min(1.25, dpr) : Math.min(1.5, dpr);
+  const shadowMapSize = isMobile ? 512 : (lowDpr ? 768 : 1024);
+  const fxScale = isMobile ? 0.45 : 1.0;
+  const enableExpensiveFx = !isMobile;
+  return { isMobile, lowDpr, maxPixelRatio, shadowMapSize, fxScale, enableExpensiveFx };
+}
+
+export let graphicsQuality = detectGraphicsQuality();
+
+function applyRendererPixelRatio() {
+  graphicsQuality = detectGraphicsQuality();
+  renderer.setPixelRatio(graphicsQuality.maxPixelRatio);
+}
+
+export const renderer = new THREE.WebGLRenderer({
+  antialias: !graphicsQuality.isMobile,
+  powerPreference: 'high-performance'
+});
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+applyRendererPixelRatio();
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 if ('physicallyCorrectLights' in renderer) renderer.physicallyCorrectLights = true;
@@ -18,7 +44,7 @@ if (THREE.sRGBEncoding !== undefined && 'outputEncoding' in renderer) {
   renderer.outputEncoding = THREE.sRGBEncoding;
 }
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.25;
+renderer.toneMappingExposure = graphicsQuality.isMobile ? 1.18 : 1.28;
 
 if (typeof document !== 'undefined') {
   const container = document.getElementById('canvas-container');
@@ -32,7 +58,13 @@ if (typeof window !== 'undefined') {
     const w = window.innerWidth || 800;
     const h = window.innerHeight || 600;
     renderer.setSize(w, h);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    applyRendererPixelRatio();
+    // Re-bias shadow map on orientation / breakpoint change when possible
+    if (sunLight && sunLight.shadow && sunLight.shadow.mapSize) {
+      const sz = graphicsQuality.shadowMapSize;
+      sunLight.shadow.mapSize.width = sz;
+      sunLight.shadow.mapSize.height = sz;
+    }
   });
 
   if (renderer.domElement && typeof renderer.domElement.addEventListener === 'function') {
@@ -44,38 +76,39 @@ if (typeof window !== 'undefined') {
     renderer.domElement.addEventListener('webglcontextrestored', () => {
       console.info('[WebGL Info]: Context restored successfully.');
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      applyRendererPixelRatio();
     }, false);
   }
 }
 
-// Soft fill ambient (kept moderate so directional shadows read clearly)
-export const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.42);
+// Soft pastel fill ambient (warmer kawaii key; shadows still read)
+export const ambientLight = new THREE.AmbientLight(0xfbcfe8, 0.38);
 scene.add(ambientLight);
 
-// Hemisphere bounce for marble floors / gold trim (sky vs ground AO feel)
+// Soft kawaii fill (pink-lavender sky / warm stone ground)
 export const hemiLight = (typeof THREE.HemisphereLight === 'function')
-  ? new THREE.HemisphereLight(0x7dd3fc, 0x1c1917, 0.55)
-  : new THREE.AmbientLight(0x7dd3fc, 0.28);
+  ? new THREE.HemisphereLight(0xf9a8d4, 0x292524, 0.62)
+  : new THREE.AmbientLight(0xf9a8d4, 0.32);
 if (hemiLight.position && hemiLight.position.set) hemiLight.position.set(0, 40, 0);
 scene.add(hemiLight);
 
-// Primary Directional Sun Light with tightened shadow frustum
-export const sunLight = new THREE.DirectionalLight(0xffedd5, 1.55);
-sunLight.position.set(18, 34, 14);
+// Warmer kawaii key + realistic contact shadows (adaptive map size)
+export const sunLight = new THREE.DirectionalLight(0xffe4c7, 1.48);
+sunLight.position.set(16, 32, 12);
 sunLight.castShadow = true;
 if (sunLight.shadow) {
   if (sunLight.shadow.mapSize) {
-    sunLight.shadow.mapSize.width = 1024;
-    sunLight.shadow.mapSize.height = 1024;
+    const sz = graphicsQuality.shadowMapSize;
+    sunLight.shadow.mapSize.width = sz;
+    sunLight.shadow.mapSize.height = sz;
   }
-  sunLight.shadow.bias = -0.0005;
-  sunLight.shadow.normalBias = 0.02;
-  sunLight.shadow.radius = 2.5;
+  sunLight.shadow.bias = -0.00045;
+  sunLight.shadow.normalBias = 0.025;
+  sunLight.shadow.radius = graphicsQuality.isMobile ? 1.8 : 2.8;
   if (!sunLight.shadow.camera) sunLight.shadow.camera = {};
   const sc = sunLight.shadow.camera;
   sc.near = 2;
-  sc.far = 90;
+  sc.far = graphicsQuality.isMobile ? 72 : 90;
   sc.left = -28;
   sc.right = 28;
   sc.top = 28;
@@ -83,10 +116,15 @@ if (sunLight.shadow) {
 }
 scene.add(sunLight);
 
-// Cool rim / fill key for character and gold edge read on mobile
-export const rimLight = new THREE.DirectionalLight(0x22d3ee, 0.35);
+// Soft cool rim for character / gold edge (cheaper than second shadow caster)
+export const rimLight = new THREE.DirectionalLight(0xa5f3fc, 0.32);
 rimLight.position.set(-12, 18, -10);
 scene.add(rimLight);
+
+// Extra soft fill key (no shadows) — peach blush light for kawaii realism
+export const softFillLight = new THREE.DirectionalLight(0xfda4af, 0.28);
+softFillLight.position.set(-6, 14, 18);
+scene.add(softFillLight);
 
 // --- Dedicated Dynamic Point Lights per Sector (32 Sectors) ---
 export const sectorPointLights = {};
@@ -629,7 +667,10 @@ export function updatePetals(delta, time) {
     depthWrite: false
   });
   const rays = new THREE.Mesh(rayGeo, rayMat);
-  scene.add(rays);
+  rays.name = 'kawaii_god_rays';
+  if (graphicsQuality.enableExpensiveFx) {
+    scene.add(rays);
+  }
 })();
 
 // Confetti Burst System
@@ -638,7 +679,8 @@ const particleGeo = new THREE.PlaneGeometry(0.18, 0.18);
 const colors = [0xf59e0b, 0x22d3ee, 0xec4899, 0x10b981, 0xa855f7, 0xf43f5e, 0x38bdf8];
 
 export function spawnConfetti(pos, count = 35) {
-  for (let i = 0; i < count; i++) {
+  const scaled = Math.max(4, Math.floor(count * (graphicsQuality?.fxScale ?? 1)));
+  for (let i = 0; i < scaled; i++) {
     const mat = new THREE.MeshBasicMaterial({
       color: colors[Math.floor(Math.random() * colors.length)],
       side: THREE.DoubleSide
@@ -663,7 +705,8 @@ const heartShapeGeo = new THREE.OctahedronGeometry(0.22);
 const heartColors = [0xec4899, 0xf43f5e, 0xfb7185, 0xf472b6, 0xa855f7, 0x22d3ee];
 
 export function spawnHeartBubbles(pos, count = 16) {
-  for (let i = 0; i < count; i++) {
+  const scaled = Math.max(3, Math.floor(count * (graphicsQuality?.fxScale ?? 1)));
+  for (let i = 0; i < scaled; i++) {
     const color = heartColors[Math.floor(Math.random() * heartColors.length)];
     const mat = new THREE.MeshBasicMaterial({
       color,
@@ -724,8 +767,10 @@ const sparkleGeo = new THREE.OctahedronGeometry(0.09);
 const sparkleColors = [0xfde047, 0xf472b6, 0x38bdf8, 0x4ade80, 0xc084fc];
 
 export function spawnSparkleFootstep(pos) {
-  if (sparkleFootsteps.length > 40) return; // Pool cap for performance
-  for (let i = 0; i < 3; i++) {
+  const poolCap = graphicsQuality.isMobile ? 18 : 40;
+  if (sparkleFootsteps.length > poolCap) return; // Pool cap for performance
+  const n = graphicsQuality.isMobile ? 1 : 3;
+  for (let i = 0; i < n; i++) {
     const color = sparkleColors[Math.floor(Math.random() * sparkleColors.length)];
     const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9 });
     const mesh = new THREE.Mesh(sparkleGeo, mat);
@@ -887,7 +932,9 @@ const mistMat = new THREE.MeshBasicMaterial({
 
 export function updateGroundMist(delta, time, playerPos) {
   if (!playerPos) return;
-  if (groundMistParticles.length < 24 && Math.random() < 0.2) {
+  const mistCap = graphicsQuality.isMobile ? 10 : 24;
+  if (!graphicsQuality.enableExpensiveFx && Math.random() > 0.35) return;
+  if (groundMistParticles.length < mistCap && Math.random() < (graphicsQuality.isMobile ? 0.08 : 0.2)) {
     const mesh = new THREE.Mesh(mistGeo, mistMat);
     const offsetX = (Math.random() - 0.5) * 32.0;
     const offsetZ = (Math.random() - 0.5) * 32.0;
