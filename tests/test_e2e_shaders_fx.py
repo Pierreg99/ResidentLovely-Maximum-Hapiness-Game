@@ -640,14 +640,19 @@ class TestTier1FeatureCoverage(BaseE2ETest):
         self.assertIn("sunLight.castShadow = true", self.scene_js)
         self.assertIn("shadowMapSize", self.scene_js)
         self.assertIn("graphicsQuality.shadowMapSize", self.scene_js)
-        self.assertRegex(self.scene_js, r'shadowMapSize\s*=\s*isMobile\s*\?\s*512')
+        self.assertIn("PIXEL_BUDGET_CAP", self.scene_js)
+        self.assertIn("preset", self.scene_js)
+        self.assertRegex(self.scene_js, r'shadowMapSize\s*=\s*512')
         point_lights = [pl for pl in re.findall(r'(\w+Light)\.castShadow\s*=\s*true', self.scene_js) if pl != 'sunLight']
         self.assertEqual(len(point_lights), 0, "Chamber point lights must not cast shadows (mobile budget).")
 
     def test_f6_03_aces_filmic_tone_mapping_configured(self):
         """F6.3: Verify ACESFilmicToneMapping and exposure are set."""
         self.assertIn("renderer.toneMapping = THREE.ACESFilmicToneMapping", self.scene_js)
-        self.assertRegex(self.scene_js, r'toneMappingExposure\s*=\s*graphicsQuality\.isMobile\s*\?\s*1\.18\s*:\s*1\.28')
+        self.assertIn("graphicsQuality.exposure", self.scene_js)
+        self.assertRegex(self.scene_js, r'exposure\s*=\s*1\.18')
+        self.assertRegex(self.scene_js, r'exposure\s*=\s*1\.28')
+        self.assertRegex(self.scene_js, r'fxScale\s*=\s*0\.55')
 
     def test_f6_04_frame_computation_budget_simulation(self):
         """F6.4: Validate mathematical frame simulation completes well under 5.0ms."""
