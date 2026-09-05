@@ -1,4 +1,47 @@
-# Resident Lovely — Graphics Upgrade Notes (v7.1.0)
+# Resident Lovely — Graphics Upgrade Notes
+
+## v7.2.0 — Kawaii-Realistic Mobile Graphics (2026-09-05)
+
+**Scope**: More kawaii *and* more realistic look; stronger Pages / mobile friendliness  
+**Constraint**: Procedural only (no new binaries); leave `r3f/` alone (canonical playable surface remains Vanilla ESM at repo root for GitHub Pages)
+
+### Player (`src/entities/player.js`)
+- Rounder chibi head proportions (slight Y-squash)
+- Bigger glossy anime eyes with iris / pupil / multi-catchlight stack
+- Softer PBR blush (emissive pink instead of flat Basic)
+- Stronger hair specular + ribbon metalness / bounce springs; larger twin-tails & bows
+
+### Lighting & mobile budget (`src/world/scene.js`)
+- Warmer kawaii key + soft peach fill + lavender-pink hemisphere
+- Adaptive shadow map **512 (mobile) / 768–1024 (desktop)** via `detectGraphicsQuality()`
+- Pixel ratio clamped ≤ **1.25** on narrow screens / ≤ **1.5** otherwise
+- God-rays / heavy FX gated; hearts / confetti / sparkles / mist density scaled by `fxScale`
+
+### Rooms (`src/world/rooms.js`)
+- Pastel-tinted Carrara marble + rose-champagne gold procedural maps
+- Soft emissive bloom on marble/gold (no postprocessing stack)
+
+### Atmosphere (`src/world/atmosphere.js`)
+- Softer pastel sky phases (Pastel Twilight / Lavender Starlight / Cotton-Candy Aurora)
+- Gentler haze & aurora colors; modestly lower star sparkle density
+
+### CSS / touch (`css/style.css`)
+- Canvas fills mobile viewport (`100dvh`); larger joystick / action / HUD touch targets
+- `prefers-reduced-motion` disables vignette pulse & decorative HUD animations
+
+### Service Worker
+- Cache bump to `resident-lovely-v7.2.0-cache` so Pages clients refresh assets
+
+### Files touched
+- `src/entities/player.js`, `src/world/scene.js`, `src/world/rooms.js`, `src/world/atmosphere.js`
+- `css/style.css`, `service-worker.js`, `GRAPHICS_UPGRADE_NOTES.md`
+
+### Verification
+`python3 -m unittest discover -s tests -p "test_*.py"` (must stay green)
+
+---
+
+## Archive — v7.1.0
 
 **Date**: 2026-09-05  
 **Scope**: Critical load/play fix (service worker) + incremental PBR / lighting / atmosphere / player visual upgrades  

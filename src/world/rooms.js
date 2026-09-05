@@ -143,20 +143,21 @@ export function createProceduralSurfaceMap(kind = 'marble', size = 128) {
         const brush = 0.82 + 0.18 * Math.sin((u * 48.0 + v * 2.0) * Math.PI);
         const scratch = _fbm2(u * 22.0, v * 6.0);
         const warm = brush * (0.92 + scratch * 0.12);
-        data[i] = Math.min(255, Math.floor(245 * warm));
-        data[i + 1] = Math.min(255, Math.floor(158 * warm));
-        data[i + 2] = Math.min(255, Math.floor(11 * warm + 18));
+        // Rose-champagne gold (still reads as polished metal)
+        data[i] = Math.min(255, Math.floor(252 * warm));
+        data[i + 1] = Math.min(255, Math.floor(186 * warm));
+        data[i + 2] = Math.min(255, Math.floor(96 * warm + 28));
       } else {
-        // Carrara-like marble: cool base + dark vein ridges
+        // Pastel Carrara marble: soft rose-lilac tint + readable dark veins
         const n1 = _fbm2(u * 6.0, v * 6.0);
         const n2 = _fbm2(u * 14.0 + 3.1, v * 9.0);
         const vein = Math.pow(Math.abs(Math.sin((u * 7.0 + n1 * 2.2) * Math.PI)), 8.0);
         const vein2 = Math.pow(Math.abs(Math.sin((v * 5.5 + n2 * 1.8) * Math.PI)), 10.0);
         const mixV = Math.min(1.0, vein * 0.85 + vein2 * 0.55);
-        const shade = 0.88 + n1 * 0.12 - mixV * 0.42;
-        data[i] = Math.min(255, Math.floor(226 * shade));
-        data[i + 1] = Math.min(255, Math.floor(232 * shade));
-        data[i + 2] = Math.min(255, Math.floor(240 * shade));
+        const shade = 0.90 + n1 * 0.10 - mixV * 0.38;
+        data[i] = Math.min(255, Math.floor(238 * shade));
+        data[i + 1] = Math.min(255, Math.floor(228 * shade));
+        data[i + 2] = Math.min(255, Math.floor(236 * shade));
       }
     }
   }
@@ -175,10 +176,13 @@ export function createLuxuryMarbleMaterial(options = {}) {
   const map = createProceduralSurfaceMap('marble', options.size || 128);
   if (map && map.repeat && map.repeat.set) map.repeat.set(options.repeat || 3, options.repeat || 3);
   const params = {
-    color: options.color !== undefined ? options.color : 0xf1f5f9,
-    roughness: options.roughness !== undefined ? options.roughness : 0.22,
-    metalness: options.metalness !== undefined ? options.metalness : 0.08,
-    envMapIntensity: options.envMapIntensity !== undefined ? options.envMapIntensity : 1.15,
+    color: options.color !== undefined ? options.color : 0xfff1f2,
+    roughness: options.roughness !== undefined ? options.roughness : 0.2,
+    metalness: options.metalness !== undefined ? options.metalness : 0.06,
+    envMapIntensity: options.envMapIntensity !== undefined ? options.envMapIntensity : 1.2,
+    // Soft emissive bloom (no post stack) — pastel luxury read
+    emissive: options.emissive !== undefined ? options.emissive : 0xfbcfe8,
+    emissiveIntensity: options.emissiveIntensity !== undefined ? options.emissiveIntensity : 0.045,
     flatShading: false
   };
   if (map) params.map = map;
@@ -189,12 +193,12 @@ export function createLuxuryGoldMaterial(options = {}) {
   const map = createProceduralSurfaceMap('gold', options.size || 96);
   if (map && map.repeat && map.repeat.set) map.repeat.set(options.repeat || 2, options.repeat || 2);
   const params = {
-    color: options.color !== undefined ? options.color : 0xf59e0b,
-    roughness: options.roughness !== undefined ? options.roughness : 0.2,
-    metalness: options.metalness !== undefined ? options.metalness : 0.95,
-    emissive: options.emissive !== undefined ? options.emissive : 0xb45309,
-    emissiveIntensity: options.emissiveIntensity !== undefined ? options.emissiveIntensity : 0.1,
-    envMapIntensity: options.envMapIntensity !== undefined ? options.envMapIntensity : 1.4
+    color: options.color !== undefined ? options.color : 0xfbbf24,
+    roughness: options.roughness !== undefined ? options.roughness : 0.18,
+    metalness: options.metalness !== undefined ? options.metalness : 0.94,
+    emissive: options.emissive !== undefined ? options.emissive : 0xf59e0b,
+    emissiveIntensity: options.emissiveIntensity !== undefined ? options.emissiveIntensity : 0.16,
+    envMapIntensity: options.envMapIntensity !== undefined ? options.envMapIntensity : 1.45
   };
   if (map) params.map = map;
   return new THREE.MeshStandardMaterial(params);

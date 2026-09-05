@@ -19,6 +19,9 @@
 
 ## ❖ Live Deployment Endpoints
 
+> **Canonical playable surface**: Vanilla ESM at the repo root (`index.html` + `src/`) for GitHub Pages. The experimental `r3f/` React Three Fiber tree is **not** the Pages entry and is left alone by v7.2+ graphics upgrades.
+
+
 - **Public GitHub Pages (Play in Browser)**: [https://pierreg99.github.io/ResidentLovely-Maximum-Hapiness-Game/](https://pierreg99.github.io/ResidentLovely-Maximum-Hapiness-Game/)
 - **Local Control Center Endpoint**: `http://localhost:8080/index.html`
 - **Master Design Document (DOCX)**: [`docs/Resident_Lovely_Master_Game_Design_Specification.docx`](docs/Resident_Lovely_Master_Game_Design_Specification.docx)

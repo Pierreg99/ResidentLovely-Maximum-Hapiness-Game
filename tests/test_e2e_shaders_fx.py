@@ -628,20 +628,26 @@ class TestTier1FeatureCoverage(BaseE2ETest):
     # FEATURE F6: Performance Telemetry Hook & Mobile WebGL Budget
     # -------------------------------------------------------------------------
     def test_f6_01_pixel_ratio_clamping(self):
-        """F6.1: Verify WebGLRenderer pixelRatio is clamped to 1.5x."""
-        self.assertRegex(self.scene_js, r'setPixelRatio\(\s*Math\.min\(\s*window\.devicePixelRatio,\s*1\.5\s*\)\s*\)', "pixelRatio must be capped at 1.5x.")
+        """F6.1: Verify WebGLRenderer pixelRatio is clamped (≤1.5 desktop, ≤1.25 mobile via quality profile)."""
+        self.assertIn("detectGraphicsQuality", self.scene_js)
+        self.assertIn("maxPixelRatio", self.scene_js)
+        self.assertRegex(self.scene_js, r'Math\.min\(\s*1\.5\s*,', "desktop pixelRatio must still clamp at 1.5x.")
+        self.assertRegex(self.scene_js, r'Math\.min\(\s*1\.25\s*,', "mobile pixelRatio must clamp at 1.25x.")
+        self.assertIn("applyRendererPixelRatio", self.scene_js)
 
     def test_f6_02_single_directional_shadow_map_budget(self):
-        """F6.2: Verify only 1 directional light casts shadows (1024x1024) and no point lights cast shadows."""
+        """F6.2: Verify only 1 directional light casts shadows (adaptive 512–1024) and no point lights cast shadows."""
         self.assertIn("sunLight.castShadow = true", self.scene_js)
-        self.assertIn("sunLight.shadow.mapSize.width = 1024", self.scene_js)
+        self.assertIn("shadowMapSize", self.scene_js)
+        self.assertIn("graphicsQuality.shadowMapSize", self.scene_js)
+        self.assertRegex(self.scene_js, r'shadowMapSize\s*=\s*isMobile\s*\?\s*512')
         point_lights = [pl for pl in re.findall(r'(\w+Light)\.castShadow\s*=\s*true', self.scene_js) if pl != 'sunLight']
         self.assertEqual(len(point_lights), 0, "Chamber point lights must not cast shadows (mobile budget).")
 
     def test_f6_03_aces_filmic_tone_mapping_configured(self):
         """F6.3: Verify ACESFilmicToneMapping and exposure are set."""
         self.assertIn("renderer.toneMapping = THREE.ACESFilmicToneMapping", self.scene_js)
-        self.assertIn("renderer.toneMappingExposure = 1.25", self.scene_js)
+        self.assertRegex(self.scene_js, r'toneMappingExposure\s*=\s*graphicsQuality\.isMobile\s*\?\s*1\.18\s*:\s*1\.28')
 
     def test_f6_04_frame_computation_budget_simulation(self):
         """F6.4: Validate mathematical frame simulation completes well under 5.0ms."""
@@ -1368,8 +1374,8 @@ class TestTier2BoundaryAndCornerCases(BaseE2ETest):
         self.assertEqual(min(1.0, 1.5), 1.0)
 
     def test_bva_f6_03_shadow_bias_precision(self):
-        """BVA F6.3: Directional shadow bias precision (-0.0005)."""
-        self.assertIn("shadow.bias = -0.0005", self.scene_js)
+        """BVA F6.3: Directional shadow bias precision (contact-shadow tuned ~-0.00045)."""
+        self.assertIn("shadow.bias = -0.00045", self.scene_js)
 
     def test_bva_f6_04_point_light_shadow_pass_absence(self):
         """BVA F6.4: Zero point lights have shadow passes."""

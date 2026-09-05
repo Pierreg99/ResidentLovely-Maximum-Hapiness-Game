@@ -7,37 +7,37 @@ import { ambientLight, sunLight, scene } from './scene.js';
 
 export const ATMOSPHERE_PHASES = {
   SUNSET: {
-    name: 'Twilight Sunset',
-    skyTop: 0x05070a,
-    skyBottom: 0x9a3412,
-    ambientColor: 0xf59e0b,
-    ambientIntensity: 0.48,
-    sunColor: 0xfb923c,
-    sunIntensity: 1.45,
+    name: 'Pastel Twilight',
+    skyTop: 0x1e1b4b,
+    skyBottom: 0xfb7185,
+    ambientColor: 0xf9a8d4,
+    ambientIntensity: 0.46,
+    sunColor: 0xfdba74,
+    sunIntensity: 1.35,
     fogColor: 0x1c1917,
-    auroraStrength: 0.0
+    auroraStrength: 0.08
   },
   MIDNIGHT: {
-    name: 'Starlight Midnight',
-    skyTop: 0x020408,
-    skyBottom: 0x0f172a,
-    ambientColor: 0x38bdf8,
-    ambientIntensity: 0.38,
-    sunColor: 0x22d3ee,
-    sunIntensity: 0.95,
-    fogColor: 0x05070a,
-    auroraStrength: 0.42
+    name: 'Lavender Starlight',
+    skyTop: 0x0f172a,
+    skyBottom: 0x312e81,
+    ambientColor: 0xc4b5fd,
+    ambientIntensity: 0.40,
+    sunColor: 0x7dd3fc,
+    sunIntensity: 0.92,
+    fogColor: 0x0b1020,
+    auroraStrength: 0.38
   },
   AURORA: {
-    name: 'Celestial Aurora',
-    skyTop: 0x064e3b,
-    skyBottom: 0x3b0764,
-    ambientColor: 0x10b981,
-    ambientIntensity: 0.75,
-    sunColor: 0xa855f7,
-    sunIntensity: 1.4,
-    fogColor: 0x064e3b,
-    auroraStrength: 1.0
+    name: 'Cotton-Candy Aurora',
+    skyTop: 0x134e4a,
+    skyBottom: 0x6b21a8,
+    ambientColor: 0x6ee7b7,
+    ambientIntensity: 0.70,
+    sunColor: 0xd8b4fe,
+    sunIntensity: 1.28,
+    fogColor: 0x14532d,
+    auroraStrength: 0.85
   }
 };
 
@@ -93,11 +93,11 @@ export class AtmosphereEngine {
           // Soft horizon haze for depth / AO read against architecture
           float haze = smoothstep(0.35, 0.55, h) * (1.0 - smoothstep(0.55, 0.85, h));
           vec3 baseSky = mix(uBottomColor, uTopColor, pow(h, 1.15));
-          baseSky += vec3(0.96, 0.72, 0.42) * haze * 0.12;
+          baseSky += vec3(0.98, 0.78, 0.86) * haze * 0.14;
 
           // Sparse twinkling stars toward zenith
           if (dir.y > 0.15) {
-            float stars = pow(hash13(floor(dir * 90.0)), 18.0) * 14.0;
+            float stars = pow(hash13(floor(dir * 78.0)), 20.0) * 11.0;
             stars *= smoothstep(0.15, 0.55, dir.y);
             float twinkle = 0.65 + 0.35 * sin(uTime * 3.5 + stars * 20.0);
             baseSky += vec3(0.95, 0.97, 1.0) * stars * twinkle * (0.45 + uAuroraStrength * 0.35);
@@ -107,8 +107,8 @@ export class AtmosphereEngine {
           if (uAuroraStrength > 0.05 && dir.y > 0.1) {
             float wave = sin(dir.x * 6.0 + uTime * 1.5) * cos(dir.z * 4.0 + uTime * 1.2);
             float ribbon = smoothstep(0.3, 0.7, wave * (dir.y));
-            vec3 auroraColor = mix(vec3(0.06, 0.72, 0.50), vec3(0.65, 0.33, 0.96), sin(dir.x * 3.0 + uTime) * 0.5 + 0.5);
-            baseSky += auroraColor * ribbon * uAuroraStrength * 0.85;
+            vec3 auroraColor = mix(vec3(0.45, 0.92, 0.78), vec3(0.86, 0.55, 0.98), sin(dir.x * 3.0 + uTime) * 0.5 + 0.5);
+            baseSky += auroraColor * ribbon * uAuroraStrength * 0.72;
           }
 
           gl_FragColor = vec4(baseSky, 1.0);

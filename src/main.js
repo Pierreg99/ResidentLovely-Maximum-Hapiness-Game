@@ -64,7 +64,10 @@ const _initGraphics = () => {
     backdropManager = null;
   }
   try {
-    const isMobile = (typeof window !== 'undefined' && window.innerWidth < 768);
+    const isMobile = (typeof window !== 'undefined' && (
+      (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 768px)').matches) ||
+      window.innerWidth < 768
+    ));
     if (!isMobile) {
       postProcessingComposer = createPostProcessingPipeline(renderer, scene, null, {
         bloomStrength: 0.65,
