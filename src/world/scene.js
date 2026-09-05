@@ -8,20 +8,95 @@ scene.fog = new THREE.Fog(0x05070a, 35, 110);
 const initW = (typeof window !== 'undefined' && window.innerWidth) ? window.innerWidth : 800;
 const initH = (typeof window !== 'undefined' && window.innerHeight) ? window.innerHeight : 600;
 
-/** v7.2 mobile / low-DPR quality profile (Pages-friendly) */
+/**
+ * v7.3 P1 — Preset contract low|med|high from width + DPR (no user override).
+ * PIXEL_BUDGET_CAP = 1600. Mapping High-first:
+ *   high: width >= 1280 && dpr >= 2
+ *   low:  width < 768 OR (width < 1280 && width*dpr > PIXEL_BUDGET_CAP)
+ *   med:  else
+ * Med/High = v7.2.1 desktop freeze baseline (P2 retunes).
+ * Low: PR<=1.25, Shadow 512, AA off, fxScale 0.55, expensive FX off, caps visible, exposure>=1.15.
+ */
+export const PIXEL_BUDGET_CAP = 1600;
+
 export function detectGraphicsQuality() {
   const w = (typeof window !== 'undefined' && window.innerWidth) ? window.innerWidth : 1200;
   const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) ? window.devicePixelRatio : 1;
-  const narrow = (typeof window !== 'undefined' && typeof window.matchMedia === 'function')
-    ? window.matchMedia('(max-width: 768px)').matches
-    : w <= 768;
+  const pixelBudget = w * dpr;
   const lowDpr = dpr <= 1.25;
-  const isMobile = narrow || (w <= 768);
-  const maxPixelRatio = isMobile ? Math.min(1.25, dpr) : Math.min(1.5, dpr);
-  const shadowMapSize = isMobile ? 512 : (lowDpr ? 768 : 1024);
-  const fxScale = isMobile ? 0.45 : 1.0;
-  const enableExpensiveFx = !isMobile;
-  return { isMobile, lowDpr, maxPixelRatio, shadowMapSize, fxScale, enableExpensiveFx };
+
+  let preset = 'med';
+  if (w >= 1280 && dpr >= 2) {
+    preset = 'high';
+  } else if (w < 768 || (w < 1280 && pixelBudget > PIXEL_BUDGET_CAP)) {
+    preset = 'low';
+  }
+
+  let maxPixelRatio;
+  let shadowMapSize;
+  let fxScale;
+  let enableExpensiveFx;
+  let petalCap;
+  let mistCap;
+  let antialias;
+  let exposure;
+  let sparkleCap;
+  let sparkleBurst;
+
+  if (preset === 'low') {
+    maxPixelRatio = Math.min(1.25, dpr);
+    shadowMapSize = 512;
+    antialias = false;
+    fxScale = 0.55;
+    enableExpensiveFx = false;
+    petalCap = 22;
+    mistCap = 12;
+    exposure = 1.18;
+    sparkleCap = 22;
+    sparkleBurst = 1;
+  } else if (preset === 'med') {
+    maxPixelRatio = Math.min(1.5, dpr);
+    shadowMapSize = lowDpr ? 768 : 1024;
+    antialias = true;
+    fxScale = 1.0;
+    enableExpensiveFx = true;
+    petalCap = 40;
+    mistCap = 24;
+    exposure = 1.28;
+    sparkleCap = 40;
+    sparkleBurst = 3;
+  } else {
+    maxPixelRatio = Math.min(1.5, dpr);
+    shadowMapSize = 1024;
+    antialias = true;
+    fxScale = 1.0;
+    enableExpensiveFx = true;
+    petalCap = 40;
+    mistCap = 24;
+    exposure = 1.28;
+    sparkleCap = 40;
+    sparkleBurst = 3;
+  }
+
+  const isMobile = preset === 'low';
+  return {
+    preset,
+    isMobile,
+    lowDpr,
+    maxPixelRatio,
+    shadowMapSize,
+    fxScale,
+    enableExpensiveFx,
+    petalCap,
+    mistCap,
+    antialias,
+    exposure,
+    sparkleCap,
+    sparkleBurst,
+    pixelBudget,
+    width: w,
+    dpr
+  };
 }
 
 export let graphicsQuality = detectGraphicsQuality();
@@ -32,7 +107,7 @@ function applyRendererPixelRatio() {
 }
 
 export const renderer = new THREE.WebGLRenderer({
-  antialias: !graphicsQuality.isMobile,
+  antialias: graphicsQuality.antialias,
   powerPreference: 'high-performance'
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -44,7 +119,7 @@ if (THREE.sRGBEncoding !== undefined && 'outputEncoding' in renderer) {
   renderer.outputEncoding = THREE.sRGBEncoding;
 }
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = graphicsQuality.isMobile ? 1.18 : 1.28;
+renderer.toneMappingExposure = graphicsQuality.exposure;
 
 if (typeof document !== 'undefined') {
   const container = document.getElementById('canvas-container');
@@ -104,11 +179,11 @@ if (sunLight.shadow) {
   }
   sunLight.shadow.bias = -0.00045;
   sunLight.shadow.normalBias = 0.025;
-  sunLight.shadow.radius = graphicsQuality.isMobile ? 1.8 : 2.8;
+  sunLight.shadow.radius = graphicsQuality.preset === 'low' ? 1.8 : 2.8;
   if (!sunLight.shadow.camera) sunLight.shadow.camera = {};
   const sc = sunLight.shadow.camera;
   sc.near = 2;
-  sc.far = graphicsQuality.isMobile ? 72 : 90;
+  sc.far = graphicsQuality.preset === 'low' ? 72 : 90;
   sc.left = -28;
   sc.right = 28;
   sc.top = 28;
@@ -767,9 +842,9 @@ const sparkleGeo = new THREE.OctahedronGeometry(0.09);
 const sparkleColors = [0xfde047, 0xf472b6, 0x38bdf8, 0x4ade80, 0xc084fc];
 
 export function spawnSparkleFootstep(pos) {
-  const poolCap = graphicsQuality.isMobile ? 18 : 40;
+  const poolCap = graphicsQuality.sparkleCap;
   if (sparkleFootsteps.length > poolCap) return; // Pool cap for performance
-  const n = graphicsQuality.isMobile ? 1 : 3;
+  const n = graphicsQuality.sparkleBurst;
   for (let i = 0; i < n; i++) {
     const color = sparkleColors[Math.floor(Math.random() * sparkleColors.length)];
     const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9 });
@@ -932,9 +1007,9 @@ const mistMat = new THREE.MeshBasicMaterial({
 
 export function updateGroundMist(delta, time, playerPos) {
   if (!playerPos) return;
-  const mistCap = graphicsQuality.isMobile ? 10 : 24;
+  const mistCap = graphicsQuality.mistCap;
   if (!graphicsQuality.enableExpensiveFx && Math.random() > 0.35) return;
-  if (groundMistParticles.length < mistCap && Math.random() < (graphicsQuality.isMobile ? 0.08 : 0.2)) {
+  if (groundMistParticles.length < mistCap && Math.random() < (graphicsQuality.preset === 'low' ? 0.1 : 0.2)) {
     const mesh = new THREE.Mesh(mistGeo, mistMat);
     const offsetX = (Math.random() - 0.5) * 32.0;
     const offsetZ = (Math.random() - 0.5) * 32.0;
