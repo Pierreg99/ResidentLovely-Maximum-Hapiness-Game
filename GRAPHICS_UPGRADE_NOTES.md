@@ -1,5 +1,38 @@
 # Resident Lovely — Graphics Upgrade Notes
 
+## v7.4.0 — High-Quality Kawaii + Solid Touch (2026-09-06)
+
+**Scope**: Richer soft-pastel look + production touch controls; Pages redeploy  
+**Constraint**: Procedural only; respect `prefers-reduced-motion`, `fxScale`, `petalCap` / sparkle / mist caps from v7.3 presets
+
+### Graphics (`src/world/scene.js`)
+- Warmer pastel ambient / hemisphere / rim / soft-fill keys
+- Additive blending on confetti, hearts, sparkle footsteps, stardust motes
+- Petal pool size from `graphicsQuality.petalCap` (reduced-motion → ≤8)
+- Stardust count scaled by `fxScale`; exposure re-synced on resize
+- Built on merged **v7.3 P1** `low|med|high` width+DPR preset contract (`PIXEL_BUDGET_CAP=1600`)
+
+### Player (`src/entities/player.js`)
+- Higher hair/ribbon/iris emissive sheen; softer blush for readable chibi face
+
+### Touch (`src/engine/input.js`, `index.html`, `css/style.css`)
+- Floating joystick, dedicated look zone, large action targets, scroll lock
+- Fine-pointer desktop hides pads; coarse / narrow viewports show them
+
+### Service Worker
+- Cache bump `resident-lovely-v7.4.0-cache`
+
+### Files touched
+- `src/world/scene.js`, `src/entities/player.js`, `src/engine/input.js`
+- `index.html`, `css/style.css`, `service-worker.js`
+- `CHANGELOG.md`, `PROGRESS.md`, `GRAPHICS_UPGRADE_NOTES.md`
+- `tests/test_touch_controls.py` (new)
+
+### Verification
+`python3 -m unittest discover -s tests -p "test_*.py"`
+
+---
+
 ## v7.2.0 — Kawaii-Realistic Mobile Graphics (2026-09-05)
 
 **Scope**: More kawaii *and* more realistic look; stronger Pages / mobile friendliness  

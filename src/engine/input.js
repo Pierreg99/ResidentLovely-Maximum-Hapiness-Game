@@ -6,7 +6,9 @@ export const input = {
   keys: {},
   isMouseDown: false,
   lastMouseX: 0,
-  lastMouseY: 0
+  lastMouseY: 0,
+  lookActive: false,
+  fireHeld: false
 };
 
 export function initInput(callbacks) {
@@ -24,7 +26,43 @@ export function initInput(callbacks) {
     onRotateCamera
   } = callbacks;
 
-  // Keyboard Event Listeners
+  function triggerHaptic(ms = 12) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try { navigator.vibrate(ms); } catch (e) {}
+    }
+  }
+
+  function isUiChrome(el) {
+    if (!el || !el.closest) return false;
+    return !!(
+      el.closest('.action-cluster') ||
+      el.closest('#joystick-zone') ||
+      el.closest('#look-zone') ||
+      el.closest('.weapon-dock') ||
+      el.closest('.hud-header') ||
+      el.closest('.modal-overlay') ||
+      el.closest('#piano-modal') ||
+      el.closest('#inspect-modal') ||
+      el.closest('#save-modal') ||
+      el.closest('#loading-screen') ||
+      el.closest('#prompt-box') ||
+      el.closest('.btn-hud-icon') ||
+      el.closest('.active-quest-pill')
+    );
+  }
+
+  // Block page scroll / pull-to-refresh while playing (except scrollable modals)
+  const blockScroll = (e) => {
+    const t = e.target;
+    if (t && t.closest && t.closest('.modal-overlay, #piano-modal, #inspect-modal, #save-modal, .map-blueprint-wrapper, .quest-log-body, .inventory-grid')) {
+      return;
+    }
+    if (e.cancelable) e.preventDefault();
+  };
+  document.addEventListener('touchmove', blockScroll, { passive: false });
+  document.addEventListener('gesturestart', (e) => { if (e.cancelable) e.preventDefault(); }, { passive: false });
+
+  // Keyboard Event Listeners (desktop unchanged)
   window.addEventListener('keydown', (e) => {
     audio.init();
     input.keys[e.code] = true;
@@ -64,11 +102,11 @@ export function initInput(callbacks) {
   if (canvasContainer) {
     canvasContainer.addEventListener('mousedown', (e) => {
       audio.init();
-      if (e.button === 0) { // Left-click drag look
+      if (e.button === 0) {
         input.isMouseDown = true;
         input.lastMouseX = e.clientX;
         input.lastMouseY = e.clientY;
-      } else if (e.button === 2) { // Right-click aim toggle
+      } else if (e.button === 2) {
         e.preventDefault();
         onToggleAim();
       }
@@ -84,27 +122,70 @@ export function initInput(callbacks) {
     });
 
     window.addEventListener('mouseup', (e) => {
-      if (e.button === 0) {
-        input.isMouseDown = false;
-      }
+      if (e.button === 0) input.isMouseDown = false;
     });
 
     canvasContainer.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
-  // Touch Virtual Joystick
+  // --- Floating Virtual Joystick (dynamic origin, large hit target) ---
   const joystickZone = document.getElementById('joystick-zone');
+  const joystickBase = joystickZone ? joystickZone.querySelector('.joystick-base') : null;
   const joystickStick = document.getElementById('joystick-stick');
   let joystickTouchId = null;
   let joystickOrigin = { x: 0, y: 0 };
+  const JOY_RADIUS = 52;
+  const JOY_DEADZONE = 0.12;
+
+  function setJoystickVisual(dx, dy) {
+    if (joystickStick) joystickStick.style.transform = `translate3d(${dx}px, ${dy}px, 0px)`;
+    if (joystickBase) joystickBase.classList.toggle('active', Math.hypot(dx, dy) > 2);
+  }
+
+  function updateJoystick(clientX, clientY) {
+    let dx = clientX - joystickOrigin.x;
+    let dy = clientY - joystickOrigin.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > JOY_RADIUS) {
+      dx = (dx / dist) * JOY_RADIUS;
+      dy = (dy / dist) * JOY_RADIUS;
+    }
+    setJoystickVisual(dx, dy);
+    let nx = dx / JOY_RADIUS;
+    let ny = -dy / JOY_RADIUS;
+    if (Math.abs(nx) < JOY_DEADZONE) nx = 0;
+    if (Math.abs(ny) < JOY_DEADZONE) ny = 0;
+    input.moveX = nx;
+    input.moveY = ny;
+  }
+
+  function resetJoystick() {
+    joystickTouchId = null;
+    input.moveX = 0;
+    input.moveY = 0;
+    setJoystickVisual(0, 0);
+    if (joystickBase) {
+      joystickBase.style.left = '';
+      joystickBase.style.top = '';
+    }
+  }
 
   if (joystickZone) {
     joystickZone.addEventListener('touchstart', (e) => {
       audio.init();
+      if (e.cancelable) e.preventDefault();
       const touch = e.changedTouches[0];
       joystickTouchId = touch.identifier;
       const rect = joystickZone.getBoundingClientRect();
-      joystickOrigin = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      // Floating origin: center under thumb within zone bounds
+      const localX = Math.min(Math.max(touch.clientX - rect.left, 40), rect.width - 40);
+      const localY = Math.min(Math.max(touch.clientY - rect.top, 40), rect.height - 40);
+      joystickOrigin = { x: rect.left + localX, y: rect.top + localY };
+      if (joystickBase) {
+        const baseW = joystickBase.offsetWidth || 118;
+        joystickBase.style.left = `${localX - baseW / 2}px`;
+        joystickBase.style.top = `${localY - baseW / 2}px`;
+      }
       updateJoystick(touch.clientX, touch.clientY);
     }, { passive: false });
 
@@ -112,18 +193,12 @@ export function initInput(callbacks) {
       if (joystickTouchId === null) return;
       for (let i = 0; i < e.changedTouches.length; i++) {
         if (e.changedTouches[i].identifier === joystickTouchId) {
+          if (e.cancelable) e.preventDefault();
           updateJoystick(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
           break;
         }
       }
     }, { passive: false });
-
-    function resetJoystick() {
-      joystickTouchId = null;
-      input.moveX = 0;
-      input.moveY = 0;
-      if (joystickStick) joystickStick.style.transform = `translate3d(0px, 0px, 0px)`;
-    }
 
     window.addEventListener('touchend', (e) => {
       for (let i = 0; i < e.changedTouches.length; i++) {
@@ -135,123 +210,163 @@ export function initInput(callbacks) {
     });
 
     window.addEventListener('touchcancel', resetJoystick);
-
-    function updateJoystick(clientX, clientY) {
-      const maxRadius = 42;
-      let dx = clientX - joystickOrigin.x;
-      let dy = clientY - joystickOrigin.y;
-      const dist = Math.hypot(dx, dy);
-
-      if (dist > maxRadius) {
-        dx = (dx / dist) * maxRadius;
-        dy = (dy / dist) * maxRadius;
-      }
-
-      if (joystickStick) joystickStick.style.transform = `translate3d(${dx}px, ${dy}px, 0px)`;
-      input.moveX = dx / maxRadius;
-      input.moveY = -dy / maxRadius; // Up is forward (+Z)
-    }
   }
 
-  // 360° Touch Drag for Camera & Player Rotation
+  // --- Dedicated Look Zone + right-half canvas look ---
+  const lookZone = document.getElementById('look-zone');
   let lookTouchId = null;
   let lastTouchX = 0;
   let lastTouchY = 0;
 
+  function beginLook(touch) {
+    lookTouchId = touch.identifier;
+    lastTouchX = touch.clientX;
+    lastTouchY = touch.clientY;
+    input.lookActive = true;
+    if (lookZone) lookZone.classList.add('active');
+  }
+
+  function endLook() {
+    lookTouchId = null;
+    input.lookActive = false;
+    if (lookZone) lookZone.classList.remove('active');
+  }
+
+  if (lookZone) {
+    lookZone.addEventListener('touchstart', (e) => {
+      audio.init();
+      if (e.cancelable) e.preventDefault();
+      if (lookTouchId === null) beginLook(e.changedTouches[0]);
+    }, { passive: false });
+  }
+
   window.addEventListener('touchstart', (e) => {
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
-      if (
-        touch.clientX > window.innerWidth * 0.42 &&
-        !e.target.closest('.action-cluster') &&
-        !e.target.closest('.weapon-dock') &&
-        !e.target.closest('.modal-overlay') &&
-        !e.target.closest('#piano-modal') &&
-        !e.target.closest('#inspect-modal') &&
-        !e.target.closest('#save-modal')
-      ) {
-        if (lookTouchId === null) {
-          lookTouchId = touch.identifier;
-          lastTouchX = touch.clientX;
-          lastTouchY = touch.clientY;
-        }
+      if (isUiChrome(e.target) || isUiChrome(touch.target)) continue;
+      // Right 55% of screen for look when not on chrome
+      if (touch.clientX > window.innerWidth * 0.45 && lookTouchId === null) {
+        beginLook(touch);
       }
     }
-  });
+  }, { passive: true });
 
   window.addEventListener('touchmove', (e) => {
     if (lookTouchId === null) return;
     for (let i = 0; i < e.changedTouches.length; i++) {
       const touch = e.changedTouches[i];
       if (touch.identifier === lookTouchId) {
+        if (e.cancelable) e.preventDefault();
         const deltaX = touch.clientX - lastTouchX;
         const deltaY = touch.clientY - lastTouchY;
-        onRotateCamera(deltaX * 0.007, deltaY * 0.004);
+        onRotateCamera(deltaX * 0.008, deltaY * 0.0045);
         lastTouchX = touch.clientX;
         lastTouchY = touch.clientY;
         break;
       }
     }
-  });
+  }, { passive: false });
 
   window.addEventListener('touchend', (e) => {
     for (let i = 0; i < e.changedTouches.length; i++) {
       if (e.changedTouches[i].identifier === lookTouchId) {
-        lookTouchId = null;
+        endLook();
         break;
       }
     }
   });
 
-  // Haptic Feedback Helper
-  function triggerHaptic(ms = 12) {
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      try { navigator.vibrate(ms); } catch (e) {}
-    }
+  window.addEventListener('touchcancel', endLook);
+
+  // --- Action buttons: pointer/touch-first (no 300ms click lag) ---
+  function bindAction(id, handler, opts = {}) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let armed = false;
+
+    const press = (e) => {
+      audio.init();
+      if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
+      if (armed && opts.hold) return;
+      armed = true;
+      el.classList.add('active');
+      triggerHaptic(opts.haptic || 14);
+      handler(true);
+      if (opts.hold) input.fireHeld = true;
+    };
+
+    const release = () => {
+      if (!armed) return;
+      armed = false;
+      el.classList.remove('active');
+      if (opts.hold) {
+        input.fireHeld = false;
+        handler(false);
+      }
+    };
+
+    el.addEventListener('touchstart', press, { passive: false });
+    el.addEventListener('touchend', release);
+    el.addEventListener('touchcancel', release);
+    el.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      press(e);
+    });
+    el.addEventListener('mouseup', release);
+    el.addEventListener('mouseleave', release);
+    // Keyboard-accessible fallback
+    el.addEventListener('click', (e) => {
+      // Ignore synthetic click after touch
+      if (e.detail === 0) {
+        triggerHaptic(opts.haptic || 12);
+        handler(true);
+        if (opts.hold) handler(false);
+      }
+    });
   }
 
-  // UI Button Bindings with Haptic Responses
-  const btnAim = document.getElementById('btn-aim');
-  if (btnAim) btnAim.addEventListener('click', () => { triggerHaptic(15); onToggleAim(); });
-
-  const btnFire = document.getElementById('btn-fire');
-  if (btnFire) btnFire.addEventListener('click', () => { triggerHaptic(20); onFire(); });
-
-  const btnInteract = document.getElementById('btn-interact');
-  if (btnInteract) btnInteract.addEventListener('click', () => { triggerHaptic(15); onContextInteract(); });
-
-  const btnTurn = document.getElementById('btn-quick-turn');
-  if (btnTurn) btnTurn.addEventListener('click', () => { triggerHaptic(18); onQuickTurn(); });
-
-  const btnViewMode = document.getElementById('btn-view-mode');
-  if (btnViewMode) btnViewMode.addEventListener('click', () => { triggerHaptic(12); onCycleViewMode(); });
+  bindAction('btn-aim', () => onToggleAim(), { haptic: 15 });
+  bindAction('btn-fire', (down) => {
+    if (down !== false) onFire();
+  }, { haptic: 20, hold: true });
+  bindAction('btn-interact', () => onContextInteract(), { haptic: 15 });
+  bindAction('btn-quick-turn', () => onQuickTurn && onQuickTurn(), { haptic: 18 });
+  bindAction('btn-view-mode', () => onCycleViewMode && onCycleViewMode(), { haptic: 12 });
+  bindAction('btn-inventory', () => onToggleInventory(), { haptic: 12 });
+  bindAction('btn-quest-log', () => onToggleQuestLog(), { haptic: 12 });
+  bindAction('btn-minimap', () => onToggleFullMap(), { haptic: 12 });
+  bindAction('btn-full-map', () => onToggleFullMap(), { haptic: 12 });
+  bindAction('btn-cycle-weapon', () => onCycleWeapon(), { haptic: 15 });
 
   const promptBox = document.getElementById('prompt-box');
-  if (promptBox) promptBox.addEventListener('click', () => { triggerHaptic(12); onContextInteract(); });
-
-  const btnInv = document.getElementById('btn-inventory');
-  if (btnInv) btnInv.addEventListener('click', () => { triggerHaptic(12); onToggleInventory(); });
-
-  const btnQuest = document.getElementById('btn-quest-log');
-  if (btnQuest) btnQuest.addEventListener('click', () => { triggerHaptic(12); onToggleQuestLog(); });
+  if (promptBox) {
+    const promptPress = (e) => {
+      if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
+      triggerHaptic(12);
+      onContextInteract();
+    };
+    promptBox.addEventListener('touchstart', promptPress, { passive: false });
+    promptBox.addEventListener('click', () => onContextInteract());
+  }
 
   const questPill = document.getElementById('active-quest-pill');
-  if (questPill) questPill.addEventListener('click', () => { triggerHaptic(12); onToggleQuestLog(); });
-
-  const btnMiniMap = document.getElementById('btn-minimap');
-  if (btnMiniMap) btnMiniMap.addEventListener('click', () => { triggerHaptic(12); onToggleFullMap(); });
-
-  const btnFullMap = document.getElementById('btn-full-map');
-  if (btnFullMap) btnFullMap.addEventListener('click', () => { triggerHaptic(12); onToggleFullMap(); });
-
-  const btnCycle = document.getElementById('btn-cycle-weapon');
-  if (btnCycle) btnCycle.addEventListener('click', () => { triggerHaptic(15); onCycleWeapon(); });
+  if (questPill) {
+    questPill.addEventListener('touchstart', (e) => {
+      if (e.cancelable) e.preventDefault();
+      triggerHaptic(12);
+      onToggleQuestLog();
+    }, { passive: false });
+    questPill.addEventListener('click', () => onToggleQuestLog());
+  }
 
   document.querySelectorAll('.weapon-slot').forEach(slot => {
-    slot.addEventListener('click', () => {
+    const fire = (e) => {
+      if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
       triggerHaptic(12);
       onSetWeapon(slot.getAttribute('data-weapon'));
-    });
+    };
+    slot.addEventListener('touchstart', fire, { passive: false });
+    slot.addEventListener('click', () => onSetWeapon(slot.getAttribute('data-weapon')));
   });
 
   // Gamepad Polling Loop
@@ -261,18 +376,18 @@ export function initInput(callbacks) {
     const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
     const pad = gamepads[0] || gamepads[1];
     if (pad) {
-      // Left Analog Stick Movement
       if (Math.abs(pad.axes[0]) > 0.15) input.moveX = pad.axes[0];
+      else if (joystickTouchId === null && !input.keys['KeyA'] && !input.keys['KeyD'] && !input.keys['ArrowLeft'] && !input.keys['ArrowRight']) {
+        // leave keyboard/touch values alone when stick centered
+      }
       if (Math.abs(pad.axes[1]) > 0.15) input.moveY = -pad.axes[1];
 
-      // Right Analog Stick Camera Look
       if (Math.abs(pad.axes[2]) > 0.15 || Math.abs(pad.axes[3]) > 0.15) {
         onRotateCamera(pad.axes[2] * 0.04, pad.axes[3] * 0.02);
       }
 
-      // Buttons
       if (pad.buttons[0]?.pressed && !prevPadButtons[0]) onContextInteract();
-      if (pad.buttons[1]?.pressed && !prevPadButtons[1]) onQuickTurn();
+      if (pad.buttons[1]?.pressed && !prevPadButtons[1]) onQuickTurn && onQuickTurn();
       if (pad.buttons[2]?.pressed && !prevPadButtons[2]) onFire();
       if (pad.buttons[3]?.pressed && !prevPadButtons[3]) onToggleInventory();
       if (pad.buttons[5]?.pressed && !prevPadButtons[5]) onCycleWeapon();

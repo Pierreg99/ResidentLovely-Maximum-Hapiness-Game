@@ -183,71 +183,71 @@
     <!-- Toast Notification Banner -->
     <div id="toast-msg">SYSTEM READY</div>
 
-    <!-- Mobile Virtual Controls -->
-    <div class="controls-layer">
-      <!-- Left Joystick Zone -->
-      <div id="joystick-zone">
+    <!-- Mobile Virtual Controls (touch / coarse pointer) -->
+    <div class="controls-layer" aria-label="Touch controls">
+      <!-- Left: floating virtual joystick -->
+      <div id="joystick-zone" aria-label="Move joystick">
         <div class="joystick-base">
           <div id="joystick-stick" class="joystick-stick"></div>
         </div>
+        <span class="control-hint">MOVE</span>
       </div>
 
-      <!-- Right Action Cluster -->
-      <div class="action-cluster">
-        <!-- Aim Button -->
-        <button id="btn-aim" class="btn-action">
-          <svg class="btn-svg" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
-            <line x1="12" y1="2" x2="12" y2="6" stroke="currentColor" stroke-width="2"/>
-            <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="2"/>
-            <line x1="2" y1="12" x2="6" y2="12" stroke="currentColor" stroke-width="2"/>
-            <line x1="18" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2"/>
-          </svg>
-          AIM
-        </button>
+      <!-- Right: look pad + action cluster -->
+      <div class="controls-right">
+        <div id="look-zone" aria-label="Look pad">
+          <span class="control-hint">LOOK</span>
+        </div>
+        <div class="action-cluster">
+          <button type="button" id="btn-aim" class="btn-action" aria-label="Aim">
+            <svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+              <line x1="12" y1="2" x2="12" y2="6" stroke="currentColor" stroke-width="2"/>
+              <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" stroke-width="2"/>
+              <line x1="2" y1="12" x2="6" y2="12" stroke="currentColor" stroke-width="2"/>
+              <line x1="18" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            AIM
+          </button>
 
-        <!-- Inventory Button -->
-        <button id="btn-inventory" class="btn-action btn-gold">
-          <svg class="btn-svg" viewBox="0 0 24 24">
-            <rect x="3" y="3" width="8" height="8" rx="1" fill="currentColor"/>
-            <rect x="13" y="3" width="8" height="8" rx="1" fill="currentColor"/>
-            <rect x="3" y="13" width="8" height="8" rx="1" fill="currentColor"/>
-            <rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor"/>
-          </svg>
-          ITEMS
-        </button>
+          <button type="button" id="btn-inventory" class="btn-action btn-gold" aria-label="Inventory">
+            <svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="8" height="8" rx="1" fill="currentColor"/>
+              <rect x="13" y="3" width="8" height="8" rx="1" fill="currentColor"/>
+              <rect x="3" y="13" width="8" height="8" rx="1" fill="currentColor"/>
+              <rect x="13" y="13" width="8" height="8" rx="1" fill="currentColor"/>
+            </svg>
+            ITEMS
+          </button>
 
-        <!-- Examine / Interact Button -->
-        <button id="btn-interact" class="btn-action btn-emerald">
-          <svg class="btn-svg" viewBox="0 0 24 24">
-            <path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13.5h-13L12 6.5z"/>
-          </svg>
-          EXAMINE
-        </button>
+          <button type="button" id="btn-interact" class="btn-action btn-emerald" aria-label="Examine">
+            <svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13.5h-13L12 6.5z"/>
+            </svg>
+            EXAMINE
+          </button>
 
-        <!-- 180 Quick-Turn Button -->
-        <button id="btn-quick-turn" class="btn-action" title="180° Quick Turn (Z)">
-          <svg class="btn-svg" viewBox="0 0 24 24">
-            <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
-          </svg>
-          180° TURN
-        </button>
+          <button type="button" id="btn-quick-turn" class="btn-action" title="180° Quick Turn (Z)" aria-label="Quick turn">
+            <svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+            </svg>
+            180°
+          </button>
 
-        <!-- Weapon Next Cycle -->
-        <button id="btn-cycle-weapon" class="btn-action">
-          <svg class="btn-svg" viewBox="0 0 24 24">
-            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
-          </svg>
-          GUN
-        </button>
+          <button type="button" id="btn-cycle-weapon" class="btn-action" aria-label="Cycle weapon">
+            <svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+            </svg>
+            GUN
+          </button>
 
-        <!-- Joy Fire Trigger -->
-        <button id="btn-fire" class="btn-action btn-fire">
-          <svg class="btn-svg" style="width:26px;height:26px;" viewBox="0 0 24 24">
-            <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
-          </svg>
-          JOY BLAST
-        </button>
+          <button type="button" id="btn-fire" class="btn-action btn-fire" aria-label="Joy blast">
+            <svg class="btn-svg" style="width:28px;height:28px;" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2l2.4 7.4h7.6l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4-6.2-4.5h7.6z"/>
+            </svg>
+            JOY BLAST
+          </button>
+        </div>
       </div>
     </div>
   </div>

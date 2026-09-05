@@ -3,6 +3,27 @@
 All notable changes to **Resident Lovely** are documented in this file.  
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.3 / Zero-Emoji Standard**.
 
+## [7.4.0] - 2026-09-06 ❖ KAWAII GRAPHICS + SOLID TOUCH CONTROLS
+
+### Added & Enhanced
+- **Solid Touch Controls** (`src/engine/input.js`, `index.html`, `css/style.css`):
+  - Floating virtual joystick with dynamic thumb origin, deadzone, 52px radius, large 168px hit zone.
+  - Dedicated LOOK pad + right-half canvas look; multi-touch safe; scroll/zoom locked while playing.
+  - Action cluster uses touchstart/pointer (no 300ms click lag); fire/aim/examine/turn/gun/items; haptics retained.
+  - Large hit targets (64–84px), safe-area insets, coarse-pointer show / fine-pointer desktop hide.
+- **Richer Kawaii Graphics** (`src/world/scene.js`, `src/entities/player.js`):
+  - Softer pastel lighting (ambient/hemi/rim/fill), additive confetti/hearts/sparkles/stardust.
+  - `petalCap` wired from v7.3 preset contract; reduced-motion petal/mote caps respected.
+  - Glossier hair/ribbon/blush/iris materials for readable high-quality chibi look.
+- **HUD / UX polish**: stronger ECG panel, larger mobile prompt/toast/quest pill, weapon dock unchanged desktop.
+- **Foundation**: merged PR #6 v7.3 P1 Low-Retune (`low|med|high` width+DPR presets, PIXEL_BUDGET_CAP=1600).
+- **Ops**: service worker cache `resident-lovely-v7.4.0-cache` for Pages hard refresh.
+
+### Verification
+- Automated unittest suite must stay green (`python3 -m unittest discover -s tests -p "test_*.py"`).
+
+---
+
 ## [7.0.0] - 2026-09-02 ❖ THE ASTRAL CELESTIAL SPIRE & SPRING-BONE CHIBI RIG
 
 ### Added & Overhauled

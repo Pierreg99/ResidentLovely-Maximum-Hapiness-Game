@@ -592,7 +592,9 @@ class TestTier1FeatureCoverage(BaseE2ETest):
 
     def test_f4_05_petal_bounded_pool_memory_safety(self):
         """F4.5: Verify fixed particle pool size (no per-frame allocations)."""
-        self.assertRegex(self.scene_js, r'for\s*\(\s*let\s+i\s*=\s*0;\s*i\s*<\s*96;\s*i\+\+\s*\)', "Petal pool must be pre-allocated to 96 particles.")
+        self.assertIn("graphicsQuality.petalCap", self.scene_js)
+        self.assertIn("initPetals", self.scene_js)
+        self.assertRegex(self.scene_js, r'for\s*\(\s*let\s+i\s*=\s*0;\s*i\s*<\s*cap;\s*i\+\+\s*\)', "Petal pool must be pre-allocated via petalCap.")
 
     # -------------------------------------------------------------------------
     # FEATURE F5: Crystal Chandelier Sparkle Glints in Foyer

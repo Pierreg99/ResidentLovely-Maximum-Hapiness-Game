@@ -9,7 +9,7 @@ const initW = (typeof window !== 'undefined' && window.innerWidth) ? window.inne
 const initH = (typeof window !== 'undefined' && window.innerHeight) ? window.innerHeight : 600;
 
 /**
- * v7.3 P1 — Preset contract low|med|high from width + DPR (no user override).
+ * v7.4 / v7.3 P1 — Preset contract low|med|high from width + DPR (no user override).
  * PIXEL_BUDGET_CAP = 1600. Mapping High-first:
  *   high: width >= 1280 && dpr >= 2
  *   low:  width < 768 OR (width < 1280 && width*dpr > PIXEL_BUDGET_CAP)
@@ -104,6 +104,9 @@ export let graphicsQuality = detectGraphicsQuality();
 function applyRendererPixelRatio() {
   graphicsQuality = detectGraphicsQuality();
   renderer.setPixelRatio(graphicsQuality.maxPixelRatio);
+  if (renderer.toneMappingExposure !== undefined) {
+    renderer.toneMappingExposure = graphicsQuality.exposure;
+  }
 }
 
 export const renderer = new THREE.WebGLRenderer({
@@ -157,18 +160,18 @@ if (typeof window !== 'undefined') {
 }
 
 // Soft pastel fill ambient (warmer kawaii key; shadows still read)
-export const ambientLight = new THREE.AmbientLight(0xfbcfe8, 0.38);
+export const ambientLight = new THREE.AmbientLight(0xfce7f3, 0.42);
 scene.add(ambientLight);
 
 // Soft kawaii fill (pink-lavender sky / warm stone ground)
 export const hemiLight = (typeof THREE.HemisphereLight === 'function')
-  ? new THREE.HemisphereLight(0xf9a8d4, 0x292524, 0.62)
-  : new THREE.AmbientLight(0xf9a8d4, 0.32);
+  ? new THREE.HemisphereLight(0xfbcfe8, 0x44403c, 0.68)
+  : new THREE.AmbientLight(0xfbcfe8, 0.36);
 if (hemiLight.position && hemiLight.position.set) hemiLight.position.set(0, 40, 0);
 scene.add(hemiLight);
 
 // Warmer kawaii key + realistic contact shadows (adaptive map size)
-export const sunLight = new THREE.DirectionalLight(0xffe4c7, 1.48);
+export const sunLight = new THREE.DirectionalLight(0xfff1e0, 1.52);
 sunLight.position.set(16, 32, 12);
 sunLight.castShadow = true;
 if (sunLight.shadow) {
@@ -192,12 +195,12 @@ if (sunLight.shadow) {
 scene.add(sunLight);
 
 // Soft cool rim for character / gold edge (cheaper than second shadow caster)
-export const rimLight = new THREE.DirectionalLight(0xa5f3fc, 0.32);
+export const rimLight = new THREE.DirectionalLight(0xc4b5fd, 0.36);
 rimLight.position.set(-12, 18, -10);
 scene.add(rimLight);
 
 // Extra soft fill key (no shadows) — peach blush light for kawaii realism
-export const softFillLight = new THREE.DirectionalLight(0xfda4af, 0.28);
+export const softFillLight = new THREE.DirectionalLight(0xf9a8d4, 0.34);
 softFillLight.position.set(-6, 14, 18);
 scene.add(softFillLight);
 
@@ -556,16 +559,27 @@ function resetPetalPhysics(p) {
 }
 
 (function initPetals() {
-  const petalMat = new THREE.MeshStandardMaterial({
-    color: 0xf472b6,
-    emissive: 0xec4899,
-    emissiveIntensity: 0.4,
-    roughness: 0.5,
-    side: THREE.DoubleSide
-  });
+  const reducedMotion = (typeof window !== 'undefined' && typeof window.matchMedia === 'function')
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
+  const cap = reducedMotion
+    ? Math.min(8, graphicsQuality.petalCap || 22)
+    : (graphicsQuality.petalCap || 40);
+  const petalColors = [0xf9a8d4, 0xfbcfe8, 0xfda4af, 0xfce7f3, 0xe9d5ff];
 
-  for (let i = 0; i < 96; i++) {
-    const mesh = new THREE.Mesh(new THREE.CircleGeometry(0.14, 6), petalMat);
+  for (let i = 0; i < cap; i++) {
+    const tint = petalColors[i % petalColors.length];
+    const petalMat = new THREE.MeshStandardMaterial({
+      color: tint,
+      emissive: 0xec4899,
+      emissiveIntensity: 0.28 + (i % 3) * 0.06,
+      roughness: 0.42,
+      metalness: 0.04,
+      transparent: true,
+      opacity: 0.92,
+      side: THREE.DoubleSide
+    });
+    const mesh = new THREE.Mesh(new THREE.CircleGeometry(0.12 + (i % 4) * 0.02, 8), petalMat);
     petalGroup.add(mesh);
     const p = { mesh };
     resetPetalPhysics(p);
@@ -758,10 +772,15 @@ export function spawnConfetti(pos, count = 35) {
   for (let i = 0; i < scaled; i++) {
     const mat = new THREE.MeshBasicMaterial({
       color: colors[Math.floor(Math.random() * colors.length)],
-      side: THREE.DoubleSide
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
     });
     const mesh = new THREE.Mesh(particleGeo, mat);
     mesh.position.copy(pos);
+    mesh.scale.setScalar(0.7 + Math.random() * 0.7);
 
     const vel = new THREE.Vector3(
       (Math.random() - 0.5) * 6,
@@ -785,13 +804,14 @@ export function spawnHeartBubbles(pos, count = 16) {
     const color = heartColors[Math.floor(Math.random() * heartColors.length)];
     const mat = new THREE.MeshBasicMaterial({
       color,
-      wireframe: i % 2 === 0,
       transparent: true,
-      opacity: 0.95
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
     });
     const mesh = new THREE.Mesh(heartShapeGeo, mat);
     mesh.position.copy(pos).add(new THREE.Vector3((Math.random() - 0.5) * 0.8, Math.random() * 0.5, (Math.random() - 0.5) * 0.8));
-    mesh.scale.setScalar(0.4 + Math.random() * 0.6);
+    mesh.scale.setScalar(0.45 + Math.random() * 0.65);
 
     const vel = new THREE.Vector3(
       (Math.random() - 0.5) * 1.8,
@@ -847,15 +867,22 @@ export function spawnSparkleFootstep(pos) {
   const n = graphicsQuality.sparkleBurst;
   for (let i = 0; i < n; i++) {
     const color = sparkleColors[Math.floor(Math.random() * sparkleColors.length)];
-    const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9 });
+    const mat = new THREE.MeshBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 0.95,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
     const mesh = new THREE.Mesh(sparkleGeo, mat);
     mesh.position.copy(pos).add(new THREE.Vector3((Math.random() - 0.5) * 0.35, 0.08, (Math.random() - 0.5) * 0.35));
-    
+    mesh.scale.setScalar(0.75 + Math.random() * 0.5);
+
     sparkleFootsteps.push({
       mesh,
-      life: 0.6,
-      maxLife: 0.6,
-      velY: 0.4 + Math.random() * 0.5
+      life: 0.7,
+      maxLife: 0.7,
+      velY: 0.45 + Math.random() * 0.55
     });
     scene.add(mesh);
   }
@@ -888,6 +915,7 @@ export function updateParticles(delta) {
     p.mesh.position.addScaledVector(p.vel, delta);
     p.mesh.rotation.x += p.rotSpeed * delta;
     p.mesh.rotation.y += p.rotSpeed * delta;
+    if (p.mesh.material) p.mesh.material.opacity = Math.max(0, p.life);
 
     if (p.mesh.position.y < 0) {
       p.mesh.position.y = 0;
@@ -906,9 +934,20 @@ export function updateParticles(delta) {
 // Ambient Stardust Motes
 export const stardustMotes = [];
 (function initStardust() {
-  const moteGeo = new THREE.OctahedronGeometry(0.08);
-  const moteMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true });
-  for (let i = 0; i < 90; i++) {
+  const moteGeo = new THREE.OctahedronGeometry(0.07);
+  const moteColors = [0x38bdf8, 0xf9a8d4, 0xfde047, 0xc4b5fd];
+  const reducedMotion = (typeof window !== 'undefined' && typeof window.matchMedia === 'function')
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
+  const moteCount = reducedMotion ? 18 : Math.max(24, Math.floor(90 * (graphicsQuality?.fxScale ?? 1)));
+  for (let i = 0; i < moteCount; i++) {
+    const moteMat = new THREE.MeshBasicMaterial({
+      color: moteColors[i % moteColors.length],
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
     const mote = new THREE.Mesh(moteGeo, moteMat);
     mote.position.set((Math.random() - 0.5) * 30, Math.random() * 8 + 0.5, (Math.random() - 0.5) * 30);
     scene.add(mote);

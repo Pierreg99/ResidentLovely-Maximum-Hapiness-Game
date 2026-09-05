@@ -56,29 +56,29 @@ export function initPlayer() {
   const silverMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.92, roughness: 0.12, envMapIntensity: 1.25 });
   // v7.2 kawaii-realistic face / hair (still MeshStandard PBR)
   const headMat = new THREE.MeshStandardMaterial({
-    color: 0xffe4e6, roughness: 0.42, metalness: 0.02,
-    emissive: 0xfda4af, emissiveIntensity: 0.07
+    color: 0xffe4e6, roughness: 0.38, metalness: 0.03,
+    emissive: 0xfda4af, emissiveIntensity: 0.10
   });
   const hairMat = new THREE.MeshStandardMaterial({
-    color: 0x7dd3fc, roughness: 0.22, metalness: 0.28,
-    emissive: 0x0284c7, emissiveIntensity: 0.28, envMapIntensity: 1.45
+    color: 0x7dd3fc, roughness: 0.18, metalness: 0.32,
+    emissive: 0x0ea5e9, emissiveIntensity: 0.34, envMapIntensity: 1.55
   });
   const ribbonMat = new THREE.MeshStandardMaterial({
-    color: 0xfb7185, roughness: 0.18, metalness: 0.14,
-    emissive: 0xdb2777, emissiveIntensity: 0.22, envMapIntensity: 1.2
+    color: 0xfb7185, roughness: 0.14, metalness: 0.18,
+    emissive: 0xdb2777, emissiveIntensity: 0.28, envMapIntensity: 1.3
   });
   const eyeMat = new THREE.MeshStandardMaterial({
     color: 0x0f172a, roughness: 0.08, metalness: 0.55,
     emissive: 0x1e3a8a, emissiveIntensity: 0.06, envMapIntensity: 1.35
   });
   const eyeIrisMat = new THREE.MeshStandardMaterial({
-    color: 0x38bdf8, roughness: 0.12, metalness: 0.4,
-    emissive: 0x0ea5e9, emissiveIntensity: 0.35, envMapIntensity: 1.2
+    color: 0x38bdf8, roughness: 0.10, metalness: 0.45,
+    emissive: 0x0ea5e9, emissiveIntensity: 0.42, envMapIntensity: 1.35
   });
   const eyeHighlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
   const blushMat = new THREE.MeshStandardMaterial({
-    color: 0xfbcfe8, roughness: 0.55, metalness: 0.0,
-    emissive: 0xf472b6, emissiveIntensity: 0.45, transparent: true, opacity: 0.72
+    color: 0xfbcfe8, roughness: 0.48, metalness: 0.0,
+    emissive: 0xf472b6, emissiveIntensity: 0.55, transparent: true, opacity: 0.78
   });
 
   // 1. Chibi Torso with Tactical Pastel Vest
