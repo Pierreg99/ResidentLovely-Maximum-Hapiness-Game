@@ -21,7 +21,8 @@ import os
 import re
 import xml.etree.ElementTree as ET
 
-PROJECT_ROOT = '/data/data/com.termux/files/home/projects/resident-lovely-game'
+_TERMUX_ROOT = '/data/data/com.termux/files/home/projects/resident-lovely-game'
+PROJECT_ROOT = _TERMUX_ROOT if os.path.isdir(_TERMUX_ROOT) else os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def get_mock_three_env():

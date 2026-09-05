@@ -225,9 +225,12 @@ void main() {
   float border = max(borderDist.x, borderDist.y);
   float grout = smoothstep(0.46, 0.49, border);
 
-  // Marble veining in base
+  // Multi-octave Carrara marble veining
   float marble = fbm2D(vUv * 8.0);
-  vec3 marbleBase = mix(uBaseColor * 0.8, uBaseColor * 1.25, marble);
+  float marbleFine = fbm2D(vUv * 22.0 + 4.7);
+  float vein = pow(abs(sin((vUv.x * 9.0 + marble * 2.5) * 3.14159)), 7.0);
+  vec3 marbleBase = mix(uBaseColor * 0.78, uBaseColor * 1.28, marble * 0.7 + marbleFine * 0.3);
+  marbleBase = mix(marbleBase, marbleBase * 0.55, vein * 0.65);
 
   // Center node distance
   float nodeDist = length(tileF);
@@ -246,13 +249,18 @@ void main() {
   vec3 emission = uGlowColor * (nodeGlow * (0.8 + ripple * 1.4) + spore * 0.6);
   emission *= (1.0 + uAdjacentInfluence * 0.5);
 
-  // Fresnel specular rim
+  // Fresnel specular rim + simple specular lobe (mobile-cheap PBR feel)
   vec3 N = normalize(vNormal);
   vec3 V = normalize(vViewPosition);
   float fresnel = pow(1.0 - max(0.0, dot(N, V)), 2.5);
+  vec3 L = normalize(vec3(0.45, 0.85, 0.35));
+  vec3 H = normalize(L + V);
+  float spec = pow(max(0.0, dot(N, H)), 48.0) * 0.55;
 
-  vec3 surface = mix(marbleBase, marbleBase * 0.35, grout);
-  vec3 finalColor = surface + emission + fresnel * uGlowColor * 0.45;
+  // Contact AO in tile grooves
+  float grooveAO = mix(1.0, 0.55, grout);
+  vec3 surface = mix(marbleBase, marbleBase * 0.32, grout) * grooveAO;
+  vec3 finalColor = surface + emission + fresnel * uGlowColor * 0.45 + spec * vec3(0.95, 0.97, 1.0);
 
   gl_FragColor = vec4(finalColor, 1.0);
 }
@@ -1460,12 +1468,13 @@ export function createVolumetricLightShaft(options = {}) {
       float radialCore = 1.0 - abs(vUv.x - 0.5) * 2.0;
       radialCore = pow(max(0.0, radialCore), 2.2);
 
-      // Drifting atmospheric dust motes
+      // Drifting atmospheric dust motes + soft god-ray core
       vec2 dustUv = vUv * vec2(8.0, 16.0) + vec2(sin(uTime * 0.2), -uTime * 0.4);
       float dust = valueNoise2D(dustUv * uDustDensity);
-      dust = smoothstep(0.65, 0.85, dust) * 0.8;
+      dust = smoothstep(0.62, 0.88, dust) * 0.9;
+      float shaftPulse = 0.85 + 0.15 * sin(uTime * 1.4 + vUv.y * 6.0);
 
-      float alpha = (coneFalloff * radialCore + dust * coneFalloff) * uIntensity;
+      float alpha = (coneFalloff * radialCore * shaftPulse + dust * coneFalloff) * uIntensity;
       gl_FragColor = vec4(uColor, clamp(alpha, 0.0, 1.0));
     }
   `;
@@ -1645,6 +1654,7 @@ export class SurfaceShaderManager {
       color: new THREE.Color(colorHex),
       roughness,
       metalness,
+      envMapIntensity: 1.1,
       roughnessMap: null,
       metalnessMap: null
     });
