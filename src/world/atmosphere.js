@@ -9,11 +9,11 @@ export const ATMOSPHERE_PHASES = {
   SUNSET: {
     name: 'Twilight Sunset',
     skyTop: 0x05070a,
-    skyBottom: 0x7c2d12,
+    skyBottom: 0x9a3412,
     ambientColor: 0xf59e0b,
-    ambientIntensity: 0.65,
+    ambientIntensity: 0.48,
     sunColor: 0xfb923c,
-    sunIntensity: 1.2,
+    sunIntensity: 1.45,
     fogColor: 0x1c1917,
     auroraStrength: 0.0
   },
@@ -22,11 +22,11 @@ export const ATMOSPHERE_PHASES = {
     skyTop: 0x020408,
     skyBottom: 0x0f172a,
     ambientColor: 0x38bdf8,
-    ambientIntensity: 0.50,
+    ambientIntensity: 0.38,
     sunColor: 0x22d3ee,
-    sunIntensity: 0.8,
+    sunIntensity: 0.95,
     fogColor: 0x05070a,
-    auroraStrength: 0.35
+    auroraStrength: 0.42
   },
   AURORA: {
     name: 'Celestial Aurora',
@@ -81,17 +81,34 @@ export class AtmosphereEngine {
         uniform float uAuroraStrength;
         varying vec3 vWorldPosition;
 
+        float hash13(vec3 p) {
+          p = fract(p * 0.3183099 + 0.1);
+          p *= 17.0;
+          return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+        }
+
         void main() {
           vec3 dir = normalize(vWorldPosition);
           float h = clamp(dir.y * 0.5 + 0.5, 0.0, 1.0);
-          vec3 baseSky = mix(uBottomColor, uTopColor, h);
+          // Soft horizon haze for depth / AO read against architecture
+          float haze = smoothstep(0.35, 0.55, h) * (1.0 - smoothstep(0.55, 0.85, h));
+          vec3 baseSky = mix(uBottomColor, uTopColor, pow(h, 1.15));
+          baseSky += vec3(0.96, 0.72, 0.42) * haze * 0.12;
+
+          // Sparse twinkling stars toward zenith
+          if (dir.y > 0.15) {
+            float stars = pow(hash13(floor(dir * 90.0)), 18.0) * 14.0;
+            stars *= smoothstep(0.15, 0.55, dir.y);
+            float twinkle = 0.65 + 0.35 * sin(uTime * 3.5 + stars * 20.0);
+            baseSky += vec3(0.95, 0.97, 1.0) * stars * twinkle * (0.45 + uAuroraStrength * 0.35);
+          }
 
           // Procedural Aurora Ribbon
           if (uAuroraStrength > 0.05 && dir.y > 0.1) {
             float wave = sin(dir.x * 6.0 + uTime * 1.5) * cos(dir.z * 4.0 + uTime * 1.2);
             float ribbon = smoothstep(0.3, 0.7, wave * (dir.y));
             vec3 auroraColor = mix(vec3(0.06, 0.72, 0.50), vec3(0.65, 0.33, 0.96), sin(dir.x * 3.0 + uTime) * 0.5 + 0.5);
-            baseSky += auroraColor * ribbon * uAuroraStrength * 0.75;
+            baseSky += auroraColor * ribbon * uAuroraStrength * 0.85;
           }
 
           gl_FragColor = vec4(baseSky, 1.0);

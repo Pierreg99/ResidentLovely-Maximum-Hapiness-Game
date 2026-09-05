@@ -2,7 +2,7 @@ import { SECTOR_REGISTRY, getSector, getFloorSectors } from './sectors.js';
 
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070a);
-// Clean Linear Fog that preserves room clarity across all wings
+// Linear fog tuned for wing clarity; AO depth comes from hemisphere + shadows
 scene.fog = new THREE.Fog(0x05070a, 35, 110);
 
 const initW = (typeof window !== 'undefined' && window.innerWidth) ? window.innerWidth : 800;
@@ -13,6 +13,10 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+if ('physicallyCorrectLights' in renderer) renderer.physicallyCorrectLights = true;
+if (THREE.sRGBEncoding !== undefined && 'outputEncoding' in renderer) {
+  renderer.outputEncoding = THREE.sRGBEncoding;
+}
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.25;
 
@@ -45,18 +49,44 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Dynamic Ambient Light (Bright & Vibrant)
-export const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.85);
+// Soft fill ambient (kept moderate so directional shadows read clearly)
+export const ambientLight = new THREE.AmbientLight(0x38bdf8, 0.42);
 scene.add(ambientLight);
 
-// Primary Directional Sun Light
-export const sunLight = new THREE.DirectionalLight(0xffedd5, 1.35);
-sunLight.position.set(15, 32, 15);
+// Hemisphere bounce for marble floors / gold trim (sky vs ground AO feel)
+export const hemiLight = (typeof THREE.HemisphereLight === 'function')
+  ? new THREE.HemisphereLight(0x7dd3fc, 0x1c1917, 0.55)
+  : new THREE.AmbientLight(0x7dd3fc, 0.28);
+if (hemiLight.position && hemiLight.position.set) hemiLight.position.set(0, 40, 0);
+scene.add(hemiLight);
+
+// Primary Directional Sun Light with tightened shadow frustum
+export const sunLight = new THREE.DirectionalLight(0xffedd5, 1.55);
+sunLight.position.set(18, 34, 14);
 sunLight.castShadow = true;
-sunLight.shadow.mapSize.width = 1024;
-sunLight.shadow.mapSize.height = 1024;
-sunLight.shadow.bias = -0.0005;
+if (sunLight.shadow) {
+  if (sunLight.shadow.mapSize) {
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
+  }
+  sunLight.shadow.bias = -0.0005;
+  sunLight.shadow.normalBias = 0.02;
+  sunLight.shadow.radius = 2.5;
+  if (!sunLight.shadow.camera) sunLight.shadow.camera = {};
+  const sc = sunLight.shadow.camera;
+  sc.near = 2;
+  sc.far = 90;
+  sc.left = -28;
+  sc.right = 28;
+  sc.top = 28;
+  sc.bottom = -28;
+}
 scene.add(sunLight);
+
+// Cool rim / fill key for character and gold edge read on mobile
+export const rimLight = new THREE.DirectionalLight(0x22d3ee, 0.35);
+rimLight.position.set(-12, 18, -10);
+scene.add(rimLight);
 
 // --- Dedicated Dynamic Point Lights per Sector (32 Sectors) ---
 export const sectorPointLights = {};
@@ -437,8 +467,24 @@ const chandelierGroup = new THREE.Group();
 (function buildChandelier() {
   chandelierGroup.position.set(0, 9.5, 0);
 
-  const goldMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.15 });
-  const crystalMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1, transparent: true, opacity: 0.75 });
+  const goldMat = new THREE.MeshStandardMaterial({
+    color: 0xf59e0b,
+    metalness: 0.96,
+    roughness: 0.18,
+    emissive: 0xb45309,
+    emissiveIntensity: 0.12,
+    envMapIntensity: 1.35
+  });
+  const crystalMat = new THREE.MeshStandardMaterial({
+    color: 0xf8fafc,
+    roughness: 0.06,
+    metalness: 0.15,
+    transparent: true,
+    opacity: 0.78,
+    emissive: 0x38bdf8,
+    emissiveIntensity: 0.08,
+    envMapIntensity: 1.2
+  });
   const glintMat = new THREE.MeshBasicMaterial({
     color: 0xfef08a,
     transparent: true,

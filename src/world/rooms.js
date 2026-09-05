@@ -102,6 +102,104 @@ export const animatedBallroomCrystals = [];
 export const animatedFloatingCrystals = [];
 export let animatedCausticFloor = null;
 
+
+// =========================================================================
+// LUXURY PBR MATERIAL FACTORY (procedural marble veins + polished gold)
+// =========================================================================
+
+function _hash2(x, y) {
+  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+function _fbm2(x, y) {
+  let v = 0.0;
+  let a = 0.5;
+  let fx = x;
+  let fy = y;
+  for (let i = 0; i < 4; i++) {
+    v += a * _hash2(Math.floor(fx), Math.floor(fy));
+    fx = fx * 2.0 + 17.0;
+    fy = fy * 2.0 + 31.0;
+    a *= 0.5;
+  }
+  return v;
+}
+
+/**
+ * Build a compact DataTexture for marble / brushed-metal albedo (no binary assets).
+ */
+export function createProceduralSurfaceMap(kind = 'marble', size = 128) {
+  if (typeof THREE === 'undefined' || typeof THREE.DataTexture !== 'function' || THREE.RGBFormat === undefined) {
+    return null;
+  }
+  const data = new Uint8Array(size * size * 3);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const u = x / size;
+      const v = y / size;
+      const i = (y * size + x) * 3;
+      if (kind === 'gold') {
+        const brush = 0.82 + 0.18 * Math.sin((u * 48.0 + v * 2.0) * Math.PI);
+        const scratch = _fbm2(u * 22.0, v * 6.0);
+        const warm = brush * (0.92 + scratch * 0.12);
+        data[i] = Math.min(255, Math.floor(245 * warm));
+        data[i + 1] = Math.min(255, Math.floor(158 * warm));
+        data[i + 2] = Math.min(255, Math.floor(11 * warm + 18));
+      } else {
+        // Carrara-like marble: cool base + dark vein ridges
+        const n1 = _fbm2(u * 6.0, v * 6.0);
+        const n2 = _fbm2(u * 14.0 + 3.1, v * 9.0);
+        const vein = Math.pow(Math.abs(Math.sin((u * 7.0 + n1 * 2.2) * Math.PI)), 8.0);
+        const vein2 = Math.pow(Math.abs(Math.sin((v * 5.5 + n2 * 1.8) * Math.PI)), 10.0);
+        const mixV = Math.min(1.0, vein * 0.85 + vein2 * 0.55);
+        const shade = 0.88 + n1 * 0.12 - mixV * 0.42;
+        data[i] = Math.min(255, Math.floor(226 * shade));
+        data[i + 1] = Math.min(255, Math.floor(232 * shade));
+        data[i + 2] = Math.min(255, Math.floor(240 * shade));
+      }
+    }
+  }
+  const tex = new THREE.DataTexture(data, size, size, THREE.RGBFormat);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.magFilter = THREE.LinearFilter;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.generateMipmaps = true;
+  tex.needsUpdate = true;
+  if (THREE.sRGBEncoding !== undefined) tex.encoding = THREE.sRGBEncoding;
+  return tex;
+}
+
+export function createLuxuryMarbleMaterial(options = {}) {
+  const map = createProceduralSurfaceMap('marble', options.size || 128);
+  if (map && map.repeat && map.repeat.set) map.repeat.set(options.repeat || 3, options.repeat || 3);
+  const params = {
+    color: options.color !== undefined ? options.color : 0xf1f5f9,
+    roughness: options.roughness !== undefined ? options.roughness : 0.22,
+    metalness: options.metalness !== undefined ? options.metalness : 0.08,
+    envMapIntensity: options.envMapIntensity !== undefined ? options.envMapIntensity : 1.15,
+    flatShading: false
+  };
+  if (map) params.map = map;
+  return new THREE.MeshStandardMaterial(params);
+}
+
+export function createLuxuryGoldMaterial(options = {}) {
+  const map = createProceduralSurfaceMap('gold', options.size || 96);
+  if (map && map.repeat && map.repeat.set) map.repeat.set(options.repeat || 2, options.repeat || 2);
+  const params = {
+    color: options.color !== undefined ? options.color : 0xf59e0b,
+    roughness: options.roughness !== undefined ? options.roughness : 0.2,
+    metalness: options.metalness !== undefined ? options.metalness : 0.95,
+    emissive: options.emissive !== undefined ? options.emissive : 0xb45309,
+    emissiveIntensity: options.emissiveIntensity !== undefined ? options.emissiveIntensity : 0.1,
+    envMapIntensity: options.envMapIntensity !== undefined ? options.envMapIntensity : 1.4
+  };
+  if (map) params.map = map;
+  return new THREE.MeshStandardMaterial(params);
+}
+
 // =========================================================================
 // PROCEDURAL GEOMETRY BUILDER HELPERS
 // =========================================================================
@@ -116,8 +214,8 @@ export function createChamberFloor(w, d, color1 = 0x090d16, color2 = 0x131d31, r
   const nx = Math.ceil(w / tileSize);
   const nz = Math.ceil(d / tileSize);
   const geo = new THREE.BoxGeometry(tileSize, 0.2, tileSize);
-  const mat1 = new THREE.MeshStandardMaterial({ color: color1, roughness, metalness });
-  const mat2 = new THREE.MeshStandardMaterial({ color: color2, roughness, metalness: Math.min(1.0, metalness + 0.1) });
+  const mat1 = new THREE.MeshStandardMaterial({ color: color1, roughness, metalness, envMapIntensity: 1.05 });
+  const mat2 = new THREE.MeshStandardMaterial({ color: color2, roughness: Math.min(1.0, roughness + 0.04), metalness: Math.min(1.0, metalness + 0.1), envMapIntensity: 1.05 });
 
   for (let x = -nx / 2; x < nx / 2; x++) {
     for (let z = -nz / 2; z < nz / 2; z++) {
@@ -431,17 +529,17 @@ export function initRooms() {
     }
   });
 
-  // Standard shared PBR Materials
-  const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.18 });
-  const velvetMat = new THREE.MeshStandardMaterial({ color: 0x831843, roughness: 0.8 });
-  const obsidianMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.1, metalness: 0.45 });
-  const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.6 });
-  const gothicStoneMat = new THREE.MeshStandardMaterial({ color: 0x2e1065, roughness: 0.75, metalness: 0.15 });
-  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x271c19, roughness: 0.65 });
-  const marbleWhiteMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.2, metalness: 0.1 });
-  const ironMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.8 });
-  const crystalVioletMat = new THREE.MeshStandardMaterial({ color: 0xa78bfa, metalness: 0.85, roughness: 0.1 });
-  const crystalCyanMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, metalness: 0.9, roughness: 0.1 });
+  // Standard shared PBR Materials (procedural marble/gold maps for foyer fidelity)
+  const goldTrimMat = createLuxuryGoldMaterial();
+  const velvetMat = new THREE.MeshStandardMaterial({ color: 0x831843, roughness: 0.82, metalness: 0.05, envMapIntensity: 0.6 });
+  const obsidianMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.12, metalness: 0.55, envMapIntensity: 1.1 });
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x1e1b4b, roughness: 0.62, metalness: 0.08, envMapIntensity: 0.7 });
+  const gothicStoneMat = new THREE.MeshStandardMaterial({ color: 0x2e1065, roughness: 0.78, metalness: 0.12, envMapIntensity: 0.65 });
+  const darkWoodMat = new THREE.MeshStandardMaterial({ color: 0x271c19, roughness: 0.68, metalness: 0.05 });
+  const marbleWhiteMat = createLuxuryMarbleMaterial();
+  const ironMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.42, metalness: 0.85, envMapIntensity: 1.2 });
+  const crystalVioletMat = new THREE.MeshStandardMaterial({ color: 0xa78bfa, metalness: 0.88, roughness: 0.08, emissive: 0x5b21b6, emissiveIntensity: 0.08, envMapIntensity: 1.25, transparent: true, opacity: 0.92 });
+  const crystalCyanMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, metalness: 0.9, roughness: 0.08, emissive: 0x0891b2, emissiveIntensity: 0.1, envMapIntensity: 1.3, transparent: true, opacity: 0.9 });
 
   // -------------------------------------------------------------------------
   // 1. GRAND FOYER (S01)

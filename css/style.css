@@ -44,6 +44,19 @@ body, html {
   z-index: 1;
 }
 
+/* Cheap post feel: cinematic vignette + subtle warm bloom over the WebGL canvas */
+#canvas-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    radial-gradient(ellipse at center, transparent 42%, rgba(5, 7, 10, 0.55) 100%),
+    radial-gradient(ellipse at 50% 18%, rgba(245, 158, 11, 0.08), transparent 55%);
+  mix-blend-mode: multiply;
+}
+
 /* HUD Layer */
 #hud {
   position: absolute;

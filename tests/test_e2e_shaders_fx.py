@@ -33,8 +33,9 @@ import subprocess
 # DIRECTORY ROOTS & GLOBAL PATH RESOLUTION
 # -----------------------------------------------------------------------------
 GAME_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-WEBBY_DIR = '/data/data/com.termux/files/home/projects/cryo-omega/webby'
-WEBBY_RL_DIR = os.path.join(WEBBY_DIR, 'resident-lovely')
+_TERMUX_WEBBY = '/data/data/com.termux/files/home/projects/cryo-omega/webby'
+WEBBY_DIR = _TERMUX_WEBBY if os.path.isdir(_TERMUX_WEBBY) else GAME_DIR
+WEBBY_RL_DIR = os.path.join(WEBBY_DIR, 'resident-lovely') if WEBBY_DIR != GAME_DIR else GAME_DIR
 
 SRC_DIR = os.path.join(GAME_DIR, 'src')
 SCENE_JS = os.path.join(SRC_DIR, 'world', 'scene.js')

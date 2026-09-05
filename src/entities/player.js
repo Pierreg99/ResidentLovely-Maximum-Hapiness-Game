@@ -46,21 +46,34 @@ export const player = {
 export function initPlayer() {
   const pGroup = player.group;
 
-  // Shared Optimized Materials
-  const vestMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.25 });
-  const goldTrimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.88, roughness: 0.2 });
-  const bootMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.4 });
-  const silverMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.9, roughness: 0.1 });
-  const headMat = new THREE.MeshStandardMaterial({ color: 0xffedd5, roughness: 0.45 });
-  const hairMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.4 });
-  const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.3 });
-  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x09090b });
+  // Shared Optimized Materials (PBR tuned for ACES + soft shadows)
+  const vestMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.38, metalness: 0.28, envMapIntensity: 1.05 });
+  const goldTrimMat = new THREE.MeshStandardMaterial({
+    color: 0xf59e0b, metalness: 0.94, roughness: 0.18,
+    emissive: 0xb45309, emissiveIntensity: 0.14, envMapIntensity: 1.35
+  });
+  const bootMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.28, metalness: 0.48, envMapIntensity: 1.1 });
+  const silverMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.92, roughness: 0.12, envMapIntensity: 1.25 });
+  const headMat = new THREE.MeshStandardMaterial({
+    color: 0xffedd5, roughness: 0.48, metalness: 0.02,
+    emissive: 0xfda4af, emissiveIntensity: 0.04
+  });
+  const hairMat = new THREE.MeshStandardMaterial({
+    color: 0x38bdf8, roughness: 0.32, metalness: 0.15,
+    emissive: 0x0284c7, emissiveIntensity: 0.18, envMapIntensity: 1.1
+  });
+  const ribbonMat = new THREE.MeshStandardMaterial({
+    color: 0xf472b6, roughness: 0.28, metalness: 0.08,
+    emissive: 0xdb2777, emissiveIntensity: 0.12
+  });
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x09090b, roughness: 0.15, metalness: 0.35 });
   const eyeHighlightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
   // 1. Chibi Torso with Tactical Pastel Vest
   const body = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.44, 1.2, 16), vestMat);
   body.position.y = 0.65;
   body.castShadow = true;
+  body.receiveShadow = true;
   pGroup.add(body);
   player.meshBody = body;
 
@@ -135,7 +148,10 @@ export function initPlayer() {
   }
 
   // 3. Cyan S.M.I.L.E. Beret with Star Badge
-  const beretMat = new THREE.MeshStandardMaterial({ color: 0x22d3ee, roughness: 0.3 });
+  const beretMat = new THREE.MeshStandardMaterial({
+    color: 0x22d3ee, roughness: 0.28, metalness: 0.12,
+    emissive: 0x0891b2, emissiveIntensity: 0.16, envMapIntensity: 1.05
+  });
   const beret = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.48, 0.16, 18), beretMat);
   beret.position.set(0, 1.88, -0.05);
   beret.rotation.z = 0.12;
@@ -170,7 +186,7 @@ export function initPlayer() {
   hGroup.add(rightBow);
 
   // Articulated Arms & Tactical Wrist Cuffs
-  const cuffMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.3 });
+  const cuffMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.26, metalness: 0.55, envMapIntensity: 1.15 });
   for (let sign of [-1, 1]) {
     const armGroup = sign < 0 ? player.leftArmGroup : player.rightArmGroup;
     armGroup.position.set(sign * 0.44, 1.05, 0);
