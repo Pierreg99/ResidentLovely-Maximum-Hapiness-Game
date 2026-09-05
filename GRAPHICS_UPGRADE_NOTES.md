@@ -135,3 +135,6 @@ Hardcoded Termux `PROJECT_ROOT` / `WEBBY_DIR` paths resolved to the repo directo
 
 ## 6. Verification
 `python3 -m unittest discover -s tests -p "test_*.py"` → **251 tests OK**
+
+## v7.2.1 A11y follow-up
+- `src/world/atmosphere.js`: `prefers-reduced-motion` freezes `uTime`, sets `uMotionScale=0`, zeros aurora amplitude (twinkle static).

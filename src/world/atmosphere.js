@@ -51,6 +51,19 @@ export class AtmosphereEngine {
     this.skyboxMesh = null;
     this.skyboxMaterial = null;
     this.weatherType = 'clear'; // 'clear', 'blossom_mist', 'aurora_borealis'
+    this.reducedMotion = false;
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      this._motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      this.reducedMotion = !!this._motionQuery.matches;
+      this._onMotionChange = (ev) => {
+        this.reducedMotion = !!(ev && ev.matches);
+      };
+      if (typeof this._motionQuery.addEventListener === 'function') {
+        this._motionQuery.addEventListener('change', this._onMotionChange);
+      } else if (typeof this._motionQuery.addListener === 'function') {
+        this._motionQuery.addListener(this._onMotionChange);
+      }
+    }
 
     this.initSkybox();
   }
@@ -62,6 +75,7 @@ export class AtmosphereEngine {
     this.skyboxMaterial = new THREE.ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
+        uMotionScale: { value: 1.0 },
         uTopColor: { value: new THREE.Color(ATMOSPHERE_PHASES.SUNSET.skyTop) },
         uBottomColor: { value: new THREE.Color(ATMOSPHERE_PHASES.SUNSET.skyBottom) },
         uAuroraStrength: { value: 0.0 }
@@ -76,6 +90,7 @@ export class AtmosphereEngine {
       `,
       fragmentShader: `
         uniform float uTime;
+        uniform float uMotionScale;
         uniform vec3 uTopColor;
         uniform vec3 uBottomColor;
         uniform float uAuroraStrength;
@@ -99,16 +114,16 @@ export class AtmosphereEngine {
           if (dir.y > 0.15) {
             float stars = pow(hash13(floor(dir * 78.0)), 20.0) * 11.0;
             stars *= smoothstep(0.15, 0.55, dir.y);
-            float twinkle = 0.65 + 0.35 * sin(uTime * 3.5 + stars * 20.0);
+            float twinkle = mix(1.0, 0.65 + 0.35 * sin(uTime * 3.5 + stars * 20.0), uMotionScale);
             baseSky += vec3(0.95, 0.97, 1.0) * stars * twinkle * (0.45 + uAuroraStrength * 0.35);
           }
 
-          // Procedural Aurora Ribbon
-          if (uAuroraStrength > 0.05 && dir.y > 0.1) {
+          // Procedural Aurora Ribbon (amplitude gated by prefers-reduced-motion)
+          if (uAuroraStrength > 0.05 && dir.y > 0.1 && uMotionScale > 0.01) {
             float wave = sin(dir.x * 6.0 + uTime * 1.5) * cos(dir.z * 4.0 + uTime * 1.2);
             float ribbon = smoothstep(0.3, 0.7, wave * (dir.y));
             vec3 auroraColor = mix(vec3(0.45, 0.92, 0.78), vec3(0.86, 0.55, 0.98), sin(dir.x * 3.0 + uTime) * 0.5 + 0.5);
-            baseSky += auroraColor * ribbon * uAuroraStrength * 0.72;
+            baseSky += auroraColor * ribbon * uAuroraStrength * 0.72 * uMotionScale;
           }
 
           gl_FragColor = vec4(baseSky, 1.0);
@@ -142,11 +157,17 @@ export class AtmosphereEngine {
 
     // Interpolate Sky Uniforms
     if (this.skyboxMaterial) {
-      this.skyboxMaterial.uniforms.uTime.value = this.currentTime;
+      const motionScale = this.reducedMotion ? 0.0 : 1.0;
+      // Freeze shader clock under reduced-motion so twinkle/aurora stop animating
+      if (!this.reducedMotion) {
+        this.skyboxMaterial.uniforms.uTime.value = this.currentTime;
+      }
+      this.skyboxMaterial.uniforms.uMotionScale.value = motionScale;
       
       const topCol = new THREE.Color(currentCfg.skyTop).lerp(new THREE.Color(nextCfg.skyTop), blend);
       const botCol = new THREE.Color(currentCfg.skyBottom).lerp(new THREE.Color(nextCfg.skyBottom), blend);
-      const aurora = THREE.MathUtils.lerp(currentCfg.auroraStrength, nextCfg.auroraStrength, blend);
+      let aurora = THREE.MathUtils.lerp(currentCfg.auroraStrength, nextCfg.auroraStrength, blend);
+      if (this.reducedMotion) aurora = 0.0;
 
       this.skyboxMaterial.uniforms.uTopColor.value.copy(topCol);
       this.skyboxMaterial.uniforms.uBottomColor.value.copy(botCol);
