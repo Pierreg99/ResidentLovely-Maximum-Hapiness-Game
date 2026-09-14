@@ -564,7 +564,9 @@ function resetPetalPhysics(p) {
     side: THREE.DoubleSide
   });
 
-  for (let i = 0; i < 96; i++) {
+  // v7.3 P1: honor preset petalCap (Low 22 / Med|High 40) — was hard-coded 96
+  const count = Math.max(8, graphicsQuality.petalCap ?? 40);
+  for (let i = 0; i < count; i++) {
     const mesh = new THREE.Mesh(new THREE.CircleGeometry(0.14, 6), petalMat);
     petalGroup.add(mesh);
     const p = { mesh };
