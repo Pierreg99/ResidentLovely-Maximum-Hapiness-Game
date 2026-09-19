@@ -630,11 +630,12 @@ class TestTier1FeatureCoverage(BaseE2ETest):
     # FEATURE F6: Performance Telemetry Hook & Mobile WebGL Budget
     # -------------------------------------------------------------------------
     def test_f6_01_pixel_ratio_clamping(self):
-        """F6.1: Verify WebGLRenderer pixelRatio is clamped (≤1.5 desktop, ≤1.25 mobile via quality profile)."""
+        """F6.1: Verify WebGLRenderer pixelRatio clamps (Low ≤1.25, Med ≤1.5, High ≤2 via quality profile)."""
         self.assertIn("detectGraphicsQuality", self.scene_js)
         self.assertIn("maxPixelRatio", self.scene_js)
-        self.assertRegex(self.scene_js, r'Math\.min\(\s*1\.5\s*,', "desktop pixelRatio must still clamp at 1.5x.")
-        self.assertRegex(self.scene_js, r'Math\.min\(\s*1\.25\s*,', "mobile pixelRatio must clamp at 1.25x.")
+        self.assertRegex(self.scene_js, r'Math\.min\(\s*1\.5\s*,', "Med pixelRatio must clamp at 1.5x.")
+        self.assertRegex(self.scene_js, r'Math\.min\(\s*2\s*,', "High pixelRatio must clamp at 2x.")
+        self.assertRegex(self.scene_js, r'Math\.min\(\s*1\.25\s*,', "mobile/Low pixelRatio must clamp at 1.25x.")
         self.assertIn("applyRendererPixelRatio", self.scene_js)
 
     def test_f6_02_single_directional_shadow_map_budget(self):
@@ -649,12 +650,26 @@ class TestTier1FeatureCoverage(BaseE2ETest):
         self.assertEqual(len(point_lights), 0, "Chamber point lights must not cast shadows (mobile budget).")
 
     def test_f6_03_aces_filmic_tone_mapping_configured(self):
-        """F6.3: Verify ACESFilmicToneMapping and exposure are set."""
+        """F6.3: Verify ACESFilmicToneMapping and exposure are set (P2 High 1.30)."""
         self.assertIn("renderer.toneMapping = THREE.ACESFilmicToneMapping", self.scene_js)
         self.assertIn("graphicsQuality.exposure", self.scene_js)
         self.assertRegex(self.scene_js, r'exposure\s*=\s*1\.18')
         self.assertRegex(self.scene_js, r'exposure\s*=\s*1\.28')
+        self.assertRegex(self.scene_js, r'exposure\s*=\s*1\.30')
         self.assertRegex(self.scene_js, r'fxScale\s*=\s*0\.55')
+        self.assertRegex(self.scene_js, r'fxScale\s*=\s*1\.15')
+
+    def test_f6_03b_p2_high_differentiation_and_a11y_caps(self):
+        """P2: High caps/exposure/shadow differ from Med; mist/sparkle reduced-motion Cap-Wire."""
+        self.assertRegex(self.scene_js, r'petalCap\s*=\s*56')
+        self.assertRegex(self.scene_js, r'mistCap\s*=\s*32')
+        self.assertRegex(self.scene_js, r'sparkleCap\s*=\s*56')
+        self.assertRegex(self.scene_js, r'shadowMapSize\s*=\s*\(w\s*>=\s*1280\s*&&\s*dpr\s*>=\s*2\)\s*\?\s*2048\s*:\s*1024')
+        # A11y: mist + sparkle consumers clamp like petalCap
+        self.assertIn("prefers-reduced-motion: reduce", self.scene_js)
+        self.assertRegex(self.scene_js, r'Math\.min\(\s*8\s*,\s*graphicsQuality\.mistCap')
+        self.assertRegex(self.scene_js, r'Math\.min\(\s*8\s*,\s*graphicsQuality\.sparkleCap')
+        self.assertRegex(self.scene_js, r'Math\.min\(\s*1\s*,\s*graphicsQuality\.sparkleBurst')
 
     def test_f6_04_frame_computation_budget_simulation(self):
         """F6.4: Validate mathematical frame simulation completes well under 5.0ms."""
@@ -1372,9 +1387,13 @@ class TestTier2BoundaryAndCornerCases(BaseE2ETest):
 
     # --- F6 Boundary Cases (Performance) ---
     def test_bva_f6_01_dpr_clamping_on_high_dpi_screens(self):
-        """BVA F6.1: pixelRatio clamped to 1.5x on 2x, 3x, 4x screens."""
+        """BVA F6.1: Med clamp 1.5x; High clamp 2.0x on 2x/3x/4x screens."""
         for dpr in [2.0, 3.0, 4.0]:
             self.assertEqual(min(dpr, 1.5), 1.5)
+        for dpr in [2.0, 3.0, 4.0]:
+            self.assertEqual(min(dpr, 2.0), min(dpr, 2.0))
+        self.assertEqual(min(3.0, 2.0), 2.0)
+        self.assertEqual(min(4.0, 2.0), 2.0)
 
     def test_bva_f6_02_dpr_clamping_on_low_dpi_screens(self):
         """BVA F6.2: pixelRatio remains 1.0x on 1.0x screens."""

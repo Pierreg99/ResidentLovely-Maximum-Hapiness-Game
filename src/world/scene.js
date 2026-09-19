@@ -9,13 +9,16 @@ const initW = (typeof window !== 'undefined' && window.innerWidth) ? window.inne
 const initH = (typeof window !== 'undefined' && window.innerHeight) ? window.innerHeight : 600;
 
 /**
- * v7.4 / v7.3 P1 — Preset contract low|med|high from width + DPR (no user override).
+ * v7.3 P2 — Preset contract low|med|high from width + DPR (no user override).
  * PIXEL_BUDGET_CAP = 1600. Mapping High-first:
  *   high: width >= 1280 && dpr >= 2
  *   low:  width < 768 OR (width < 1280 && width*dpr > PIXEL_BUDGET_CAP)
  *   med:  else
- * Med/High = v7.2.1 desktop freeze baseline (P2 retunes).
- * Low: PR<=1.25, Shadow 512, AA off, fxScale 0.55, expensive FX off, caps visible, exposure>=1.15.
+ * Low Freeze immutable (P1). Med = v7.2.1 desktop freeze. High differentiated (P2).
+ * Low: PR<=1.25, Shadow 512, AA off, fxScale 0.55, expensive FX off, caps visible, exposure 1.18.
+ * High: PR<=2, Shadow 2048 (else 1024), fxScale 1.15, petal/mist/sparkle 56/32/56, exposure 1.30,
+ *       sparkleBurst 3; non-low shadow radius 2.8 / far 90.
+ * A11y reduced-motion: petal/mist/sparkleCap <=8, sparkleBurst <=1.
  */
 export const PIXEL_BUDGET_CAP = 1600;
 
@@ -66,15 +69,16 @@ export function detectGraphicsQuality() {
     sparkleCap = 40;
     sparkleBurst = 3;
   } else {
-    maxPixelRatio = Math.min(1.5, dpr);
-    shadowMapSize = 1024;
+    // High: differentiate from Med (P2). Shadow 2048 when width>=1280 && dpr>=2 (High gate), else 1024.
+    maxPixelRatio = Math.min(2, dpr);
+    shadowMapSize = (w >= 1280 && dpr >= 2) ? 2048 : 1024;
     antialias = true;
-    fxScale = 1.0;
+    fxScale = 1.15;
     enableExpensiveFx = true;
-    petalCap = 40;
-    mistCap = 24;
-    exposure = 1.28;
-    sparkleCap = 40;
+    petalCap = 56;
+    mistCap = 32;
+    exposure = 1.30;
+    sparkleCap = 56;
     sparkleBurst = 3;
   }
 
@@ -862,9 +866,16 @@ const sparkleGeo = new THREE.OctahedronGeometry(0.09);
 const sparkleColors = [0xfde047, 0xf472b6, 0x38bdf8, 0x4ade80, 0xc084fc];
 
 export function spawnSparkleFootstep(pos) {
-  const poolCap = graphicsQuality.sparkleCap;
+  const reducedMotion = typeof window !== 'undefined' && window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
+  const poolCap = reducedMotion
+    ? Math.min(8, graphicsQuality.sparkleCap || 22)
+    : (graphicsQuality.sparkleCap || 40);
   if (sparkleFootsteps.length > poolCap) return; // Pool cap for performance
-  const n = graphicsQuality.sparkleBurst;
+  const n = reducedMotion
+    ? Math.min(1, graphicsQuality.sparkleBurst || 1)
+    : (graphicsQuality.sparkleBurst || 1);
   for (let i = 0; i < n; i++) {
     const color = sparkleColors[Math.floor(Math.random() * sparkleColors.length)];
     const mat = new THREE.MeshBasicMaterial({
@@ -1046,7 +1057,12 @@ const mistMat = new THREE.MeshBasicMaterial({
 
 export function updateGroundMist(delta, time, playerPos) {
   if (!playerPos) return;
-  const mistCap = graphicsQuality.mistCap;
+  const reducedMotion = typeof window !== 'undefined' && window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false;
+  const mistCap = reducedMotion
+    ? Math.min(8, graphicsQuality.mistCap || 12)
+    : (graphicsQuality.mistCap || 24);
   if (!graphicsQuality.enableExpensiveFx && Math.random() > 0.35) return;
   if (groundMistParticles.length < mistCap && Math.random() < (graphicsQuality.preset === 'low' ? 0.1 : 0.2)) {
     const mesh = new THREE.Mesh(mistGeo, mistMat);
