@@ -19,6 +19,8 @@ const initH = (typeof window !== 'undefined' && window.innerHeight) ? window.inn
  * High: PR<=2, Shadow 2048 (else 1024), fxScale 1.15, petal/mist/sparkle 56/32/56, exposure 1.30,
  *       sparkleBurst 3; non-low shadow radius 2.8 / far 90.
  * A11y reduced-motion: petal/mist/sparkleCap <=8, sparkleBurst <=1.
+ * v7.3 P3 of P1–P3 — LOD-Density only (Camera→Player): near<12→1.0, mid 12–28→0.7, far>28→0.45.
+ * Order: Cap-Ceiling → LOD → fxScale. sparkleBurst Freeze (no LOD). Caps only decrease. New-FX OUT.
  */
 export const PIXEL_BUDGET_CAP = 1600;
 
@@ -104,6 +106,61 @@ export function detectGraphicsQuality() {
 }
 
 export let graphicsQuality = detectGraphicsQuality();
+
+
+/** P3 LOD-Density — Caps only decrease under P1/P2 ceilings. */
+export const LOD_NEAR_DIST = 12;
+export const LOD_FAR_DIST = 28;
+export const LOD_MULT = Object.freeze({ near: 1.0, mid: 0.7, far: 0.45 });
+
+let lodTier = 'near';
+let lodMult = 1.0;
+let petalCeiling = 0;
+let petalActiveCount = 0;
+
+export function lodTierFromDistance(dist) {
+  if (dist < LOD_NEAR_DIST) return 'near';
+  if (dist <= LOD_FAR_DIST) return 'mid';
+  return 'far';
+}
+
+export function getLodState() {
+  return { tier: lodTier, mult: lodMult, petalActiveCount, petalCeiling };
+}
+
+/** Cap-Ceiling → LOD (floor, min 1 if cap>0). Callers apply fxScale after this. */
+export function applyLodToCap(baseCap, mult = lodMult) {
+  if (!baseCap || baseCap <= 0) return 0;
+  return Math.max(1, Math.floor(baseCap * mult));
+}
+
+function retierPetals() {
+  if (!petalCeiling) return;
+  const next = applyLodToCap(petalCeiling, lodMult);
+  for (let i = 0; i < petalParticles.length; i++) {
+    petalParticles[i].mesh.visible = i < next;
+  }
+  petalActiveCount = next;
+}
+
+/**
+ * Camera→Player density anchor. Petals retier only on tier change (no per-frame respawn).
+ * Mist/Sparkle read lodMult at spawn/update.
+ */
+export function updateLodAnchor(cameraPos, playerPos) {
+  if (!cameraPos || !playerPos) return lodTier;
+  const dx = cameraPos.x - playerPos.x;
+  const dy = (cameraPos.y || 0) - (playerPos.y || 0);
+  const dz = cameraPos.z - playerPos.z;
+  const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  const tier = lodTierFromDistance(dist);
+  if (tier !== lodTier) {
+    lodTier = tier;
+    lodMult = LOD_MULT[tier];
+    retierPetals();
+  }
+  return lodTier;
+}
 
 function applyRendererPixelRatio() {
   graphicsQuality = detectGraphicsQuality();
@@ -566,9 +623,12 @@ function resetPetalPhysics(p) {
   const reducedMotion = (typeof window !== 'undefined' && typeof window.matchMedia === 'function')
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;
-  const cap = reducedMotion
+  // Cap-Ceiling (A11y); LOD applied after — pool sized to ceiling for tier-up without respawn
+  petalCeiling = reducedMotion
     ? Math.min(8, graphicsQuality.petalCap || 22)
     : (graphicsQuality.petalCap || 40);
+  petalActiveCount = applyLodToCap(petalCeiling, lodMult);
+  const cap = petalCeiling;
   const petalColors = [0xf9a8d4, 0xfbcfe8, 0xfda4af, 0xfce7f3, 0xe9d5ff];
 
   for (let i = 0; i < cap; i++) {
@@ -588,6 +648,7 @@ function resetPetalPhysics(p) {
     const p = { mesh };
     resetPetalPhysics(p);
     petalParticles.push(p);
+    mesh.visible = i < petalActiveCount;
   }
 })();
 
@@ -685,13 +746,15 @@ export function updateChandelierGlints(delta, time) {
 }
 
 export function updatePetals(delta, time) {
-  petalParticles.forEach(p => {
+  for (let pi = 0; pi < petalActiveCount; pi++) {
+    const p = petalParticles[pi];
+
     if (p.bounceCount >= 3 && p.settleTimer > 0) {
       p.settleTimer += delta;
       if (p.settleTimer > 2.2) {
         resetPetalPhysics(p);
       }
-      return;
+      continue;
     }
 
     // 3D Sinusoidal Wind Turbulence
@@ -725,7 +788,7 @@ export function updatePetals(delta, time) {
     if (p.mesh.position.y < -0.5 || p.mesh.position.y > 22.0 || Math.abs(p.mesh.position.x) > 120.0 || p.mesh.position.z < 60.0 || p.mesh.position.z > 220.0) {
       resetPetalPhysics(p);
     }
-  });
+    }
 
   // Skybox time and rotation update
   if (sunsetSkyDome) {
@@ -869,9 +932,11 @@ export function spawnSparkleFootstep(pos) {
   const reducedMotion = typeof window !== 'undefined' && window.matchMedia
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;
-  const poolCap = reducedMotion
+  // Cap-Ceiling (A11y) → LOD; sparkleBurst Freeze (no LOD)
+  const sparkleCeiling = reducedMotion
     ? Math.min(8, graphicsQuality.sparkleCap || 22)
     : (graphicsQuality.sparkleCap || 40);
+  const poolCap = applyLodToCap(sparkleCeiling, lodMult);
   if (sparkleFootsteps.length > poolCap) return; // Pool cap for performance
   const n = reducedMotion
     ? Math.min(1, graphicsQuality.sparkleBurst || 1)
@@ -1060,9 +1125,11 @@ export function updateGroundMist(delta, time, playerPos) {
   const reducedMotion = typeof window !== 'undefined' && window.matchMedia
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;
-  const mistCap = reducedMotion
+  // Cap-Ceiling (A11y) → LOD
+  const mistCeiling = reducedMotion
     ? Math.min(8, graphicsQuality.mistCap || 12)
     : (graphicsQuality.mistCap || 24);
+  const mistCap = applyLodToCap(mistCeiling, lodMult);
   if (!graphicsQuality.enableExpensiveFx && Math.random() > 0.35) return;
   if (groundMistParticles.length < mistCap && Math.random() < (graphicsQuality.preset === 'low' ? 0.1 : 0.2)) {
     const mesh = new THREE.Mesh(mistGeo, mistMat);
