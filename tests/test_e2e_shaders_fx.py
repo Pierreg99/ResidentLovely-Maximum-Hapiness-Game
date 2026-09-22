@@ -671,6 +671,32 @@ class TestTier1FeatureCoverage(BaseE2ETest):
         self.assertRegex(self.scene_js, r'Math\.min\(\s*8\s*,\s*graphicsQuality\.sparkleCap')
         self.assertRegex(self.scene_js, r'Math\.min\(\s*1\s*,\s*graphicsQuality\.sparkleBurst')
 
+    def test_p3_lod_density_contract(self):
+        """P3 of P1–P3: LOD table, Cap→LOD→fxScale order, burst Freeze, Camera→Player anchor."""
+        self.assertIn('LOD_NEAR_DIST', self.scene_js)
+        self.assertIn('LOD_FAR_DIST', self.scene_js)
+        self.assertIn('updateLodAnchor', self.scene_js)
+        self.assertIn('applyLodToCap', self.scene_js)
+        self.assertRegex(self.scene_js, r'near:\s*1\.0')
+        self.assertRegex(self.scene_js, r'mid:\s*0\.7')
+        self.assertRegex(self.scene_js, r'far:\s*0\.45')
+        self.assertIn('sparkleBurst Freeze', self.scene_js)
+        self.assertIn('Cap-Ceiling', self.scene_js)
+        # Burst must not go through applyLodToCap
+        sparkle_fn = self.scene_js.split('export function spawnSparkleFootstep')[1].split('export function')[0]
+        # n = burst assignment should not call applyLodToCap
+        self.assertIn('graphicsQuality.sparkleBurst', sparkle_fn)
+        self.assertNotIn('applyLodToCap(graphicsQuality.sparkleBurst', sparkle_fn)
+
+    def test_p3_main_wires_camera_player_lod_anchor(self):
+        """P3: main loop updates LOD from Camera→Player before petal/mist consumers."""
+        with open('src/main.js', encoding='utf-8') as fh:
+            main_js = fh.read()
+        self.assertIn('updateLodAnchor', main_js)
+        self.assertIn('cameraController.camera.position', main_js)
+        self.assertIn('player.group.position', main_js)
+
+
     def test_f6_04_frame_computation_budget_simulation(self):
         """F6.4: Validate mathematical frame simulation completes well under 5.0ms."""
         t_start = time.perf_counter()
