@@ -4,7 +4,6 @@ These are intentionally static tests: the graphics module requires a browser/Web
 """
 
 from pathlib import Path
-import re
 import unittest
 
 
