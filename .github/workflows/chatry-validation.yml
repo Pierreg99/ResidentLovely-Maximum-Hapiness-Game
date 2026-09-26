@@ -1,0 +1,61 @@
+# CHATRY branch CI and static integrity
+
+name: CHATRY Validation
+
+on:
+  push:
+    branches: [chatry]
+  pull_request:
+    branches: [main, chatry]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate CHATRY
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify required entrypoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f service-worker.js
+          test -f src/main.js
+          test -f css/style.css
+          test -f README.md
+
+      - name: Validate HTML/CSS/JS references
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'src/main.js' index.html
+          grep -q 'service-worker.js' index.html || true
+          test -s src/main.js
+          test -s css/style.css
+
+      - name: Validate workflow YAML
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path(".github/workflows/deploy.yml")
+          text = p.read_text(encoding="utf-8")
+          required = ("actions/checkout@v4", "actions/configure-pages@v5", "actions/upload-pages-artifact@v3", "actions/deploy-pages@v4")
+          missing = [x for x in required if x not in text]
+          if missing:
+              raise SystemExit(f"Missing workflow actions: {missing}")
+          PY
+
+      - name: Report branch metadata
+        shell: bash
+        run: |
+          echo "CHATRY validation complete"
+          echo "Commit: $(git rev-parse HEAD)"
+          echo "Files: $(git ls-files | wc -l)"
