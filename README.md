@@ -131,3 +131,22 @@ All 237 tests pass with a 100% success rate across all world geometry, shader va
 
 Distributed under the **MIT License**. Assets created under the **NEXUS PRIVÉ v6.1 Pierrefektion Standard**.  
 See [`LICENSE`](LICENSE) for details.
+
+
+---
+
+## CHATRY Upgrade Track
+
+The `chatry` branch is an isolated engineering track based on the current `main` snapshot. It is intended for incremental hardening, accessibility, runtime diagnostics, performance tuning, and GitHub Pages validation without changing `main`.
+
+### Validation
+
+The branch includes a dedicated GitHub Actions validation workflow:
+
+` .github/workflows/chatry-validation.yml `
+
+It verifies the canonical HTML/ESM entrypoints, required static assets, deployment workflow contract, and branch metadata.
+
+### Branch safety
+
+Changes in `chatry` are not deployed by the existing production Pages workflow, which currently triggers on `main`. This keeps the public deployment stable while the branch is iterated.
