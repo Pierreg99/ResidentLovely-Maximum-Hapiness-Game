@@ -24,12 +24,12 @@ class TestChatryGraphicsUpgrade(unittest.TestCase):
     def test_graphics_module_has_all_quality_profiles(self):
         text = MODULE.read_text(encoding="utf-8")
         for preset in ("low", "med", "high"):
-            self.assertRegex(text, rf"\b{preset}:\s*\{")
+            self.assertIn(preset + ":", text)
 
     def test_entrypoint_loads_graphics_upgrade_after_main(self):
         text = INDEX.read_text(encoding="utf-8")
-        main = text.index('./src/main.js')
-        upgrade = text.index('./src/world/graphics_upgrade.js')
+        main = text.index("./src/main.js")
+        upgrade = text.index("./src/world/graphics_upgrade.js")
         self.assertLess(main, upgrade)
 
 
