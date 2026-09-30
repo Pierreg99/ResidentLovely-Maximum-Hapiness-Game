@@ -1,6 +1,6 @@
 // Preferences are shared by rendering, input, and the pause menu.
 const KEY = 'resident-lovely-preferences-v8';
-export const preferences = { quality: 'auto', skin: 'starlight', reducedMotion: false, sound: true };
+export const preferences = { quality: 'auto', skin: 'sakura', reducedMotion: false, sound: true };
 try {
   const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
   if (['auto', 'low', 'med', 'high', 'ultra'].includes(saved.quality)) preferences.quality = saved.quality;

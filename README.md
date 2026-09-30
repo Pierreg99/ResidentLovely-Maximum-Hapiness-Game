@@ -1,6 +1,12 @@
 # RESIDENT LOVELY ❖ Maximum Happiness 3D
 
 
+## Sweet Château · v9.0.0
+
+The game now opens with **settings first**: choose a graphics mode, customize your character and comfort settings, then press **Play**. A new sweet kawaii art direction adds château key art, illustrated biome previews, a remodeled heroine, floral materials and décor throughout the estate, plush textures, and coordinated inventory and app icons.
+
+[Sweet Château features, startup flow, and installation](docs/SWEET_CHATEAU.md)
+
 ## Explorer Edition · v8.0.0
 
 Play on **Windows, Linux, and Android** in a WebGL browser, or install the offline app through Chrome/Edge. The Explorer Edition adds selectable graphics up to Ultra, PBR reflections and bloom, three character styles, new icons, **42 map destinations**, connected travel gates, route tracking, persistent crystals, and the repeatable **Joy Rally**. Sprint, dash, held fire, pause, touch, and controller support are included.

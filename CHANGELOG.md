@@ -1,5 +1,14 @@
 # CHANGELOG: RESIDENT LOVELY ❖ MAXIMUM HAPPINESS 3D
 
+## v9.0.0 — Sweet Château
+
+- Added a settings-first launch flow with an explicit graphics choice followed by Play, plus character, sound, and reduced-motion preferences.
+- Added original château heroine artwork and a six-scene biome illustration atlas.
+- Remodeled the heroine's dress and hair; refined shared materials, plush surfaces, and all inventory/app icons.
+- Added instanced floral décor to all 42 destinations and coordinated rose/lavender menus.
+- Corrected material and High/Ultra output color handling, stabilized the sky across destinations, and enabled startup screen scrolling on Android landscape.
+- Updated offline caching and browser regression coverage for the complete launch flow.
+
 ## v8.0.0 — Explorer Edition
 
 - Added Rainbow Sky Garden and Aurora Bay, extending the estate to 42 destinations.

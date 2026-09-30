@@ -1,3 +1,7 @@
+# Sweet Château v9.0.0
+
+Settings-first launch, coordinated kawaii assets, and cross-platform browser play. See [release notes](docs/SWEET_CHATEAU.md) for features and verification.
+
 # RESIDENT LOVELY ❖ PROGRESS & ARCHITECTURE MATRIX
 
 Current development: **v8.0.0 Explorer Edition**. See [release details and cross-platform play](docs/EXPLORER_EDITION.md).

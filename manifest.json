@@ -1,12 +1,12 @@
 {
   "name": "Resident Lovely \u2014 Maximum Happiness",
   "short_name": "Resident Lovely",
-  "description": "Explore 42 magical places, make friends, and race the Joy Rally. Play with keyboard, touch, or a controller.",
+  "description": "Choose your graphics and enter the Sweet Château. Explore 42 magical places, make friends, and race the Joy Rally. Play with keyboard, touch, or a controller.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#11182b",
-  "theme_color": "#11182b",
+  "background_color": "#eedce7",
+  "theme_color": "#eedce7",
   "icons": [
     {
       "src": "assets/icons/icon-192.png",

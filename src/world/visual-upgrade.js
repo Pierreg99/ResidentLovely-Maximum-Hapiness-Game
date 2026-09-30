@@ -3,6 +3,7 @@ import { rooms } from './rooms.js';
 import { SECTOR_REGISTRY, getSector } from './sectors.js';
 import { motionReduced, preferences } from '../systems/preferences.js';
 import { atmosphereEngine } from './atmosphere.js';
+import { applySweetAssetDirection } from './sweet-assets.js';
 
 function canvasTexture(draw, size = 256) {
   const canvas = document.createElement('canvas');
@@ -39,19 +40,21 @@ export class VisualUpgrade {
   constructor() {
     createStudioEnvironment();
     if (sunsetSkyDome) {
+      sunsetSkyDome.material.vertexShader = 'varying vec3 vSkyDirection; void main(){vSkyDirection=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}';
       sunsetSkyDome.material.fragmentShader = `
-        varying vec3 vWorldPosition;
+        varying vec3 vSkyDirection;
         uniform vec3 uZenithColor;
         uniform vec3 uHorizonColor;
         void main() {
-          vec3 direction = normalize(vWorldPosition);
+          vec3 direction = normalize(vSkyDirection);
           float height = smoothstep(-.15, .9, direction.y);
           vec3 sky = mix(uHorizonColor, uZenithColor, height);
           float sun = pow(max(0., dot(direction, normalize(vec3(-.4,.5,-.6)))), 160.);
           gl_FragColor = vec4(sky + vec3(1.,.8,.55) * sun * .6, 1.);
+          #include <encodings_fragment>
         }`;
-      sunsetSkyDome.material.uniforms.uZenithColor.value.setHex(0x172d48);
-      sunsetSkyDome.material.uniforms.uHorizonColor.value.setHex(0x9ac7ce);
+      sunsetSkyDome.material.uniforms.uZenithColor.value.setHex(0x172d48).convertSRGBToLinear();
+      sunsetSkyDome.material.uniforms.uHorizonColor.value.setHex(0x9ac7ce).convertSRGBToLinear();
       sunsetSkyDome.material.needsUpdate = true;
     }
     this.lastRoom = null; this.lightingBase = 1;
@@ -104,6 +107,7 @@ export class VisualUpgrade {
         new THREE.MeshStandardMaterial({ color: 0xfde68a, metalness: 0.75, roughness: 0.2 }));
       badge.position.set(0, 0.45, 0.66); grump.group.add(badge);
     });
+    this.assetCoverage = applySweetAssetDirection(scene, rooms, SECTOR_REGISTRY, renderer, player, grumps);
   }
 
   createPostProcessing() {
@@ -111,8 +115,8 @@ export class VisualUpgrade {
     const vertexShader = 'varying vec2 vUv; void main(){vUv=uv; gl_Position=vec4(position.xy,0.,1.);}';
     this.blur = new THREE.ShaderMaterial({ depthTest: false, depthWrite: false, uniforms: { source: { value: null }, stepSize: { value: new THREE.Vector2() }, extract: { value: 0 } }, vertexShader,
       fragmentShader: 'varying vec2 vUv; uniform sampler2D source; uniform vec2 stepSize; uniform float extract; void main(){vec3 c=texture2D(source,vUv).rgb*.227027; c+=(texture2D(source,vUv+stepSize*1.384615).rgb+texture2D(source,vUv-stepSize*1.384615).rgb)*.316216; c+=(texture2D(source,vUv+stepSize*3.230769).rgb+texture2D(source,vUv-stepSize*3.230769).rgb)*.070270; if(extract>.5)c*=smoothstep(.65,1.,max(c.r,max(c.g,c.b))); gl_FragColor=vec4(c,1.);}' });
-    this.composite = new THREE.ShaderMaterial({ depthTest: false, depthWrite: false, uniforms: { source: { value: null }, glow: { value: null }, strength: { value: 0.24 } }, vertexShader,
-      fragmentShader: 'varying vec2 vUv; uniform sampler2D source; uniform sampler2D glow; uniform float strength; void main(){vec3 c=texture2D(source,vUv).rgb+texture2D(glow,vUv).rgb*strength; float v=1.-smoothstep(.2,.85,length(vUv-.5)); c*=mix(.86,1.,v); gl_FragColor=vec4(c,1.);}' });
+    this.composite = new THREE.ShaderMaterial({ depthTest: false, depthWrite: false, toneMapped: false, uniforms: { source: { value: null }, glow: { value: null }, strength: { value: 0.24 } }, vertexShader,
+      fragmentShader: 'varying vec2 vUv; uniform sampler2D source; uniform sampler2D glow; uniform float strength; void main(){vec3 c=texture2D(source,vUv).rgb+texture2D(glow,vUv).rgb*strength; float v=1.-smoothstep(.2,.85,length(vUv-.5)); c*=mix(.86,1.,v); gl_FragColor=vec4(c,1.);\n#include <encodings_fragment>\n}' });
     this.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.blur); this.postScene.add(this.quad);
     this.targets = [0, 1, 2].map(() => new THREE.WebGLRenderTarget(1, 1, { depthBuffer: true }));
     this.resizeTargets();

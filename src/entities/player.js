@@ -510,13 +510,13 @@ export function performDash() {
 
 export function setCharacterStyle(style) {
   const palettes = {
-    starlight: [0x243863, 0x7dd3fc, 0xfb7185, 0xfbbf24],
-    sakura: [0x783554, 0xf9a8d4, 0xfde68a, 0xffedd5],
-    jade: [0x164e46, 0x6ee7b7, 0xa78bfa, 0xe2e8f0]
+    starlight: [0xb8c8ed, 0x94cce8, 0xe9b0cf, 0xe8c48d],
+    sakura: [0xe6afc3, 0xefb5d1, 0xb99bcf, 0xe8c48d],
+    jade: [0xafd3be, 0x9bd7c1, 0xc2acd9, 0xe8c48d]
   };
   const palette = palettes[style] || palettes.starlight;
   if (!player.styleMaterials) return;
-  Object.values(player.styleMaterials).forEach((material, i) => material.color.setHex(palette[i]));
+  Object.values(player.styleMaterials).forEach((material, i) => material.color.setHex(palette[i]).convertSRGBToLinear());
   player.styleMaterials.hair.emissive.setHex(palette[1]);
   player.styleMaterials.hair.emissiveIntensity = 0.12;
 }

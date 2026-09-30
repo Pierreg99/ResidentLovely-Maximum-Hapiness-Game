@@ -5,7 +5,6 @@ import { audio } from '../engine/audio.js';
 import { SECTOR_REGISTRY, getSector } from '../world/sectors.js';
 import { findRoute } from './exploration.js';
 import { calculateSectorPosition } from './minimap.js';
-import { resolveBackdropAsset } from '../world/backdrops.js';
 
 const paths = {
   menu: 'M4 6h16M4 12h16M4 18h16',
@@ -14,7 +13,15 @@ const paths = {
   dash: 'm13 2-9 12h7l-1 8 10-13h-7l0-7Z',
   sprint: 'M12 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM5 9l4-3 5 3 3 3 4-1M4 21l5-8 3 2 2 6M9 13l3-5',
   star: 'm12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1 3-6Z',
-  compass: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4 6-2 6-6 2 2-6 6-2Z'
+  compass: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4 6-2 6-6 2 2-6 6-2Z',
+  heart: 'M12 20C-3 11 3 0 12 7c9-7 15 4 0 13Z',
+  look: 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Zm13 0a3 3 0 1 0-6 0 3 3 0 0 0 6 0Z',
+  bag: 'M5 8h14l2 13H3L5 8Zm3 0V6a4 4 0 0 1 8 0v2M9 13l3 3 3-3',
+  turn: 'M5 8a8 8 0 1 1-1 9M5 3v6H1',
+  pistol: 'm4 21 9-9m-1-5c-7-5-9 4-1 8 8-4 6-13 1-8Zm5-4v4m-2-2h4',
+  shotgun: 'M10 10a5 5 0 1 0 0-1M22 14a5 5 0 1 0 0-1M15 4a2 2 0 1 0 0-.1',
+  mortar: 'M3 10h18v4H3v-4Zm2 4v7h14v-7M12 10v11m0-11c-9-1-7-9-3-7 3 1 3 7 3 7Zm0 0c9-1 7-9 3-7-3 1-3 7-3 7Z',
+  beam: 'M3 12h5m8 0h5M5 5l3 3m8 8 3 3M5 19l3-3m8-8 3-3m-7 8c-9-5-5-11 0-7 5-4 9 2 0 7Z'
 };
 export function icon(name) {
   return `<svg class="rl-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name] || paths.star}"/></svg>`;
@@ -28,10 +35,13 @@ export class GameUI {
     this.state = gameState; this.map = minimap; this.exploration = exploration; this.persistence = persistence;
     this.menu = document.getElementById('pause-modal'); this.lastFocus = null;
     document.getElementById('btn-menu').innerHTML = icon('menu') + '<span>MENU</span>';
-    for (const [id, name] of [['btn-full-map', 'map'], ['btn-quest-log', 'quest'], ['btn-sprint', 'sprint'], ['btn-dash', 'dash']]) {
+    for (const [id, name] of [['btn-full-map', 'map'], ['btn-quest-log', 'quest'], ['btn-sprint', 'sprint'], ['btn-dash', 'dash'], ['btn-view-mode', 'look'], ['btn-inventory', 'bag'], ['btn-fire', 'heart'], ['btn-aim', 'compass'], ['btn-quick-turn', 'turn'], ['btn-cycle-weapon', 'star']]) {
       const el = document.getElementById(id); if (!el) continue;
       const svg = el.querySelector('svg'); if (svg) svg.outerHTML = icon(name);
     }
+    document.querySelectorAll('.weapon-slot[data-weapon]').forEach(slot => {
+      const svg = slot.querySelector('svg'); if (svg) svg.outerHTML = icon(slot.dataset.weapon);
+    });
     document.getElementById('btn-menu').addEventListener('click', () => this.togglePause());
     document.getElementById('btn-resume').addEventListener('click', () => this.resume());
     document.getElementById('pause-close-btn').addEventListener('click', () => this.resume());
@@ -51,7 +61,7 @@ export class GameUI {
     audio.muted = !preferences.sound;
     sound.addEventListener('change', () => { preferences.sound = sound.checked; audio.muted = !sound.checked; if (audio.muted) audio.stopBeamSound(); savePreferences(); });
     document.querySelectorAll('[data-skin]').forEach((button, i) => {
-      const skins = [['#7dd3fc', '#243863'], ['#f9a8d4', '#783554'], ['#6ee7b7', '#164e46']];
+      const skins = [['#94cce8', '#b8c8ed'], ['#efb5d1', '#e6afc3'], ['#9bd7c1', '#afd3be']];
       button.insertAdjacentHTML('afterbegin', portrait(...skins[i]));
       button.addEventListener('click', () => {
         preferences.skin = button.dataset.skin; setCharacterStyle(preferences.skin); savePreferences(); this.updateSkins();
@@ -115,9 +125,14 @@ export class GameUI {
       select.value = sector.id;
       const preview = document.querySelector('.security-camera-screen');
       if (preview) {
-        preview.style.backgroundImage = `linear-gradient(0deg, #0c1428aa, transparent), url("${resolveBackdropAsset(sector.id)}")`;
-        preview.style.backgroundSize = 'cover';
-        preview.style.backgroundPosition = 'center';
+        const tile = sector.floor === '5F' || /observatory|planetarium|moon|astral|celestial/.test(sector.slug) ? [1, 1] :
+          sector.biome === 'maritime' ? [2, 0] : sector.biome === 'forest' ? [2, 1] :
+          ['crystal', 'subterranean'].includes(sector.biome) ? [0, 1] : sector.floor === 'OUTDOOR' ? [1, 0] : [0, 0];
+        preview.style.backgroundImage = 'linear-gradient(0deg, #34213c99, transparent 60%), url("assets/art/world-atlas.png")';
+        preview.style.backgroundSize = '100% 100%, 300% 200%';
+        preview.style.backgroundPosition = `center, ${tile[0] * 50}% ${tile[1] * 100}%`;
+        const badge = preview.querySelector('.cam-feed-badge');
+        if (badge) badge.textContent = 'CHÂTEAU ART · BIOME PREVIEW';
       }
       document.getElementById('map-discovery').textContent = `${this.exploration.visited.has(sector.id) ? 'Discovered' : 'Unexplored'} · ${[0, 1, 2].filter(i => this.exploration.collected.has(`${sector.id}-${i}`)).length}/3 crystals`;
       this.drawRoute();

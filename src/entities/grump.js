@@ -286,6 +286,7 @@ export function upliftGrump(grump, amount, gameState, callbacks) {
   if (grump.happiness >= 100 && !grump.isDancing) {
     grump.isDancing = true;
     grump.furMat.color.setHex(0xf59e0b);
+    grump.furMat.color.convertSRGBToLinear?.();
 
     grump.eyes.forEach(e => { e.visible = false; });
     grump.stars.forEach(s => { s.visible = true; });

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>RESIDENT LOVELY ❖ Maximum Happiness 3D</title>
-  <meta name="theme-color" content="#05070a">
+  <meta name="theme-color" content="#eedce7">
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" href="./assets/icons/resident-lovely.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
@@ -32,18 +32,36 @@
 
   <!-- Master Kawaii Loading Screen & WebGL Pre-Warm Splash -->
   <div id="loading-screen">
-    <div class="loading-card">
+    <div class="startup-art" aria-hidden="true"></div>
+    <div class="loading-card" role="dialog" aria-modal="true" aria-label="Game settings before play">
       <div class="loading-emblem"><img src="./assets/icons/resident-lovely.svg" alt="Château de la Joie crest" width="96" height="96"></div>
       <div class="loading-title">RESIDENT LOVELY</div>
-      <div class="loading-subtitle">MAXIMUM HAPPINESS · THE EXPLORER EDITION</div>
-      <p class="loading-intro">A little wonder. A grand adventure.<br>Explore 42 places, make friends, and bring the château to life.</p>
-      <div class="platform-badges"><span>WINDOWS</span><span>LINUX</span><span>ANDROID</span></div>
+      <div class="loading-subtitle">THE SWEET CHÂTEAU COLLECTION</div>
+      <p class="loading-intro">Your little world of happiness.<br>Choose your graphics, make yourself at home, then play.</p>
+      <fieldset class="startup-graphics"><legend>1. Choose your graphics</legend>
+        <div class="quality-cards" role="group" aria-label="Graphics mode">
+          <button type="button" data-start-quality="auto" aria-pressed="false"><strong>Automatic</strong><span>Adapts to your device</span></button>
+          <button type="button" data-start-quality="low" aria-pressed="false"><strong>Gentle</strong><span>Battery saver</span></button>
+          <button type="button" data-start-quality="med" aria-pressed="false"><strong>Balanced</strong><span>Detail & performance</span></button>
+          <button type="button" data-start-quality="high" aria-pressed="false"><strong>Beautiful</strong><span>Bloom & soft shadows</span></button>
+          <button type="button" data-start-quality="ultra" aria-pressed="false"><strong>Dreamy Ultra</strong><span>Maximum detail · 4K shadows</span></button>
+        </div>
+        <p id="startup-quality-status" aria-live="polite">Select a graphics mode to enable Play.</p>
+      </fieldset>
+      <fieldset class="startup-personal"><legend>2. Make it yours</legend>
+        <div class="startup-skins" role="group" aria-label="Character style">
+          <button type="button" data-start-skin="starlight" aria-pressed="false">Starlight</button>
+          <button type="button" data-start-skin="sakura" aria-pressed="false">Sakura</button>
+          <button type="button" data-start-skin="jade" aria-pressed="false">Jade</button>
+        </div>
+        <div class="startup-options"><label><input id="startup-sound" type="checkbox" checked> Music & sound</label><label><input id="startup-motion" type="checkbox"> Reduce motion</label></div>
+      </fieldset>
       <div class="loading-bar-track">
         <div id="loading-bar-fill" class="loading-bar-fill"></div>
       </div>
       <div id="loading-status-text" class="loading-status-text">INITIALIZING CHÂTEAU CHAMBERS... 0%</div>
-      <button id="btn-enter-chateau" class="btn-enter-chateau" style="display:none;">ENTER THE CHÂTEAU</button>
-      <p class="loading-help">Keyboard, touch, or controller. Graphics and character styles are in Menu.</p>
+      <button id="btn-enter-chateau" class="btn-enter-chateau" disabled>PLAY</button>
+      <p class="loading-help">Windows · Linux · Android<br>Keyboard, touch, or controller. You can change settings in Menu.</p>
     </div>
   </div>
 
@@ -51,7 +69,7 @@
   <div id="canvas-container"></div>
 
   <!-- HUD Layer -->
-  <div id="hud">
+  <div id="hud" inert>
     <div class="hud-header">
       <!-- Radar Mini-Map (Tap to open full blueprint) -->
       <div id="btn-minimap" class="minimap-card" title="Open Manor Blueprint (M)">

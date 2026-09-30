@@ -58,7 +58,7 @@ export function initInput(callbacks) {
   // Block page scroll / pull-to-refresh while playing (except scrollable modals)
   const blockScroll = (e) => {
     const t = e.target;
-    if (t && t.closest && t.closest('.modal-overlay, #piano-modal, #inspect-modal, #save-modal, .map-blueprint-wrapper, .quest-log-body, .inventory-grid')) {
+    if (t && t.closest && t.closest('#loading-screen, .modal-overlay, #piano-modal, #inspect-modal, #save-modal, .map-blueprint-wrapper, .quest-log-body, .inventory-grid')) {
       return;
     }
     if (e.cancelable) e.preventDefault();
@@ -331,7 +331,7 @@ export function initInput(callbacks) {
     // Keyboard-accessible fallback
     el.addEventListener('click', (e) => {
       // Ignore synthetic click after touch
-      if (e.detail === 0) {
+      if (e.detail === 0 && !isBlocked()) {
         triggerHaptic(opts.haptic || 12);
         handler(true);
         if (opts.hold) handler(false);

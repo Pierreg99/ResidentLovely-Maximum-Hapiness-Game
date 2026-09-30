@@ -17,6 +17,7 @@ import { initInput, input } from './engine/input.js';
 import { VisualUpgrade } from './world/visual-upgrade.js';
 import { ExplorationSystem } from './systems/exploration.js';
 import { GameUI } from './systems/game-ui.js';
+import { StartupSettings } from './systems/startup-settings.js';
 import { GameModes } from "./systems/game_modes.js";
 import { EndlessDimension } from "./systems/endless_generator.js";
 import { AIDialogue } from "./systems/ai_dialogue.js";
@@ -24,6 +25,31 @@ import { InventorySystem, ITEMS_DB } from './systems/inventory.js';
 import { QuestSystem, QUESTS } from './systems/quests.js';
 import { MinimapSystem } from './systems/minimap.js';
 import { PersistenceSystem, loadGame } from './systems/persistence.js';
+
+// Older offline releases cached HTML before checking the network. Their fresh
+// module requests can reach this release before their service worker updates.
+if (!document.getElementById('startup-quality-status')) {
+  const currentShell = new URL(window.location.href);
+  currentShell.searchParams.set('edition', 'sweet-v9');
+  if (currentShell.href !== window.location.href) {
+    const status = document.getElementById('loading-status-text');
+    if (status) status.textContent = 'Preparing the Sweet Château settings screen…';
+    window.location.replace(currentShell.href);
+    await new Promise(() => {}); // The replacement document owns initialization.
+  }
+  const status = document.getElementById('loading-status-text');
+  if (status) status.textContent = 'Connect online, then update to load the Sweet Château settings.';
+  const retry = document.getElementById('btn-enter-chateau');
+  if (retry) {
+    retry.disabled = false; retry.style.display = 'block'; retry.textContent = 'UPDATE & RETRY';
+    retry.addEventListener('click', async () => {
+      retry.disabled = true;
+      try { const registration = await navigator.serviceWorker?.getRegistration(); await registration?.update(); } catch (_) {}
+      window.location.reload();
+    });
+  }
+  await new Promise(() => {}); // Never initialize against an incompatible shell.
+}
 
 // Global Game State
 const gameState = {
@@ -146,6 +172,7 @@ const minimapSystem = new MinimapSystem(gameState);
 let visualUpgrade = null;
 let explorationSystem = null;
 let gameUI = null;
+let startupSettings = null;
 const persistenceSystem = new PersistenceSystem(gameState, lanternMeshes, QUESTS, inventorySystem, questSystem, {
   onToast: showToast
 });
@@ -952,6 +979,7 @@ try {
     onToast: showToast, onTravel: changeRoom, onJoyChanged: () => inventorySystem.updateVitalityHUD()
   });
   gameUI = new GameUI(gameState, minimapSystem, explorationSystem, persistenceSystem);
+  startupSettings = new StartupSettings(gameUI);
   questSystem.render();
 } catch(e) {
   const errTxt = document.getElementById('loading-status-text');
@@ -1091,9 +1119,12 @@ function prewarmShaders() {
 }
 
 function launchGame() {
-  if (gameStarted) return;
+  if (gameStarted || !startupSettings?.canPlay) return;
   gameStarted = true;
   gameState.started = true;
+  document.getElementById('hud').inert = false;
+  const canvasContainer = document.getElementById('canvas-container');
+  canvasContainer.tabIndex = -1; canvasContainer.focus({ preventScroll: true });
 
   try {
     audio.init();
@@ -1103,13 +1134,14 @@ function launchGame() {
   }
 
   if (loadingScreen) {
+    loadingScreen.inert = true;
     loadingScreen.classList.add('fade-out');
     setTimeout(() => {
       loadingScreen.style.display = 'none';
     }, 650);
   }
 
-  showToast('Welcome to the Explorer Edition. Open Menu for styles, graphics, and Joy Rally.');
+  showToast('Welcome to the Sweet Château. Follow the glowing gates and collect a little happiness.');
 }
 
 function updateUpliftQuest() {
@@ -1149,11 +1181,8 @@ setTimeout(() => {
   if (btnEnterChateau) {
     btnEnterChateau.style.display = 'block';
     btnEnterChateau.addEventListener('click', launchGame);
-    btnEnterChateau.addEventListener('touchstart', launchGame, { passive: true });
   }
-  if (loadingScreen) {
-    loadingScreen.style.cursor = 'pointer';
-  }
+  startupSettings?.setReady();
 }, 120);
 
 animate();
@@ -1164,4 +1193,4 @@ EndlessDimension.init();
 window.addEventListener('AI_DIALOGUE_TRIGGER', () => { AIDialogue.generateResponse('Joy', 'Current room: ' + gameState.room); });
 
 // Module exports support the browser regression suite without a debug UI.
-export { gameState, explorationSystem, minimapSystem, gameUI, visualUpgrade };
+export { gameState, explorationSystem, minimapSystem, gameUI, visualUpgrade, startupSettings };

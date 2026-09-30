@@ -1,6 +1,7 @@
 import { scene, spawnConfetti, spawnHeartBubbles } from '../world/scene.js';
 import { player } from './player.js';
 import { audio } from '../engine/audio.js';
+import { softenPlush } from '../world/sweet-assets.js';
 
 export class CompanionSquad {
   constructor() {
@@ -20,6 +21,7 @@ export class CompanionSquad {
     // Clone species visual
     const species = grumpEntity.type || 'bear';
     const furMat = new THREE.MeshStandardMaterial({ color: { bear: 0xfcd34d, bunny: 0xf9a8d4, cat: 0xc4b5fd, ghost: 0xe0f2fe, penguin: 0x93c5fd }[species] || 0xfcd34d, roughness: 0.65 });
+    softenPlush(furMat);
     const body = new THREE.Mesh(new THREE.SphereGeometry(0.48, 16, 16), furMat);
     body.position.y = 0.48;
     fGroup.add(body);

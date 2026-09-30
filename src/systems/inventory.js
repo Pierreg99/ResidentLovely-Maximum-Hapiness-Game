@@ -171,6 +171,21 @@ export const ITEMS_DB = {
   }
 };
 
+// Coordinated enamel-and-porcelain item illustrations, including every quest item.
+Object.values(ITEMS_DB).forEach(item => {
+  const leaf = '<path d="M12 20V8m0 7C3 16 3 7 4 6c7 0 8 5 8 9Zm0-4c0-7 6-8 9-8 0 7-4 9-9 8Z" fill="#a4cdb5" stroke="#557b67" stroke-width="1.1"/>';
+  const key = '<path d="M10 10l10 10m-4-4 2-2m0 4 2-2" stroke="#bd935c" stroke-width="2.3" stroke-linecap="round"/><path d="M8 12C0 7 5 1 8 5c4-4 9 2 0 7Z" fill="#efb3cb" stroke="#bd935c"/>';
+  const cake = '<path d="m5 13 2 8h10l2-8" fill="#e2b991" stroke="#b88765"/><path d="M4 13c-2-4 2-5 4-5-1-5 8-5 8 0 5-1 7 4 4 5Z" fill="#f5c5d9" stroke="#cf8fac"/><circle cx="12" cy="5" r="2" fill="#c97298"/><path d="M9 15v4m3-4v4m3-4v4" stroke="#fff3df"/>';
+  const bottle = '<path d="M9 3h6v5c6 3 7 13-3 13S3 11 9 8Z" fill="#eee2f6" stroke="#a894ba"/><path d="M6 13h12c1 6-11 9-12 0Z" fill="#eeb0cc"/><path d="M8 3h8" stroke="#c9a574" stroke-width="3"/><path d="m10 14 2 2 2-2" fill="none" stroke="#fff"/>';
+  const book = '<path d="M4 4h15v17H4Z" fill="#cbb9de" stroke="#8d77a7"/><path d="M7 4v17m3-12h6m-6 4h6" stroke="#fff4df"/><path d="m12 15 2 2 2-2" stroke="#f5d79d" fill="none"/>';
+  const gem = '<path d="m7 4 10 0 5 7-10 11L2 11Z" fill="#b9d9ec" stroke="#7ca8c3"/><path d="m7 4 2 7 3 11 3-11 2-7M2 11h20" fill="none" stroke="#fff9ef"/>';
+  const bow = '<path d="M11 10C0-2 0 19 11 14l-4 7 5-3 5 3-4-7c11 5 11-16 0-4Z" fill="#e9b4ce" stroke="#bf88a8"/><circle cx="12" cy="12" r="2.5" fill="#ead09e"/>';
+  const star = '<path d="m12 3 3 5 6 1-4 5 1 7-6-3-6 3 1-7-4-5 6-1Z" fill="#efd7a2" stroke="#c49d64"/><circle cx="10" cy="11" r=".8" fill="#8e7595"/><circle cx="14" cy="11" r=".8" fill="#8e7595"/><path d="M10 14q2 2 4 0" fill="none" stroke="#ba86a0"/>';
+  const id = item.id;
+  const art = id.includes('key') ? key : id.includes('herb') ? leaf : /cupcake|macaron|tart/.test(id) ? cake : /powder|elixir/.test(id) ? bottle : /tome|scroll/.test(id) ? book : /gem|crystal/.test(id) ? gem : /ribbon/.test(id) ? bow : star;
+  item.icon = '<circle cx="12" cy="12" r="11.5" fill="#fff6ef"/>' + art + '<path d="m20 2 .5 1.5L22 4l-1.5.5L20 6l-.5-1.5L18 4l1.5-.5Z" fill="#e2bf83"/>';
+});
+
 export class InventorySystem {
   constructor(gameState, callbacks) {
     this.gameState = gameState;

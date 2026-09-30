@@ -18,7 +18,9 @@ const browser = await chromium.launch({
   headless: true
 });
 const failures = [];
+const filter = process.env.TEST_FILTER ? new RegExp(process.env.TEST_FILTER) : null;
 async function check(name, fn) {
+  if (filter && !filter.test(name)) { console.log(`SKIP ${name}`); return; }
   try { await fn(); console.log(`PASS ${name}`); } catch (error) { failures.push({ name, error }); console.error(`FAIL ${name}: ${error.message}`); }
 }
 async function start(context, name) {
@@ -30,9 +32,27 @@ async function start(context, name) {
   await page.addInitScript(() => localStorage.setItem('resident-lovely-preferences-v8', JSON.stringify({ quality: 'low', reducedMotion: true })));
   await page.goto(baseURL);
   await page.locator('#btn-enter-chateau').waitFor({ state: 'visible' });
+  await page.evaluate(async () => { window.testMain = await import('/src/main.js'); window.testPlayer = (await import('/src/entities/player.js')).player; });
+  assert.equal(await page.locator('#btn-enter-chateau').isDisabled(), true);
+  assert.equal(await page.locator('#hud').evaluate(el => el.inert), true);
+  for (let i = 0; i < 15; i++) {
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => !!document.activeElement.closest('#loading-screen')), true);
+  }
+  const resting = await page.evaluate(() => window.testPlayer.position.toArray());
+  await page.locator('#btn-enter-chateau').dispatchEvent('click');
+  await page.keyboard.press('KeyW');
+  assert.equal(await page.evaluate(() => window.testMain.gameState.started), false);
+  assert.deepEqual(await page.evaluate(() => window.testPlayer.position.toArray()), resting);
+  await page.locator('[data-start-quality="low"]').click();
+  await page.waitForFunction(() => window.testMain.startupSettings.canPlay);
+  assert.equal(await page.evaluate(() => window.testMain.gameState.started), false);
+  assert.equal(await page.locator('[data-start-quality="low"]').getAttribute('aria-pressed'), 'true');
+  await page.screenshot({ path: `${artifacts}/${name.replaceAll(' ', '-')}-startup.png`, fullPage: true });
   await page.locator('#btn-enter-chateau').click({ force: true });
   await page.evaluate(async () => { window.testMain = await import('/src/main.js'); window.testPlayer = (await import('/src/entities/player.js')).player; window.testInput = (await import('/src/engine/input.js')).input; window.testScene = await import('/src/world/scene.js'); });
   await page.waitForFunction(() => window.testMain.gameState.started);
+  assert.equal(await page.locator('#hud').evaluate(el => el.inert), false);
   await page.evaluate(() => document.activeElement?.blur());
   console.log(`Started ${name}`); return page;
 }
@@ -47,6 +67,8 @@ try {
       return { count: SECTOR_REGISTRY.length, complete: SECTOR_REGISTRY.every(s => rooms[s.slug].children.length > 0), reachable: SECTOR_REGISTRY.every(s => findRoute('S01', s.id).length), instanced: rooms.foyer.getObjectByName('chamber_floor').children.every(o => o.isInstancedMesh) };
     });
     assert.deepEqual(result, { count: 42, complete: true, reachable: true, instanced: true });
+    assert.equal(await page.evaluate(() => window.testMain.visualUpgrade.assetCoverage.decoratedRooms), 42);
+    assert.ok(await page.evaluate(() => window.testMain.visualUpgrade.assetCoverage.materialCount > 100));
   });
   await check('keyboard movement, sprint, dash, and pause isolation', async () => {
     const before = await page.evaluate(async () => (await import('/src/entities/player.js')).player.position.z);
@@ -120,6 +142,30 @@ try {
       await page.locator('#graphics-quality').selectOption(mode);
       await page.waitForFunction(frame => window.testScene.renderer.info.render.frame > frame + 3, frame);
       await page.waitForFunction(mode => window.testScene.graphicsQuality.shadowMapSize === (mode === 'ultra' ? 4096 : 2048), mode);
+      const colors = await page.evaluate(() => {
+        const { scene, renderer } = window.testScene;
+        const visible = scene.children.map(child => [child, child.visible]);
+        const material = new THREE.MeshBasicMaterial({ toneMapped: false, fog: false });
+        material.color.setRGB(.214, .214, .214);
+        const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, .1, 10);
+        camera.position.z = 2;
+        const read = () => {
+          const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+          const pixel = new Uint8Array(4);
+          renderer.getContext().readPixels(Math.floor(size.x / 2), Math.floor(size.y / 2), 1, 1, renderer.getContext().RGBA, renderer.getContext().UNSIGNED_BYTE, pixel);
+          return [...pixel].slice(0, 3);
+        };
+        try {
+          visible.forEach(([child]) => child.visible = false); scene.add(plane);
+          renderer.setRenderTarget(null); renderer.render(scene, camera); const direct = read();
+          window.testMain.visualUpgrade.render(camera); return { direct, composite: read() };
+        } finally {
+          scene.remove(plane); plane.geometry.dispose(); material.dispose();
+          visible.forEach(([child, shown]) => child.visible = shown);
+        }
+      });
+      assert.ok(colors.direct.every((value, index) => Math.abs(value - colors.composite[index]) <= 3), `Graphics mode changed the color encoding: ${JSON.stringify(colors)}`);
     }
     assert.ok(await page.evaluate(async () => { const { renderer } = await import('/src/world/scene.js'); return renderer.getContext().getError() === 0; }));
     await page.locator('#graphics-quality').selectOption('low'); await page.locator('#btn-resume').click({ force: true });
@@ -134,8 +180,8 @@ try {
   await check('offline service worker reloads the complete game', async () => {
     await page.evaluate(async () => { await navigator.serviceWorker.ready; });
     assert.ok(await page.evaluate(async () => {
-      const cache = await caches.open('resident-lovely-v8-explorer-cache');
-      return !!(await cache.match('./src/world/visual-upgrade.js')) && !!(await cache.match('./assets/icons/icon-512.png'));
+      const cache = await caches.open('resident-lovely-v9-sweet-cache');
+      return !!(await cache.match('./src/world/visual-upgrade.js')) && !!(await cache.match('./assets/icons/icon-512.png')) && !!(await cache.match('./src/systems/startup-settings.js')) && !!(await cache.match('./assets/art/sweet-chateau.png'));
     }));
     await desktop.setOffline(true); await page.reload();
     await page.locator('#btn-enter-chateau').waitFor({ state: 'visible' });
@@ -144,6 +190,30 @@ try {
   });
   assert.deepEqual(page.errors, []);
   await desktop.close();
+
+  await check('older cached page shells upgrade to settings before initialization', async () => {
+    const legacy = await browser.newContext({ viewport: { width: 900, height: 600 } });
+    const oldPage = await legacy.newPage(); oldPage.setDefaultTimeout(60000);
+    await oldPage.addInitScript(() => localStorage.setItem('resident-lovely-preferences-v8', JSON.stringify({ quality: 'low', reducedMotion: true })));
+    await oldPage.route('**/*', async route => {
+      const request = route.request();
+      if (request.isNavigationRequest() && (!new URL(request.url()).searchParams.has('edition') || new URL(request.url()).searchParams.has('blocked-shell'))) {
+        const response = await route.fetch();
+        await route.fulfill({ response, body: (await response.text()).replace('id="startup-quality-status"', 'id="legacy-status"') });
+      } else await route.continue();
+    });
+    try {
+      await oldPage.goto(baseURL, { waitUntil: 'domcontentloaded' });
+      await oldPage.waitForURL(url => url.searchParams.get('edition') === 'sweet-v9');
+      await oldPage.locator('#startup-quality-status').waitFor();
+      assert.equal(await oldPage.locator('#btn-enter-chateau').isDisabled(), true);
+      assert.equal(await oldPage.evaluate(async () => (await import('/src/main.js')).gameState.started), false);
+      await oldPage.goto(`${baseURL}/?edition=sweet-v9&blocked-shell=1`, { waitUntil: 'commit' });
+      await oldPage.locator('#btn-enter-chateau').filter({ hasText: 'UPDATE & RETRY' }).waitFor();
+      assert.match(await oldPage.locator('#loading-status-text').textContent(), /Connect online/);
+      assert.equal(await oldPage.evaluate(async () => (await import('/src/world/rooms.js')).rooms.foyer.children.length), 0);
+    } finally { await legacy.close(); }
+  });
 
   const android = await browser.newContext({ viewport: { width: 393, height: 851 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true, userAgent: 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36' });
   const mobile = await start(android, 'Android portrait');
@@ -169,6 +239,25 @@ try {
     await mobile.locator('#btn-menu').tap();
     assert.equal(await mobile.locator('#pause-modal').evaluate(el => getComputedStyle(el).display), 'flex');
     await mobile.screenshot({ path: `${artifacts}/android-landscape-menu.png` });
+  });
+  await check('Android landscape startup scrolls and waits for graphics then Play', async () => {
+    await mobile.reload();
+    await mobile.evaluate(async () => { window.testMain = await import('/src/main.js'); });
+    assert.equal(await mobile.locator('#btn-enter-chateau').isDisabled(), true);
+    const session = await mobile.context().newCDPSession(mobile);
+    await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 720, y: 340, id: 1 }] });
+    for (let y = 320; y >= 100; y -= 20) {
+      await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 720, y, id: 1 }] });
+      await mobile.waitForTimeout(20);
+    }
+    await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await mobile.waitForFunction(() => document.getElementById('loading-screen').scrollTop > 10);
+    assert.equal(await mobile.evaluate(() => window.testMain.gameState.started), false);
+    await mobile.locator('[data-start-quality="low"]').tap();
+    await mobile.waitForFunction(() => window.testMain.startupSettings.canPlay);
+    assert.equal(await mobile.evaluate(() => window.testMain.gameState.started), false);
+    await mobile.locator('#btn-enter-chateau').tap();
+    assert.equal(await mobile.evaluate(() => window.testMain.gameState.started), true);
   });
   assert.deepEqual(mobile.errors, []);
   await android.close();
