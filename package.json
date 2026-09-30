@@ -1,0 +1,12 @@
+{
+  "name": "resident-lovely",
+  "version": "8.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "test:browser": "node tests/browser-smoke.mjs"
+  },
+  "devDependencies": { "playwright": "1.62.1" },
+  "engines": { "node": ">=20" }
+}

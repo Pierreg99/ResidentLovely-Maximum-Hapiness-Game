@@ -92,15 +92,17 @@ export const FLOOR_LAYOUTS = {
   },
   'OUTDOOR': {
     positions: {
-      S14: { x: 265, y: 110, w: 110, h: 75 },
-      S13: { x: 400, y: 110, w: 110, h: 75 },
-      S15: { x: 535, y: 110, w: 110, h: 75 },
-      S24: { x: 130, y: 250, w: 110, h: 75 },
-      S16: { x: 400, y: 250, w: 110, h: 75 },
-      S23: { x: 670, y: 250, w: 110, h: 75 },
-      S26: { x: 265, y: 390, w: 110, h: 75 },
-      S22: { x: 400, y: 390, w: 110, h: 75 },
-      S25: { x: 535, y: 390, w: 110, h: 75 }
+      S14: { x: 100, y: 105, w: 150, h: 95 },
+      S13: { x: 300, y: 105, w: 150, h: 95 },
+      S15: { x: 500, y: 105, w: 150, h: 95 },
+      S24: { x: 700, y: 105, w: 150, h: 95 },
+      S16: { x: 100, y: 255, w: 150, h: 95 },
+      S23: { x: 300, y: 255, w: 150, h: 95 },
+      S26: { x: 500, y: 255, w: 150, h: 95 },
+      S22: { x: 700, y: 255, w: 150, h: 95 },
+      S25: { x: 100, y: 405, w: 150, h: 95 },
+      S41: { x: 300, y: 405, w: 150, h: 95 },
+      S42: { x: 500, y: 405, w: 150, h: 95 }
     }
   }
 };
@@ -441,7 +443,12 @@ export class MinimapSystem {
         const sectorId = el.getAttribute('data-sector-id');
         const sectorSlug = el.getAttribute('data-sector-slug');
         this.fastTravel(sectorId || sectorSlug);
-        this.toggle();
+      });
+      el.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          this.inspectSector(el.getAttribute('data-sector-id'));
+        }
       });
     });
   }

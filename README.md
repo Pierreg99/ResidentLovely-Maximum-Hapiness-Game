@@ -1,5 +1,13 @@
 # RESIDENT LOVELY ❖ Maximum Happiness 3D
 
+
+## Explorer Edition · v8.0.0
+
+Play on **Windows, Linux, and Android** in a WebGL browser, or install the offline app through Chrome/Edge. The Explorer Edition adds selectable graphics up to Ultra, PBR reflections and bloom, three character styles, new icons, **42 map destinations**, connected travel gates, route tracking, persistent crystals, and the repeatable **Joy Rally**. Sprint, dash, held fire, pause, touch, and controller support are included.
+
+Start locally with `npm run dev` (Node.js 20+) and open `http://localhost:8080`. See [play/install instructions, features, and validation](docs/EXPLORER_EDITION.md).
+
+
 <p align="center">
   <img src="assets/resident-lovely-banner.svg" alt="Resident Lovely Banner" width="100%" />
 </p>
@@ -7,7 +15,7 @@
 <p align="center">
   <a href="https://pierreg99.github.io/ResidentLovely-Maximum-Hapiness-Game/"><img src="https://img.shields.io/badge/PLAY_NOW-GitHub_Pages-cyan?style=for-the-badge&logo=github" alt="Play Now" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" /></a>
-  <a href="PROGRESS.md"><img src="https://img.shields.io/badge/Progress-v6.3.0_Master-orange.svg?style=for-the-badge" alt="Progress" /></a>
+  <a href="PROGRESS.md"><img src="https://img.shields.io/badge/Progress-v8.0.0_Explorer-orange.svg?style=for-the-badge" alt="Progress" /></a>
   <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Changelog-Comprehensive-emerald.svg?style=for-the-badge" alt="Changelog" /></a>
   <a href="docs/Resident_Lovely_Master_Game_Design_Specification.docx"><img src="https://img.shields.io/badge/Specification-DOCX-magenta.svg?style=for-the-badge" alt="DOCX Specification" /></a>
   <a href="#"><img src="https://img.shields.io/badge/Standard-NEXUS_PRIVÉ_v6.3-pink.svg?style=for-the-badge" alt="NEXUS PRIVÉ v6.3" /></a>
@@ -29,7 +37,7 @@
 
 ---
 
-## ★ Key Visual & Gameplay Masterwork Features (v6.3.0)
+## Original Gameplay Systems
 
 ### 1. Master Touch Virtual Controls & Haptic Feedback
 - **Floating Dynamic Joystick**: Touch anywhere on the left half of the screen to spawn an analog joystick with smooth 48px drag radius and deadzone normalization.
@@ -42,11 +50,11 @@
   - `[ITEMS]` (Alchemical inventory pouch)
   - `[QUESTS]` (12-quest task ledger)
 
-### 2. Sprawling 32-Sector Spencer-Mansion Estate & Grand Colonnades
+### 2. Sprawling 42-Sector Spencer-Mansion Estate & Grand Colonnades
 - **Seamless Interconnecting Colonnades**: Open arched marble hallways seamlessly connecting the Grand Foyer (`S01`) with the East Wing Library (`S02`), West Wing Solarium (`S03`), and Courtyard Greenhouse (`S04`).
-- **7-Floor Architectural Layout**: `4F (Rooftop)`, `3F (Cathedral)`, `2F (Mezzanine & Suites)`, `1F (Ground Estate)`, `B1 (Subterranean Lab)`, `B2 (Crypt & Vaults)`, `OUTDOOR (Grounds & Nature)`.
+- **9-Floor Architectural Layout**: `5F (Astral Spire)`, `4F (Rooftop)`, `3F (Cathedral)`, `2F (Mezzanine & Suites)`, `1F (Ground Estate)`, `B1 (Subterranean Lab)`, `B2 (Crypt & Vaults)`, `B3 (Abyssal Trench)`, `OUTDOOR (Grounds & Nature)`.
 - **Fast Travel Teleporter Network**: Double-click any chamber node on the Holographic Blueprint Map to instantly warp across wings with custom harmonic door chimes.
-- **Spatial Culling & Lighting Throttling**: Dynamic point-light attenuation for sectors outside active camera radius (`<= 75m`), guaranteeing a rock-solid 60 FPS on mobile devices.
+- **Spatial Culling & Lighting Throttling**: Dynamic point-light attenuation for sectors outside active camera radius (`<= 75m`), with whole-room visibility and nearby-light limits for mobile devices.
 
 ### 3. Realistic Kawaii PBR Shading & World Atmosphere
 - **Agent Joy Character Rig**: Gilded shoulder epaulets, dual holster belts, knee-high tactical boots with silver buckles, glossy anime eyes with specular catchlights, and bouncing twin-tail hair physics.
@@ -119,11 +127,11 @@
 The project includes an automated test discovery suite written in Python:
 
 ```bash
-# Run all 10 test suites (237 automated tests)
+# Run all 259 Python regression tests
 python3 -m unittest discover -s tests -p "test_*.py"
 ```
 
-All 237 tests pass with a 100% success rate across all world geometry, shader validation, inventory alchemy, and camera mechanics.
+The Python suite covers world geometry, shaders, inventory, maps, and controls. The browser suite (`npm run test:browser`) checks real WebGL rendering, gameplay, persistence, offline play, and Android layouts.
 
 ---
 

@@ -1,5 +1,8 @@
 # RESIDENT LOVELY ❖ PROGRESS & ARCHITECTURE MATRIX
 
+Current development: **v8.0.0 Explorer Edition**. See [release details and cross-platform play](docs/EXPLORER_EDITION.md).
+
+
 **Project**: `Pierreg99/ResidentLovely-Maximum-Hapiness-Game`  
 **Classification**: NEXUS PRIVÉ v6.3 Standard | Strict Zero-Emoji Protocol  
 **Latest Version**: `v7.4.1`  

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'resident-lovely-v7.4.1-cache';
+const CACHE_NAME = 'resident-lovely-v8-explorer-cache';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,6 +6,15 @@ const ASSETS_TO_CACHE = [
   './css/style.css',
   './js/three.min.js',
   './src/main.js',
+  './src/world/visual-upgrade.js',
+  './src/systems/preferences.js',
+  './src/systems/exploration.js',
+  './src/systems/game-ui.js',
+  './assets/icons/resident-lovely.svg',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
+  './assets/backdrops/backdrop_rainbow_sky_garden.svg',
+  './assets/backdrops/backdrop_aurora_bay.svg',
   './src/engine/audio.js',
   './src/engine/camera.js',
   './src/engine/input.js',

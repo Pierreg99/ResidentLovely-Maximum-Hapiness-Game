@@ -2,6 +2,7 @@ import { scene, spawnSparkleFootstep } from '../world/scene.js';
 import { rooms } from '../world/rooms.js';
 import { input } from '../engine/input.js';
 import { audio } from '../engine/audio.js';
+import { getSector } from '../world/sectors.js';
 
 export const player = {
   group: new THREE.Group(),
@@ -13,6 +14,9 @@ export const player = {
   quickTurnTimer: 0,
   blinkTimer: 0,
   speed: 7.4,
+  stamina: 100,
+  dashTime: 0,
+  dashCooldown: 0,
   meshBody: null,
   headGroup: new THREE.Group(),
   leftLegGroup: new THREE.Group(),
@@ -67,6 +71,7 @@ export function initPlayer() {
     color: 0xfb7185, roughness: 0.14, metalness: 0.18,
     emissive: 0xdb2777, emissiveIntensity: 0.28, envMapIntensity: 1.3
   });
+  player.styleMaterials = { vest: vestMat, hair: hairMat, ribbon: ribbonMat, trim: goldTrimMat };
   const eyeMat = new THREE.MeshStandardMaterial({
     color: 0x0f172a, roughness: 0.08, metalness: 0.55,
     emissive: 0x1e3a8a, emissiveIntensity: 0.06, envMapIntensity: 1.35
@@ -306,6 +311,8 @@ export function performQuickTurn() {
 }
 
 export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
+  player.dashCooldown = Math.max(0, player.dashCooldown - delta);
+  player.dashTime = Math.max(0, player.dashTime - delta);
   // Eye Blinking & Sharpshooter Focus Logic
   player.blinkTimer -= delta;
   if (player.blinkTimer <= 0) {
@@ -356,19 +363,23 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
   }
 
   const isMoving = moveDir.lengthSq() > 0.001;
+  const sprinting = isMoving && !player.isAiming && player.stamina > 1 &&
+    (input.sprintHeld || input.keys['ShiftLeft'] || input.keys['ShiftRight']);
+  player.stamina = Math.max(0, Math.min(100, player.stamina + delta * (sprinting ? -24 : 18)));
 
-  if (isMoving) {
+  if (isMoving || player.dashTime > 0) {
+    if (!isMoving) moveDir.z = 1;
     moveDir.normalize();
     const rotatedMove = moveDir.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotation);
-    player.position.addScaledVector(rotatedMove, player.speed * delta);
+    const speedScale = player.dashTime > 0 ? 2.8 : sprinting ? 1.6 : player.isAiming ? 0.65 : 1;
+    player.position.addScaledVector(rotatedMove, player.speed * speedScale * delta);
 
-    const roomBounds = 12.5;
-    let roomCenter = new THREE.Vector3(0, 0, 0);
-    if (currentRoom === 'library') roomCenter = rooms.library.position;
-    if (currentRoom === 'garden') roomCenter = rooms.garden.position;
-
-    player.position.x = THREE.MathUtils.clamp(player.position.x, roomCenter.x - roomBounds, roomCenter.x + roomBounds);
-    player.position.z = THREE.MathUtils.clamp(player.position.z, roomCenter.z - roomBounds, roomCenter.z + roomBounds);
+    const sector = getSector(currentRoom);
+    const roomCenter = rooms[currentRoom]?.position || sector?.coords || { x: 0, z: 0 };
+    const halfW = (sector?.size.w || 28) / 2 - 1;
+    const halfL = (sector?.size.l || 28) / 2 - 1;
+    player.position.x = THREE.MathUtils.clamp(player.position.x, roomCenter.x - halfW, roomCenter.x + halfW);
+    player.position.z = THREE.MathUtils.clamp(player.position.z, roomCenter.z - halfL, roomCenter.z + halfL);
 
     // Kawaii foot-hop, leg stride cycle, and sparkle footstep trail
     spawnSparkleFootstep(player.position);
@@ -487,4 +498,25 @@ export function updatePlayer(delta, time, currentRoom, cameraPitch = 0) {
 
   player.group.position.copy(player.position);
   player.group.rotation.y = player.rotation;
+}
+
+export function performDash() {
+  if (player.dashCooldown > 0 || player.stamina < 25) return false;
+  player.stamina -= 25;
+  player.dashTime = 0.23;
+  player.dashCooldown = 1.1;
+  return true;
+}
+
+export function setCharacterStyle(style) {
+  const palettes = {
+    starlight: [0x243863, 0x7dd3fc, 0xfb7185, 0xfbbf24],
+    sakura: [0x783554, 0xf9a8d4, 0xfde68a, 0xffedd5],
+    jade: [0x164e46, 0x6ee7b7, 0xa78bfa, 0xe2e8f0]
+  };
+  const palette = palettes[style] || palettes.starlight;
+  if (!player.styleMaterials) return;
+  Object.values(player.styleMaterials).forEach((material, i) => material.color.setHex(palette[i]));
+  player.styleMaterials.hair.emissive.setHex(palette[1]);
+  player.styleMaterials.hair.emissiveIntensity = 0.12;
 }

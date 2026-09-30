@@ -1,4 +1,5 @@
 import { SECTOR_REGISTRY, getSector, getFloorSectors } from './sectors.js';
+import { preferences, motionReduced } from '../systems/preferences.js';
 
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070a);
@@ -36,6 +37,8 @@ export function detectGraphicsQuality() {
   } else if (w < 768 || (w < 1280 && pixelBudget > PIXEL_BUDGET_CAP)) {
     preset = 'low';
   }
+  const qualityOverride = typeof preferences !== 'undefined' ? preferences.quality : 'auto';
+  if (qualityOverride !== 'auto') preset = qualityOverride === 'ultra' ? 'high' : qualityOverride;
 
   let maxPixelRatio;
   let shadowMapSize;
@@ -85,6 +88,12 @@ export function detectGraphicsQuality() {
   }
 
   const isMobile = preset === 'low';
+  if (qualityOverride === 'ultra') {
+    maxPixelRatio = Math.min(2, Math.max(1.5, dpr));
+    shadowMapSize = 4096;
+  } else if (qualityOverride === 'high') {
+    shadowMapSize = 2048;
+  }
   return {
     preset,
     isMobile,
@@ -168,6 +177,18 @@ function applyRendererPixelRatio() {
   if (renderer.toneMappingExposure !== undefined) {
     renderer.toneMappingExposure = graphicsQuality.exposure;
   }
+}
+
+export function setGraphicsMode(mode) {
+  if (!['auto', 'low', 'med', 'high', 'ultra'].includes(mode)) return;
+  preferences.quality = mode;
+  applyRendererPixelRatio();
+  sunLight.shadow.mapSize.set(graphicsQuality.shadowMapSize, graphicsQuality.shadowMapSize);
+  if (sunLight.shadow.map) {
+    sunLight.shadow.map.dispose();
+    sunLight.shadow.map = null;
+  }
+  sunLight.shadow.needsUpdate = true;
 }
 
 export const renderer = new THREE.WebGLRenderer({
@@ -620,9 +641,9 @@ function resetPetalPhysics(p) {
 }
 
 (function initPetals() {
-  const reducedMotion = (typeof window !== 'undefined' && typeof window.matchMedia === 'function')
+  const reducedMotion = typeof motionReduced === 'function' ? motionReduced() : ((typeof window !== 'undefined' && typeof window.matchMedia === 'function')
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
+    : false);
   // Cap-Ceiling (A11y); LOD applied after — pool sized to ceiling for tier-up without respawn
   petalCeiling = reducedMotion
     ? Math.min(8, graphicsQuality.petalCap || 22)
@@ -929,9 +950,9 @@ const sparkleGeo = new THREE.OctahedronGeometry(0.09);
 const sparkleColors = [0xfde047, 0xf472b6, 0x38bdf8, 0x4ade80, 0xc084fc];
 
 export function spawnSparkleFootstep(pos) {
-  const reducedMotion = typeof window !== 'undefined' && window.matchMedia
+  const reducedMotion = typeof motionReduced === 'function' ? motionReduced() : (typeof window !== 'undefined' && window.matchMedia
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
+    : false);
   // Cap-Ceiling (A11y) → LOD; sparkleBurst Freeze (no LOD)
   const sparkleCeiling = reducedMotion
     ? Math.min(8, graphicsQuality.sparkleCap || 22)
@@ -1012,9 +1033,9 @@ export const stardustMotes = [];
 (function initStardust() {
   const moteGeo = new THREE.OctahedronGeometry(0.07);
   const moteColors = [0x38bdf8, 0xf9a8d4, 0xfde047, 0xc4b5fd];
-  const reducedMotion = (typeof window !== 'undefined' && typeof window.matchMedia === 'function')
+  const reducedMotion = typeof motionReduced === 'function' ? motionReduced() : ((typeof window !== 'undefined' && typeof window.matchMedia === 'function')
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
+    : false);
   const moteCount = reducedMotion ? 18 : Math.max(24, Math.floor(90 * (graphicsQuality?.fxScale ?? 1)));
   for (let i = 0; i < moteCount; i++) {
     const moteMat = new THREE.MeshBasicMaterial({
@@ -1097,6 +1118,12 @@ export function updateSpatialCulling(playerPos, maxDistance = 75.0) {
   const pX = playerPos.x;
   const pZ = playerPos.z;
 
+  const nearby = [...new Set(Object.values(sectorPointLights))].filter(ptLight => {
+    if (!ptLight) return false;
+    return Math.abs(ptLight.position.y - (playerPos.y || 0)) < 12 &&
+      Math.hypot(ptLight.position.x - pX, ptLight.position.z - pZ) < maxDistance;
+  }).sort((a, b) => Math.hypot(a.position.x - pX, a.position.z - pZ) - Math.hypot(b.position.x - pX, b.position.z - pZ));
+  const active = new Set(nearby.slice(0, graphicsQuality.preset === 'low' ? 2 : 4));
   Object.values(sectorPointLights).forEach(ptLight => {
     if (!ptLight) return;
     const dx = ptLight.position.x - pX;
@@ -1104,7 +1131,7 @@ export function updateSpatialCulling(playerPos, maxDistance = 75.0) {
     const distSq = dx * dx + dz * dz;
     const isNearby = distSq < (maxDistance * maxDistance);
     
-    ptLight.visible = isNearby;
+    ptLight.visible = isNearby && active.has(ptLight);
   });
 }
 
@@ -1122,9 +1149,9 @@ const mistMat = new THREE.MeshBasicMaterial({
 
 export function updateGroundMist(delta, time, playerPos) {
   if (!playerPos) return;
-  const reducedMotion = typeof window !== 'undefined' && window.matchMedia
+  const reducedMotion = typeof motionReduced === 'function' ? motionReduced() : (typeof window !== 'undefined' && window.matchMedia
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
+    : false);
   // Cap-Ceiling (A11y) → LOD
   const mistCeiling = reducedMotion
     ? Math.min(8, graphicsQuality.mistCap || 12)

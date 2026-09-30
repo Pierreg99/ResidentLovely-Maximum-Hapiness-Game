@@ -799,6 +799,30 @@ export const SECTOR_REGISTRY = [
   }
 ];
 
+// Two new explorable destinations, linked into the existing outdoor network.
+SECTOR_REGISTRY.push(
+  {
+    id: 'S41', slug: 'rainbow_sky_garden', name: 'Rainbow Sky Garden', floor: 'OUTDOOR',
+    biome: 'kawaii', biomeColor: '#f472b6', coords: { x: 0, y: 0, z: 225 },
+    size: { w: 32, l: 32, h: 18 }, connections: ['S25', 'S42'], happiness: 90,
+    props: ['rainbow_sculpture', 'sakura_grove', 'garden_benches'],
+    backdrop: 'assets/backdrops/backdrop_rainbow_sky_garden.svg', backdropSvg: 'backdrop_rainbow_sky_garden.svg', shader: 'bioluminescent_floor',
+    light: { color: 0xf9a8d4, intensity: 2.4, distance: 36, position: { x: 0, y: 8, z: 225 } },
+    ambient: { color: 0xffedd5, intensity: 0.75 }, pbr: { roughness: 0.3, metalness: 0.15, normalScale: 1 }
+  },
+  {
+    id: 'S42', slug: 'aurora_bay', name: 'Aurora Bay', floor: 'OUTDOOR',
+    biome: 'maritime', biomeColor: '#0284c7', coords: { x: 45, y: 0, z: 225 },
+    size: { w: 32, l: 32, h: 18 }, connections: ['S24', 'S41'], happiness: 85,
+    props: ['aurora_lighthouse', 'mint_grove', 'bay_promenade'],
+    backdrop: 'assets/backdrops/backdrop_aurora_bay.svg', backdropSvg: 'backdrop_aurora_bay.svg', shader: 'flowing_river',
+    light: { color: 0x67e8f9, intensity: 2.2, distance: 36, position: { x: 45, y: 8, z: 225 } },
+    ambient: { color: 0xc4b5fd, intensity: 0.75 }, pbr: { roughness: 0.2, metalness: 0.25, normalScale: 1 }
+  }
+);
+SECTOR_REGISTRY.find(s => s.id === 'S25').connections.push('S41');
+SECTOR_REGISTRY.find(s => s.id === 'S24').connections.push('S42');
+
 // Index registry by both ID and Slug on the dictionary and array
 export const SECTORS_BY_ID = {};
 export const SECTORS_BY_SLUG = {};

@@ -1,18 +1,30 @@
 {
-  "name": "Resident Lovely ❖ Maximum Happiness 3D",
+  "name": "Resident Lovely \u2014 Maximum Happiness",
   "short_name": "Resident Lovely",
-  "description": "Over-the-shoulder 3D action-adventure survival-joy game parodying survival-horror mechanics with Maximum Happiness.",
+  "description": "Explore 42 magical places, make friends, and race the Joy Rally. Play with keyboard, touch, or a controller.",
   "start_url": "./index.html",
   "display": "standalone",
-  "orientation": "landscape",
-  "background_color": "#05070a",
-  "theme_color": "#05070a",
+  "orientation": "any",
+  "background_color": "#11182b",
+  "theme_color": "#11182b",
   "icons": [
     {
-      "src": "assets/resident-lovely-banner.svg",
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "id": "./",
+  "scope": "./",
+  "categories": [
+    "games",
+    "entertainment"
   ]
 }

@@ -8,7 +8,8 @@ export const input = {
   lastMouseX: 0,
   lastMouseY: 0,
   lookActive: false,
-  fireHeld: false
+  fireHeld: false,
+  sprintHeld: false
 };
 
 export function initInput(callbacks) {
@@ -23,7 +24,10 @@ export function initInput(callbacks) {
     onCycleViewMode,
     onToggleAim,
     onQuickTurn,
-    onRotateCamera
+    onRotateCamera,
+    onPause,
+    onDash,
+    isBlocked = () => false
   } = callbacks;
 
   function triggerHaptic(ms = 12) {
@@ -64,8 +68,15 @@ export function initInput(callbacks) {
 
   // Keyboard Event Listeners (desktop unchanged)
   window.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape' && !e.repeat) { e.preventDefault(); onPause?.(); return; }
+    if (e.target?.closest?.('input, select, textarea') || isBlocked()) return;
+    if (e.target?.closest?.('button') && (e.code === 'Space' || e.code === 'Enter')) return;
+    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.code)) e.preventDefault();
     audio.init();
     input.keys[e.code] = true;
+    if (e.code === 'Space') input.fireHeld = true;
+    if (e.repeat) return;
+    if (e.code === 'KeyC') onDash?.();
     if (e.code === 'KeyI' || e.code === 'Tab') {
       e.preventDefault();
       onToggleInventory();
@@ -95,12 +106,14 @@ export function initInput(callbacks) {
 
   window.addEventListener('keyup', (e) => {
     input.keys[e.code] = false;
+    if (e.code === 'Space') input.fireHeld = false;
   });
 
   // Desktop Mouse Look Navigation on Canvas
   const canvasContainer = document.getElementById('canvas-container');
   if (canvasContainer) {
     canvasContainer.addEventListener('mousedown', (e) => {
+      if (isBlocked()) return;
       audio.init();
       if (e.button === 0) {
         input.isMouseDown = true;
@@ -113,7 +126,7 @@ export function initInput(callbacks) {
     });
 
     window.addEventListener('mousemove', (e) => {
-      if (!input.isMouseDown) return;
+      if (!input.isMouseDown || isBlocked()) return;
       const deltaX = e.clientX - input.lastMouseX;
       const deltaY = e.clientY - input.lastMouseY;
       onRotateCamera(deltaX * 0.005, deltaY * 0.003);
@@ -285,6 +298,7 @@ export function initInput(callbacks) {
     let armed = false;
 
     const press = (e) => {
+      if (isBlocked()) return;
       audio.init();
       if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
       if (armed && opts.hold) return;
@@ -326,6 +340,7 @@ export function initInput(callbacks) {
   }
 
   bindAction('btn-aim', () => onToggleAim(), { haptic: 15 });
+  bindAction('btn-dash', () => onDash?.(), { haptic: 18 });
   bindAction('btn-fire', (down) => {
     if (down !== false) onFire();
   }, { haptic: 20, hold: true });
@@ -341,12 +356,13 @@ export function initInput(callbacks) {
   const promptBox = document.getElementById('prompt-box');
   if (promptBox) {
     const promptPress = (e) => {
+      if (isBlocked()) return;
       if (e.cancelable && e.type.startsWith('touch')) e.preventDefault();
       triggerHaptic(12);
       onContextInteract();
     };
     promptBox.addEventListener('touchstart', promptPress, { passive: false });
-    promptBox.addEventListener('click', () => onContextInteract());
+    promptBox.addEventListener('click', () => { if (!isBlocked()) onContextInteract(); });
   }
 
   const questPill = document.getElementById('active-quest-pill');
@@ -369,33 +385,60 @@ export function initInput(callbacks) {
     slot.addEventListener('click', () => onSetWeapon(slot.getAttribute('data-weapon')));
   });
 
-  // Gamepad Polling Loop
+  const sprintButton = document.getElementById('btn-sprint');
+  sprintButton?.addEventListener('pointerdown', (event) => {
+    if (isBlocked()) return;
+    event.preventDefault(); sprintButton.setPointerCapture(event.pointerId);
+    input.sprintHeld = true; sprintButton.classList.add('active');
+  });
+  const stopSprint = () => { input.sprintHeld = false; sprintButton?.classList.remove('active'); };
+  sprintButton?.addEventListener('pointerup', stopSprint);
+  sprintButton?.addEventListener('pointercancel', stopSprint);
+
+  function clearInput() {
+    input.keys = {}; input.fireHeld = false; input.isMouseDown = false;
+    input.moveX = input.moveY = 0; input.lookActive = false;
+    resetJoystick(); stopSprint();
+  }
+  window.addEventListener('blur', clearInput);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) clearInput(); });
+  window.addEventListener('resident-pause', clearInput);
+
+  // Gamepad sticks must reset when centered or disconnected.
   let prevPadButtons = {};
+  let padWasActive = false;
+  let lastPadTime = performance.now();
 
   function pollGamepad() {
     const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
     const pad = gamepads[0] || gamepads[1];
+    const now = performance.now(); const dt = Math.min(.05, (now - lastPadTime) / 1000); lastPadTime = now;
     if (pad) {
-      if (Math.abs(pad.axes[0]) > 0.15) input.moveX = pad.axes[0];
-      else if (joystickTouchId === null && !input.keys['KeyA'] && !input.keys['KeyD'] && !input.keys['ArrowLeft'] && !input.keys['ArrowRight']) {
-        // leave keyboard/touch values alone when stick centered
+      if (!isBlocked() && joystickTouchId === null) {
+        input.moveX = Math.abs(pad.axes[0]) > .15 ? pad.axes[0] : 0;
+        input.moveY = Math.abs(pad.axes[1]) > .15 ? -pad.axes[1] : 0;
       }
-      if (Math.abs(pad.axes[1]) > 0.15) input.moveY = -pad.axes[1];
-
-      if (Math.abs(pad.axes[2]) > 0.15 || Math.abs(pad.axes[3]) > 0.15) {
-        onRotateCamera(pad.axes[2] * 0.04, pad.axes[3] * 0.02);
+      if (pad.buttons[9]?.pressed && !prevPadButtons[9]) onPause?.();
+      if (!isBlocked() && (Math.abs(pad.axes[2]) > 0.15 || Math.abs(pad.axes[3]) > 0.15)) {
+        onRotateCamera(pad.axes[2] * dt * 2.4, pad.axes[3] * dt * 1.2);
       }
-
+      if (!isBlocked()) {
+      input.sprintHeld = !!pad.buttons[10]?.pressed;
       if (pad.buttons[0]?.pressed && !prevPadButtons[0]) onContextInteract();
-      if (pad.buttons[1]?.pressed && !prevPadButtons[1]) onQuickTurn && onQuickTurn();
+      if (pad.buttons[1]?.pressed && !prevPadButtons[1]) onDash?.();
       if (pad.buttons[2]?.pressed && !prevPadButtons[2]) onFire();
       if (pad.buttons[3]?.pressed && !prevPadButtons[3]) onToggleInventory();
       if (pad.buttons[5]?.pressed && !prevPadButtons[5]) onCycleWeapon();
       if (pad.buttons[6]?.pressed && !prevPadButtons[6]) onToggleAim();
       if (pad.buttons[7]?.pressed && !prevPadButtons[7]) onFire();
-      if (pad.buttons[9]?.pressed && !prevPadButtons[9]) onToggleFullMap();
+      input.fireHeld = !!pad.buttons[7]?.pressed;
+      if (pad.buttons[8]?.pressed && !prevPadButtons[8]) onToggleFullMap();
+      }
 
       pad.buttons.forEach((b, idx) => { prevPadButtons[idx] = b.pressed; });
+      padWasActive = true;
+    } else if (padWasActive) {
+      clearInput(); prevPadButtons = {}; padWasActive = false;
     }
     requestAnimationFrame(pollGamepad);
   }

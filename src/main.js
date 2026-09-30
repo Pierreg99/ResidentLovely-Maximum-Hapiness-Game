@@ -5,15 +5,18 @@ import { BackdropManager, createSectorBackdrop } from './world/backdrops.js';
 import { surfaceShaderManager, createPostProcessingPipeline } from './world/shaders/surface-shaders.js';
 import { atmosphereEngine } from './world/atmosphere.js';
 import { destructibles, initDestructibles, updateDestructibles } from './world/destructibles.js';
-import { player, initPlayer, updatePlayer, performQuickTurn } from './entities/player.js';
-import { grumps, initGrumps, updateGrumps } from './entities/grump.js';
+import { player, initPlayer, updatePlayer, performQuickTurn, performDash } from './entities/player.js';
+import { grumps, initGrumps, updateGrumps, createGrump } from './entities/grump.js';
 import { initBoss, bossInstance, masterChefBoss, clockworkBoss, prismaticBoss } from './entities/boss.js';
 import { companionSquad } from './entities/companion.js';
 
 import { triggerWeaponFire, updateProjectiles, updateTargetSights } from './weapons/arsenal.js';
 import { audio } from './engine/audio.js';
 import { CameraController } from './engine/camera.js';
-import { initInput } from './engine/input.js';
+import { initInput, input } from './engine/input.js';
+import { VisualUpgrade } from './world/visual-upgrade.js';
+import { ExplorationSystem } from './systems/exploration.js';
+import { GameUI } from './systems/game-ui.js';
 import { GameModes } from "./systems/game_modes.js";
 import { EndlessDimension } from "./systems/endless_generator.js";
 import { AIDialogue } from "./systems/ai_dialogue.js";
@@ -24,6 +27,8 @@ import { PersistenceSystem, loadGame } from './systems/persistence.js';
 
 // Global Game State
 const gameState = {
+  started: false,
+  paused: false,
   joy: 100,
   room: 'foyer',
   unlockedDoors: { library: false, garden: false, greenhouse: true, observatory: true, clocktower: true, lab: true },
@@ -59,6 +64,8 @@ const _initGraphics = () => {
   _graphicsReady = true;
   try {
     backdropManager = createSectorBackdrop('S01', { scene });
+    // Illustrated backdrops are shown in the map preview; the 3D view uses its sky.
+    if (backdropManager.mesh) backdropManager.mesh.visible = false;
   } catch (e) {
     console.warn('[v4.0.0] BackdropManager init failed (graceful degradation):', e.message);
     backdropManager = null;
@@ -136,6 +143,9 @@ const inventorySystem = new InventorySystem(gameState, {
 });
 
 const minimapSystem = new MinimapSystem(gameState);
+let visualUpgrade = null;
+let explorationSystem = null;
+let gameUI = null;
 const persistenceSystem = new PersistenceSystem(gameState, lanternMeshes, QUESTS, inventorySystem, questSystem, {
   onToast: showToast
 });
@@ -147,6 +157,13 @@ try {
   initPlayer();
   initGrumps();
   initBoss();
+  companionSquad.updateHUD();
+  visualUpgrade = new VisualUpgrade();
+  createGrump(new THREE.Vector3(-6, 0, -4), 'rainbow_sky_garden', 'bunny');
+  createGrump(new THREE.Vector3(6, 0, 4), 'aurora_bay', 'cat');
+  gameState.totalGrumps = grumps.length;
+  visualUpgrade.enhanceCharacters(player, grumps);
+  visualUpgrade.update(0, 0, player.position, gameState.room);
 } catch (e) {
   const errTxt = document.getElementById('loading-status-text');
   if (errTxt) errTxt.textContent = "INIT ERROR: " + e.message;
@@ -265,12 +282,18 @@ const doorCurtain = document.getElementById('door-curtain');
 const roomNameDisplay = document.getElementById('room-name-display');
 
 function changeRoom(newRoom, targetSpawnPos) {
+  if (!getSector(newRoom) || gameState.transitioning) return;
+  gameState.transitioning = true;
+  window.dispatchEvent(new CustomEvent('resident-pause'));
   audio.playDoorChime();
   if (doorCurtain) doorCurtain.style.display = 'flex';
 
   setTimeout(() => {
     gameState.room = newRoom;
-    if (targetSpawnPos) player.group.position.copy(targetSpawnPos);
+    if (targetSpawnPos) {
+      player.position.copy(targetSpawnPos);
+      player.group.position.copy(targetSpawnPos);
+    }
     if (typeof window !== 'undefined') {
       window.__changeRoom = changeRoom;
       window.__playerPos = player.group.position;
@@ -305,7 +328,11 @@ function changeRoom(newRoom, targetSpawnPos) {
       }
     }
 
+    player.rotation = Math.PI;
+    player.group.rotation.y = player.rotation;
+    for (let i = 0; i < 40; i++) cameraController.update(player, .016, newRoom);
     updateSceneLighting(newRoom);
+    explorationSystem?.markVisited(newRoom);
 
     // v4.0.0: Update 2.5D backdrop and activate sector GLSL shaders
     try {
@@ -323,6 +350,7 @@ function changeRoom(newRoom, targetSpawnPos) {
 
     setTimeout(() => {
       if (doorCurtain) doorCurtain.style.display = 'none';
+      gameState.transitioning = false;
     }, 450);
   }, 650);
 }
@@ -547,6 +575,7 @@ function checkContextualInteractions() {
 }
 
 function handleContextInteract() {
+  if (explorationSystem?.travelNearest()) return;
   if (!currentInteractable) return;
 
   // Pickup Ground Item
@@ -584,7 +613,8 @@ function handleContextInteract() {
   // Stair Traversals
   if (currentInteractable.type === 'stairs_up') {
     audio.playDoorChime();
-    player.group.position.set(0, 4.5, -11.5);
+    player.position.set(0, 4.5, -11.5);
+    player.group.position.copy(player.position);
     showToast('★ ASCENDED TO 2F MEZZANINE BALCONY ★');
     const q4 = QUESTS.find(q => q.id === 'quest_observatory');
     if (q4) { q4.tasks[0].done = true; questSystem.render(); }
@@ -593,7 +623,8 @@ function handleContextInteract() {
 
   if (currentInteractable.type === 'stairs_down') {
     audio.playDoorChime();
-    player.group.position.set(0, 0, -5.5);
+    player.position.set(0, 0, -5.5);
+    player.group.position.copy(player.position);
     showToast('★ DESCENDED TO 1F GRAND FOYER ★');
     return;
   }
@@ -861,6 +892,9 @@ function handleContextInteract() {
 try {
   // Input Integration
   initInput({
+    onPause: () => gameUI?.togglePause(),
+    onDash: performDash,
+    isBlocked: () => !gameState.started || gameState.paused || gameState.transitioning || hasOpenModal(),
     onToggleInventory: () => inventorySystem.toggle(),
     onToggleQuestLog: () => questSystem.toggle(),
     onToggleFullMap: () => minimapSystem.toggleFullMap(),
@@ -874,8 +908,8 @@ try {
         if (qUplift) {
           const t = qUplift.tasks[0];
           t.count = gameState.grumpsUpliftedCount;
-          t.text = `Uplift all 10 Gloomy Grump plushies (${t.count}/10)`;
-          if (t.count >= 10) {
+          t.text = `Uplift all ${gameState.totalGrumps} Gloomy Grump plushies (${t.count}/${gameState.totalGrumps})`;
+          if (t.count >= gameState.totalGrumps) {
             t.done = true;
             questSystem.checkAllDone();
           }
@@ -902,7 +936,22 @@ try {
   }
 
   // Load Save Data & Initial Render
-  loadGame(gameState, lanternMeshes, QUESTS, inventorySystem, questSystem);
+  const saved = loadGame(gameState, lanternMeshes, QUESTS, inventorySystem, questSystem);
+  const spawnSector = getSector(gameState.room) || getSector('S01');
+  gameState.room = spawnSector.slug;
+  if (saved?.position && ['x', 'y', 'z'].every(axis => Number.isFinite(saved.position[axis]))) {
+    player.position.set(saved.position.x, saved.position.y, saved.position.z);
+  } else {
+    player.position.set(spawnSector.coords.x, spawnSector.coords.y, spawnSector.coords.z + 3);
+  }
+  player.rotation = Math.PI;
+  player.group.rotation.y = player.rotation;
+  player.group.position.copy(player.position);
+  roomNameDisplay.textContent = `${spawnSector.name.toUpperCase()} (${spawnSector.floor})`;
+  explorationSystem = new ExplorationSystem(gameState, {
+    onToast: showToast, onTravel: changeRoom, onJoyChanged: () => inventorySystem.updateVitalityHUD()
+  });
+  gameUI = new GameUI(gameState, minimapSystem, explorationSystem, persistenceSystem);
   questSystem.render();
 } catch(e) {
   const errTxt = document.getElementById('loading-status-text');
@@ -920,62 +969,80 @@ window.__feedCompanion = (idx) => {
 
 // Main Animation & Render Loop
 const clock = new THREE.Clock();
+let simulationTime = 0;
+
+function hasOpenModal() {
+  return ['map-modal', 'inventory-modal', 'quest-modal', 'piano-modal', 'inspect-modal', 'save-modal'].some(id => {
+    const element = document.getElementById(id);
+    return element && element.style.display === 'flex';
+  });
+}
 
 function animate() {
   requestAnimationFrame(animate);
-  const delta = Math.min(clock.getDelta(), 0.1);
-  const time = clock.getElapsedTime();
+  const frameDelta = Math.min(clock.getDelta(), 0.1);
+  const playing = gameState.started && !gameState.paused && !gameState.transitioning && !hasOpenModal();
+  const delta = playing ? frameDelta : 0;
+  simulationTime += delta;
+  const time = simulationTime;
 
-  updatePlayer(delta, time, gameState.room, cameraController.pitch);
-  cameraController.update(player, delta, gameState.room);
-  companionSquad.update(delta, time, gameState.room);
-  updateProjectiles(delta, gameState, {
-    onToast: showToast,
-    onGrumpUplifted: () => {
-      const qUplift = QUESTS.find(q => q.id === 'quest_uplift');
-      if (qUplift) {
-        const t = qUplift.tasks[0];
-        t.count = gameState.grumpsUpliftedCount;
-        t.text = `Uplift all 10 Gloomy Grump plushies (${t.count}/10)`;
-        if (t.count >= 10) {
-          t.done = true;
-          questSystem.checkAllDone();
-        }
-        questSystem.render();
-      }
+  if (playing) {
+    updatePlayer(delta, time, gameState.room, cameraController.pitch);
+    if (input.fireHeld && !input.keys['KeyS'] && !input.keys['ArrowDown']) {
+      triggerWeaponFire(gameState, cameraController, { onToast: showToast, onGrumpUplifted: updateUpliftQuest });
     }
-  });
+    cameraController.update(player, delta, gameState.room);
+    companionSquad.update(delta, time, gameState.room);
+    updateProjectiles(delta, gameState, {
+      onToast: showToast,
+      onGrumpUplifted: () => {
+        const qUplift = QUESTS.find(q => q.id === 'quest_uplift');
+        if (qUplift) {
+          const t = qUplift.tasks[0];
+          t.count = gameState.grumpsUpliftedCount;
+          t.text = `Uplift all ${gameState.totalGrumps} Gloomy Grump plushies (${t.count}/${gameState.totalGrumps})`;
+          if (t.count >= gameState.totalGrumps) {
+            t.done = true;
+            questSystem.checkAllDone();
+          }
+          questSystem.render();
+        }
+      }
+    });
 
-  updateGrumps(delta, time, cameraController.camera);
-  if (bossInstance && gameState.room === 'crypt') {
-    bossInstance.update(delta, time, player.group.position);
-  }
-  if (masterChefBoss && gameState.room === 'bakery') {
-    masterChefBoss.update(delta, time, player.group.position);
-  }
-  if (clockworkBoss && (gameState.room === 'clock_tower_belfry' || gameState.room === 'clocktower')) {
-    clockworkBoss.update(delta, time, player.group.position);
-  }
-  if (prismaticBoss && (gameState.room === 'crystal_vault' || gameState.room === 'crystal_grotto')) {
-    prismaticBoss.update(delta, time, player.group.position);
-  }
-  atmosphereEngine.update(delta, player.group.position);
-  updateDestructibles(time);
-  updateGroundItems(delta, time);
-  updateParticles(delta);
-  updateHeartBubbles(delta, time);
-  updateSparkleFootsteps(delta);
-  updateStardust(time, gameState.room);
-  // P3 LOD-Density: Camera→Player anchor before petal/mist/sparkle consumers
-  updateLodAnchor(cameraController.camera.position, player.group.position);
-  updatePetals(delta, time);
-  updateGroundMist(delta, time, player.group.position);
-  updateSpatialCulling(player.group.position);
-  GameModes.update(delta);
-  updateTargetSights(gameState.room);
+    updateGrumps(delta, time, cameraController.camera);
+    if (bossInstance && gameState.room === 'crypt') {
+      bossInstance.update(delta, time, player.group.position);
+    }
+    if (masterChefBoss && gameState.room === 'bakery') {
+      masterChefBoss.update(delta, time, player.group.position);
+    }
+    if (clockworkBoss && (gameState.room === 'clock_tower_belfry' || gameState.room === 'clocktower')) {
+      clockworkBoss.update(delta, time, player.group.position);
+    }
+    if (prismaticBoss && (gameState.room === 'crystal_vault' || gameState.room === 'crystal_grotto')) {
+      prismaticBoss.update(delta, time, player.group.position);
+    }
+    atmosphereEngine.update(delta, player.group.position);
+    updateDestructibles(time);
+    updateGroundItems(delta, time);
+    updateParticles(delta);
+    updateHeartBubbles(delta, time);
+    updateSparkleFootsteps(delta);
+    updateStardust(time, gameState.room);
+    // P3 LOD-Density: Camera→Player anchor before petal/mist/sparkle consumers
+    updateLodAnchor(cameraController.camera.position, player.group.position);
+    updatePetals(delta, time);
+    updateGroundMist(delta, time, player.group.position);
+    updateSpatialCulling(player.group.position);
+    GameModes.update(delta);
+    updateTargetSights(gameState.room);
 
-  minimapSystem.render(player, grumps, destructibles);
-  checkContextualInteractions();
+    minimapSystem.render(player, grumps, destructibles);
+    checkContextualInteractions();
+    explorationSystem?.update(delta, time);
+  }
+  visualUpgrade?.update(delta, time, player.position, gameState.room);
 
   // v4.0.0: tick backdrop parallax
   if (backdropManager) {
@@ -991,7 +1058,8 @@ function animate() {
 
   // Primary 3D WebGL render
   try {
-    renderer.render(scene, cameraController.camera);
+    if (visualUpgrade) visualUpgrade.render(cameraController.camera);
+    else renderer.render(scene, cameraController.camera);
   } catch (e) {
     console.error('[Render Fallback Error]:', e);
   }
@@ -1025,6 +1093,7 @@ function prewarmShaders() {
 function launchGame() {
   if (gameStarted) return;
   gameStarted = true;
+  gameState.started = true;
 
   try {
     audio.init();
@@ -1040,14 +1109,24 @@ function launchGame() {
     }, 650);
   }
 
-  showToast('❖ RESIDENT LOVELY v7.0.0 MASTERWORK EDITION READY ❖');
+  showToast('Welcome to the Explorer Edition. Open Menu for styles, graphics, and Joy Rally.');
+}
+
+function updateUpliftQuest() {
+  const quest = QUESTS.find(q => q.id === 'quest_uplift');
+  if (!quest) return;
+  const task = quest.tasks[0];
+  task.count = gameState.grumpsUpliftedCount;
+  task.text = `Uplift all ${gameState.totalGrumps} Gloomy Grump plushies (${task.count}/${gameState.totalGrumps})`;
+  if (task.count >= gameState.totalGrumps) { task.done = true; questSystem.checkAllDone(); }
+  questSystem.render();
 }
 
 // Stage 1: Geometry and Entities Initialized
 updateLoadingStep(35, 'BUILDING CHÂTEAU SECTORS...');
 
 // Stage 2: Camera and Atmosphere Sync
-cameraController.update(player, 0.016, gameState.room);
+for (let i = 0; i < 40; i++) cameraController.update(player, .016, gameState.room);
 updateSceneLighting(gameState.room);
 updateLoadingStep(70, 'CALIBRATING AMBIENT LIGHT & GLSL SHADERS...');
 
@@ -1074,8 +1153,6 @@ setTimeout(() => {
   }
   if (loadingScreen) {
     loadingScreen.style.cursor = 'pointer';
-    loadingScreen.addEventListener('click', launchGame);
-    loadingScreen.addEventListener('touchstart', launchGame, { passive: true });
   }
 }, 120);
 
@@ -1084,5 +1161,7 @@ animate();
 GameModes.init();
 AIDialogue.init();
 EndlessDimension.init();
-GameModes.startSpeedrun();
 window.addEventListener('AI_DIALOGUE_TRIGGER', () => { AIDialogue.generateResponse('Joy', 'Current room: ' + gameState.room); });
+
+// Module exports support the browser regression suite without a debug UI.
+export { gameState, explorationSystem, minimapSystem, gameUI, visualUpgrade };

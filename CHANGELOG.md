@@ -1,5 +1,18 @@
 # CHANGELOG: RESIDENT LOVELY ❖ MAXIMUM HAPPINESS 3D
 
+## v8.0.0 — Explorer Edition
+
+- Added Rainbow Sky Garden and Aurora Bay, extending the estate to 42 destinations.
+- Added connected travel gates, destination selection, route guidance, saved exploration points, and three joy crystals per room.
+- Added Joy Rally with timed waves, combo scoring, and persistent best scores.
+- Added graphics presets, adaptive resolution, PBR reflections, surface relief, character styles, species-aware companions, real bloom, and new install/menu icons.
+- Instanced floor tiles, culled distant floors, capped nearby lights, and moved shadows with the player’s destination.
+- Added sprint, dash, held fire, pause/focus handling, responsive touch controls, and controller reset behavior.
+- Fixed travel/player position synchronization, all-room movement bounds, camera settling, map double-click errors, and saved location restoration.
+- Updated the offline cache and install manifest for desktop and Android browser play.
+- Added a portable Node development server and a real Chromium browser regression suite.
+
+
 All notable changes to **Resident Lovely** are documented in this file.  
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and adheres to the **NEXUS PRIVÉ v6.3 / Zero-Emoji Standard**.
 

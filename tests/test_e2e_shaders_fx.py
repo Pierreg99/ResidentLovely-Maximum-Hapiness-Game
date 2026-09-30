@@ -205,6 +205,7 @@ def get_all_workspace_files(root_dir):
     """
     files = []
     for r, d, fs in os.walk(root_dir):
+        d[:] = [name for name in d if name not in {'node_modules', 'test-artifacts'}]
         if '.git' in r or '__pycache__' in r or '.agents' in r or '.agent' in r:
             continue
         for f in fs:
@@ -804,8 +805,8 @@ class TestTier1FeatureCoverage(BaseE2ETest):
         """F9.1: Verify all 32 sectors are registered with complete schema in sectors.js."""
         code = """
         const { SECTOR_REGISTRY } = sectorsModule;
-        if (SECTOR_REGISTRY.length !== 32 && SECTOR_REGISTRY.length !== 40) {
-            throw new Error(`Expected 32 or 40 sectors, got ${SECTOR_REGISTRY.length}`);
+        if (SECTOR_REGISTRY.length !== 42) {
+            throw new Error(`Expected 42 sectors, got ${SECTOR_REGISTRY.length}`);
         }
         SECTOR_REGISTRY.forEach(s => {
             if (!s.id || !s.slug || !s.name || !s.floor || !s.biome || !s.biomeColor || !s.coords || !s.size || !s.connections) {
@@ -854,7 +855,7 @@ class TestTier1FeatureCoverage(BaseE2ETest):
             counts[f] = list.length;
             total += list.length;
         });
-        if (total !== 32 && total !== 40) throw new Error(`Expected 32 or 40 total sectors, got ${total}`);
+        if (total !== 42) throw new Error(`Expected 42 total sectors, got ${total}`);
         console.log(JSON.stringify(counts));
         """
         out = self.run_node_eval(code)
@@ -865,7 +866,7 @@ class TestTier1FeatureCoverage(BaseE2ETest):
         self.assertEqual(counts['1F'], 10)
         self.assertEqual(counts['B1'], 1)
         self.assertEqual(counts['B2'], 4)
-        self.assertEqual(counts['OUTDOOR'], 9)
+        self.assertEqual(counts['OUTDOOR'], 11)
 
     def test_f9_04_getadjacentsectors_bidirectional_connectivity(self):
         """F9.4: Verify getAdjacentSectors returns connected neighboring sector objects."""
@@ -1101,7 +1102,7 @@ class TestTier1FeatureCoverage(BaseE2ETest):
             if (!FLOOR_METADATA[f]) throw new Error(`Missing metadata for floor ${f}`);
             total += getFloorSectors(f).length;
         });
-        if (total !== 32 && total !== 40) throw new Error(`Expected 32 or 40 covered sectors, got ${total}`);
+        if (total !== 42) throw new Error(`Expected 42 covered sectors, got ${total}`);
         console.log('R4_7_FLOORS_COVERAGE_VALID');
         """
         out = self.run_node_eval(code)
@@ -1539,7 +1540,7 @@ class TestTier2BoundaryAndCornerCases(BaseE2ETest):
             idSet.add(s.id);
             slugSet.add(s.slug);
         });
-        if ((idSet.size !== 32 && idSet.size !== 40) || (slugSet.size !== 32 && slugSet.size !== 40)) throw new Error('Unique set size mismatch');
+        if ((idSet.size !== 42) || (slugSet.size !== 42)) throw new Error('Unique set size mismatch');
         console.log('BVA_R1_UNIQUE_SECTORS_VALID');
         """
         out = self.run_node_eval(code)
