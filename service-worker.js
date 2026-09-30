@@ -1,4 +1,4 @@
-const CACHE_NAME = 'resident-lovely-v7.4.1-cache';
+const CACHE_NAME = 'resident-lovely-v9-sweet-cache';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,6 +6,19 @@ const ASSETS_TO_CACHE = [
   './css/style.css',
   './js/three.min.js',
   './src/main.js',
+  './src/world/visual-upgrade.js',
+  './src/world/sweet-assets.js',
+  './src/systems/startup-settings.js',
+  './assets/art/sweet-chateau.png',
+  './assets/art/world-atlas.png',
+  './src/systems/preferences.js',
+  './src/systems/exploration.js',
+  './src/systems/game-ui.js',
+  './assets/icons/resident-lovely.svg',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
+  './assets/backdrops/backdrop_rainbow_sky_garden.svg',
+  './assets/backdrops/backdrop_aurora_bay.svg',
   './src/engine/audio.js',
   './src/engine/camera.js',
   './src/engine/input.js',
@@ -106,7 +119,7 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME).then(async (cache) => {
       for (const asset of ASSETS_TO_CACHE) {
         try {
-          await cache.add(asset);
+          await cache.add(new Request(asset, { cache: 'reload' }));
         } catch (_) {
           // Skip missing assets so install still completes.
         }
@@ -136,11 +149,28 @@ self.addEventListener('fetch', (event) => {
   const scriptReq = isScriptRequest(request, url);
   const styleReq = isStyleRequest(request, url);
 
+  // Keep the page shell and its modules on the same release; retain offline play.
+  if (request.mode === 'navigate' || url.endsWith('.html') || url.endsWith('/')) {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request, { cache: 'no-cache' });
+        if (response.ok) {
+          const cache = await caches.open(CACHE_NAME);
+          await cachePutSafe(cache, request, response);
+          return response;
+        }
+      } catch (_) { /* Offline navigation uses the installed shell. */ }
+      return (await caches.match(request)) || (await caches.match('./index.html')) ||
+        new Response('Load Resident Lovely once online before playing offline.', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+    })());
+    return;
+  }
+
   // Network-first for JS/CSS: never serve HTML disguised as modules/styles.
   if (scriptReq || styleReq) {
     event.respondWith((async () => {
       try {
-        const networkResp = await fetch(request);
+        const networkResp = await fetch(request, { cache: 'no-cache' });
         if (networkResp && networkResp.ok && !isHtmlResponse(networkResp)) {
           const cache = await caches.open(CACHE_NAME);
           await cachePutSafe(cache, request, networkResp);
@@ -163,7 +193,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for HTML, images, SVG, and other static assets.
+  // Cache-first for images, SVG, and other static assets.
   event.respondWith(
     caches.match(request).then((cachedResp) => {
       if (cachedResp) return cachedResp;

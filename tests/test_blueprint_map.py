@@ -189,8 +189,8 @@ class TestBlueprintMapV2(unittest.TestCase):
             totalCovered += list.length;
         });
 
-        if (totalCovered !== 32 && totalCovered !== 40) {
-            throw new Error(`Expected 32 or 40 sectors, got ${totalCovered}`);
+        if (totalCovered !== 42) {
+            throw new Error(`Expected 42 sectors, got ${totalCovered}`);
         }
         console.log('FLOOR_TABS_32_SECTORS_VALID');
         """

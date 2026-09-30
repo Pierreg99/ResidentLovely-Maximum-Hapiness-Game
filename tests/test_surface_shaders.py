@@ -270,7 +270,7 @@ class TestSurfaceShadersGLSL(unittest.TestCase):
         res = subprocess.run(['node', '--input-type=module', '-e', node_script], cwd=GAME_DIR, capture_output=True, text=True)
         self.assertEqual(res.returncode, 0, f"Node sector verification error: {res.stderr}")
         data = json.loads(res.stdout.strip())
-        self.assertIn(data['count'], [32, 40], f"Expected 32 or 40 sectors, got {data['count']}")
+        self.assertIn(data['count'], [42], f"Expected 42 sectors, got {data['count']}")
         self.assertEqual(len(data['invalid']), 0, f"Found sectors with invalid shaders: {data['invalid']}")
 
     # -------------------------------------------------------------------------

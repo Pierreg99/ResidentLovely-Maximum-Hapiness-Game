@@ -324,7 +324,7 @@ class TestAdversarialStressSuite(unittest.TestCase):
         """
         out = self.run_node_async(code)
         data = json.loads(out)
-        self.assertIn(data['count'], [32, 40], f"Expected 32 or 40 sectors, got {data['count']}")
+        self.assertIn(data['count'], [42], f"Expected 42 sectors, got {data['count']}")
 
         expected_ids = [f"S{i:02d}" for i in range(1, data['count'] + 1)]
         actual_ids = [s['id'] for s in data['sectors']]
@@ -419,7 +419,7 @@ class TestAdversarialStressSuite(unittest.TestCase):
         """
         out = self.run_node_async(code)
         data = json.loads(out)
-        self.assertIn(data['visitedCount'], [32, 40], f"Unreachable sectors from S01: {data['unvisited']}")
+        self.assertIn(data['visitedCount'], [42], f"Unreachable sectors from S01: {data['unvisited']}")
         self.assertEqual(data['disconnectedPairs'], 0, "Graph has disconnected sector pairs")
         self.assertLessEqual(data['diameter'], 14, f"Graph diameter {data['diameter']} exceeds max limit of 14")
 
@@ -448,8 +448,8 @@ class TestAdversarialStressSuite(unittest.TestCase):
             { fn: 'getFloorSectors', arg: '4F', count: 2 },
             { fn: 'getFloorSectors', arg: 'B1', count: 1 },
             { fn: 'getFloorSectors', arg: 'B2', count: 4 },
-            { fn: 'getFloorSectors', arg: 'OUTDOOR', count: 9 },
-            { fn: 'getFloorSectors', arg: 'outdoor', count: 9 },
+            { fn: 'getFloorSectors', arg: 'OUTDOOR', count: 11 },
+            { fn: 'getFloorSectors', arg: 'outdoor', count: 11 },
             { fn: 'getFloorSectors', arg: '6F', count: 0 },
             { fn: 'getFloorSectors', arg: null, count: 0 },
 
@@ -678,7 +678,7 @@ class TestAdversarialStressSuite(unittest.TestCase):
         """
         out = self.run_node_async(code)
         data = json.loads(out)
-        self.assertIn(data['recordsCount'], [32, 40], "Not all sector materials registered")
+        self.assertIn(data['recordsCount'], [42], "Not all sector materials registered")
         self.assertGreaterEqual(data['minObservedActive'], 1, "At least 1 active shader must run for primary sector")
 
     def test_r3_shader_dynamic_thermal_throttling_and_recovery(self):
@@ -827,7 +827,7 @@ class TestAdversarialStressSuite(unittest.TestCase):
         """
         out = self.run_node_async(code)
         chambers = json.loads(out)
-        self.assertIn(len(chambers), [32, 40], f"Expected 32 or 40 chambers, found {len(chambers)}")
+        self.assertIn(len(chambers), [42], f"Expected 42 chambers, found {len(chambers)}")
 
         for c in chambers:
             sid = c['id']

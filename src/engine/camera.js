@@ -4,6 +4,8 @@ import { SECTOR_REGISTRY, getSector } from '../world/sectors.js';
 export class CameraController {
   constructor() {
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    this.camera.fov = window.innerHeight > window.innerWidth ? 75 : 60;
+    this.camera.updateProjectionMatrix();
     this.shake = 0;
     this.viewMode = 'ots'; // 'ots' (Over-The-Shoulder), 'fixed' (Classic RE Cinematic), 'ads' (First-Person ADS)
     this.pitch = 0; // Vertical pitch tilt (-0.45 to +0.45)
@@ -124,6 +126,7 @@ export class CameraController {
 
     window.addEventListener('resize', () => {
       this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.fov = window.innerHeight > window.innerWidth ? 75 : 60;
       this.camera.updateProjectionMatrix();
     });
   }

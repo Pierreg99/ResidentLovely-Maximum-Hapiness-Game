@@ -154,6 +154,38 @@ export const BACKDROP_ASSET_MAP = {
   ancient_core_crucible: 'assets/backdrops/backdrop_ancient_core_crucible.svg'
 };
 
+// Resolve legacy missing assets to illustrations shipped in the offline bundle.
+Object.assign(BACKDROP_ASSET_MAP, {
+  S01: 'assets/backdrops/backdrop_music_parlor.svg', foyer: 'assets/backdrops/backdrop_music_parlor.svg',
+  S02: 'assets/backdrops/backdrop_clockwork_archives.svg', library: 'assets/backdrops/backdrop_clockwork_archives.svg',
+  S03: 'assets/backdrops/backdrop_conservatory_annex.svg', garden: 'assets/backdrops/backdrop_conservatory_annex.svg',
+  S04: 'assets/backdrops/backdrop_tea_salon.svg', greenhouse: 'assets/backdrops/backdrop_tea_salon.svg',
+  S05: 'assets/backdrops/backdrop_tea_salon.svg', dining: 'assets/backdrops/backdrop_tea_salon.svg',
+  S06: 'assets/backdrops/backdrop_mirror_maze_gallery.svg', gallery: 'assets/backdrops/backdrop_mirror_maze_gallery.svg',
+  S07: 'assets/backdrops/backdrop_tea_salon.svg', bakery: 'assets/backdrops/backdrop_tea_salon.svg',
+  S08: 'assets/backdrops/backdrop_planetarium.svg', observatory: 'assets/backdrops/backdrop_planetarium.svg',
+  S09: 'assets/backdrops/backdrop_clock_tower_belfry.svg', clocktower: 'assets/backdrops/backdrop_clock_tower_belfry.svg',
+  S10: 'assets/backdrops/backdrop_tea_salon.svg', mastersuite: 'assets/backdrops/backdrop_tea_salon.svg',
+  S11: 'assets/backdrops/backdrop_music_parlor.svg', ballroom: 'assets/backdrops/backdrop_music_parlor.svg',
+  S12: 'assets/backdrops/backdrop_mirror_maze_gallery.svg', cathedral: 'assets/backdrops/backdrop_mirror_maze_gallery.svg',
+  S13: 'assets/backdrops/backdrop_village_district.svg', gatehouse: 'assets/backdrops/backdrop_village_district.svg',
+  S14: 'assets/backdrops/backdrop_sunken_grotto.svg', reflection_pool: 'assets/backdrops/backdrop_sunken_grotto.svg',
+  S15: 'assets/backdrops/backdrop_sacred_forest_trail.svg', rose_maze: 'assets/backdrops/backdrop_sacred_forest_trail.svg',
+  S16: 'assets/backdrops/backdrop_moonlit_meadow.svg', gazebo: 'assets/backdrops/backdrop_moonlit_meadow.svg',
+  S17: 'assets/backdrops/backdrop_alchemy_dungeon.svg', lab: 'assets/backdrops/backdrop_alchemy_dungeon.svg',
+  S18: 'assets/backdrops/backdrop_ancient_ruins.svg', crypt: 'assets/backdrops/backdrop_ancient_ruins.svg',
+  S33: 'assets/backdrops/backdrop_planetarium.svg', astral_spire_peak: 'assets/backdrops/backdrop_planetarium.svg',
+  S34: 'assets/backdrops/backdrop_moonlit_meadow.svg', starlight_sanctuary: 'assets/backdrops/backdrop_moonlit_meadow.svg',
+  S35: 'assets/backdrops/backdrop_planetarium.svg', celestial_chamber: 'assets/backdrops/backdrop_planetarium.svg',
+  S36: 'assets/backdrops/backdrop_clock_tower_belfry.svg', moonbeam_zenith: 'assets/backdrops/backdrop_clock_tower_belfry.svg',
+  S37: 'assets/backdrops/backdrop_underground_river_cavern.svg', abyssal_trench_gateway: 'assets/backdrops/backdrop_underground_river_cavern.svg',
+  S38: 'assets/backdrops/backdrop_sunken_grotto.svg', coral_trench: 'assets/backdrops/backdrop_sunken_grotto.svg',
+  S39: 'assets/backdrops/backdrop_crystal_vault.svg', deep_alchemical_vault: 'assets/backdrops/backdrop_crystal_vault.svg',
+  S40: 'assets/backdrops/backdrop_ancient_ruins.svg', ancient_core_crucible: 'assets/backdrops/backdrop_ancient_ruins.svg',
+  S41: 'assets/backdrops/backdrop_rainbow_sky_garden.svg',
+  S42: 'assets/backdrops/backdrop_aurora_bay.svg'
+});
+
 /**
  * Resolve the asset path for a given sector ID or slug.
  */

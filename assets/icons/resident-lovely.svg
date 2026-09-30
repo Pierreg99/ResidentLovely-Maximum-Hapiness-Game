@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#815977"/><stop offset="1" stop-color="#e2b8cf"/></linearGradient><linearGradient id="gold" x2=".4" y2="1"><stop stop-color="#fff0b2"/><stop offset="1" stop-color="#c69363"/></linearGradient></defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="184" fill="none" stroke="#f0cd8d" stroke-width="4" opacity=".6"/>
+  <path d="M256 92 283 145 343 154 300 196 311 256 256 228 201 256 212 196 169 154 229 145Z" fill="url(#gold)"/>
+  <path d="M136 288 180 248 224 288V383H136Z M288 288 332 248 376 288V383H288Z" fill="#cbbbe2"/>
+  <path d="M202 298 256 247 310 298V390H202Z" fill="#fff5e6"/>
+  <path d="M241 332Q256 314 271 332V390H241Z" fill="#815977"/>
+  <path d="M128 394H384" stroke="url(#gold)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M157 314H173V338H157 M339 314H355V338H339" stroke="#815977" stroke-width="7"/>
+  <path d="M100 215 106 230 122 236 106 242 100 257 94 242 78 236 94 230Z M412 215 418 230 434 236 418 242 412 257 406 242 390 236 406 230Z" fill="#f9a8d4"/>
+<path d="M256 147C222 112 197 164 256 201C315 164 290 112 256 147Z" fill="#fff5ee"/><g fill="#edb8d0" stroke="#fff5ed" stroke-width="3"><circle cx="158" cy="383" r="13"/><circle cx="180" cy="397" r="11"/><circle cx="340" cy="397" r="11"/><circle cx="362" cy="383" r="13"/></g></svg>

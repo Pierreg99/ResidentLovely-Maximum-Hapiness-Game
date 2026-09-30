@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>RESIDENT LOVELY ❖ Maximum Happiness 3D</title>
-  <meta name="theme-color" content="#05070a">
+  <meta name="theme-color" content="#eedce7">
   <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./assets/icons/resident-lovely.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="./css/style.css">
   <!-- Three.js (Local Primary with Synchronous CDN Fallback) -->
@@ -30,15 +32,36 @@
 
   <!-- Master Kawaii Loading Screen & WebGL Pre-Warm Splash -->
   <div id="loading-screen">
-    <div class="loading-card">
-      <div class="loading-emblem">❖</div>
+    <div class="startup-art" aria-hidden="true"></div>
+    <div class="loading-card" role="dialog" aria-modal="true" aria-label="Game settings before play">
+      <div class="loading-emblem"><img src="./assets/icons/resident-lovely.svg" alt="Château de la Joie crest" width="96" height="96"></div>
       <div class="loading-title">RESIDENT LOVELY</div>
-      <div class="loading-subtitle">MAXIMUM HAPPINESS 3D ❖ MASTERWORK EDITION</div>
+      <div class="loading-subtitle">THE SWEET CHÂTEAU COLLECTION</div>
+      <p class="loading-intro">Your little world of happiness.<br>Choose your graphics, make yourself at home, then play.</p>
+      <fieldset class="startup-graphics"><legend>1. Choose your graphics</legend>
+        <div class="quality-cards" role="group" aria-label="Graphics mode">
+          <button type="button" data-start-quality="auto" aria-pressed="false"><strong>Automatic</strong><span>Adapts to your device</span></button>
+          <button type="button" data-start-quality="low" aria-pressed="false"><strong>Gentle</strong><span>Battery saver</span></button>
+          <button type="button" data-start-quality="med" aria-pressed="false"><strong>Balanced</strong><span>Detail & performance</span></button>
+          <button type="button" data-start-quality="high" aria-pressed="false"><strong>Beautiful</strong><span>Bloom & soft shadows</span></button>
+          <button type="button" data-start-quality="ultra" aria-pressed="false"><strong>Dreamy Ultra</strong><span>Maximum detail · 4K shadows</span></button>
+        </div>
+        <p id="startup-quality-status" aria-live="polite">Select a graphics mode to enable Play.</p>
+      </fieldset>
+      <fieldset class="startup-personal"><legend>2. Make it yours</legend>
+        <div class="startup-skins" role="group" aria-label="Character style">
+          <button type="button" data-start-skin="starlight" aria-pressed="false">Starlight</button>
+          <button type="button" data-start-skin="sakura" aria-pressed="false">Sakura</button>
+          <button type="button" data-start-skin="jade" aria-pressed="false">Jade</button>
+        </div>
+        <div class="startup-options"><label><input id="startup-sound" type="checkbox" checked> Music & sound</label><label><input id="startup-motion" type="checkbox"> Reduce motion</label></div>
+      </fieldset>
       <div class="loading-bar-track">
         <div id="loading-bar-fill" class="loading-bar-fill"></div>
       </div>
       <div id="loading-status-text" class="loading-status-text">INITIALIZING CHÂTEAU CHAMBERS... 0%</div>
-      <button id="btn-enter-chateau" class="btn-enter-chateau" style="display:none;">★ ENTER CHÂTEAU DE LA JOIE ★</button>
+      <button id="btn-enter-chateau" class="btn-enter-chateau" disabled>PLAY</button>
+      <p class="loading-help">Windows · Linux · Android<br>Keyboard, touch, or controller. You can change settings in Menu.</p>
     </div>
   </div>
 
@@ -46,7 +69,7 @@
   <div id="canvas-container"></div>
 
   <!-- HUD Layer -->
-  <div id="hud">
+  <div id="hud" inert>
     <div class="hud-header">
       <!-- Radar Mini-Map (Tap to open full blueprint) -->
       <div id="btn-minimap" class="minimap-card" title="Open Manor Blueprint (M)">
@@ -76,6 +99,7 @@
 
       <!-- Top Right Button Group -->
       <div class="top-right-group">
+        <button id="btn-menu" class="btn-hud-icon" title="Pause and settings (Escape)" aria-label="Pause and settings">MENU</button>
         <!-- 3-Mode View Toggle (OTS / FIXED / ADS) -->
         <button id="btn-view-mode" class="btn-hud-icon cyan" title="Switch View Mode: 360° OTS / Classic Fixed / ADS (V)">
           <svg style="width:13px;height:13px;fill:currentColor;" viewBox="0 0 24 24">
@@ -102,6 +126,14 @@
       </div>
     </div>
 
+    <div class="explorer-hud">
+      <span class="explorer-label">EXPLORER JOURNAL</span>
+      <span id="exploration-stats">1/42 places · 0 joy points</span>
+      <div id="stamina-meter" role="progressbar" aria-label="Sprint energy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="stamina-fill"></div></div>
+      <span id="waypoint-status" hidden></span>
+      <span id="rally-status" hidden></span>
+    </div>
+    <button id="btn-gate-travel" type="button" hidden>Travel through gate</button>
     <!-- Boss Encounter Health Bar -->
     <div id="boss-health-bar" style="display:none; position:fixed; top:75px; left:50%; transform:translateX(-50%); width:320px; background:rgba(5,7,10,0.88); border:1px solid #f59e0b; border-radius:6px; padding:6px 12px; z-index:30; box-shadow:0 0 12px rgba(245,158,11,0.35);">
       <div style="display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:10px; font-weight:bold; color:#f59e0b; margin-bottom:4px;">
@@ -199,6 +231,8 @@
           <span class="control-hint">LOOK</span>
         </div>
         <div class="action-cluster">
+          <button type="button" id="btn-sprint" class="btn-action" aria-label="Hold to sprint"><svg viewBox="0 0 24 24"></svg>SPRINT</button>
+          <button type="button" id="btn-dash" class="btn-action" aria-label="Dash"><svg viewBox="0 0 24 24"></svg>DASH</button>
           <button type="button" id="btn-aim" class="btn-action" aria-label="Aim">
             <svg class="btn-svg" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -274,6 +308,12 @@
         </div>
       </div>
 
+      <div class="map-tools">
+        <label for="map-destination">DESTINATION</label><select id="map-destination" aria-label="Find a destination"></select>
+        <button id="btn-track-destination">Track route</button><button id="btn-clear-waypoint">Clear</button>
+        <span id="map-discovery">Discovered · 0/3 crystals</span>
+      </div>
+      <p id="map-route-summary">Select a room to explore or track a route.</p>
       <div class="map-main-content">
         <div class="blueprint-viewport">
           <svg id="estate-blueprint-svg" viewBox="0 0 800 500">
@@ -570,6 +610,37 @@
     <button id="btn-restart-party" class="modal-close-btn" style="border-color:var(--magenta-bliss);color:var(--magenta-bliss);">CONTINUE CELEBRATING</button>
   </div>
 
+  <div id="pause-modal" class="modal-overlay pause-modal" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+    <div class="pause-shell">
+      <div class="pause-header"><div><span class="menu-eyebrow">CHÂTEAU DE LA JOIE</span><h1 id="pause-title">Make it your adventure.</h1></div><button id="pause-close-btn" class="menu-close" aria-label="Close menu">×</button></div>
+      <div class="pause-grid">
+        <section class="menu-panel">
+          <h2>Explore & play</h2><p>Follow the glowing gates. Find three joy crystals in every place, or race a changing star trail.</p>
+          <button id="btn-menu-map" class="menu-button">Explore the 42-place estate <span>→</span></button>
+          <button id="btn-start-rally" class="menu-button">Start Joy Rally <span>→</span></button>
+          <button id="btn-stop-rally" class="menu-button">Finish current rally</button><span id="rally-best" class="menu-note">Best rally: 0 points</span>
+          <button id="btn-save-now" class="menu-button">Save adventure</button>
+        </section>
+        <section class="menu-panel">
+          <h2>Graphics & comfort</h2>
+          <label class="menu-field" for="graphics-quality">Visual quality<select id="graphics-quality"><option value="auto">Automatic</option><option value="low">Battery saver</option><option value="med">Balanced</option><option value="high">High · bloom & reflections</option><option value="ultra">Ultra · 4K shadows</option></select></label>
+          <p id="quality-description" class="menu-note"></p>
+          <label class="menu-check"><input id="reduced-motion" type="checkbox">Reduce motion & effects</label>
+          <label class="menu-check"><input id="sound-enabled" type="checkbox" checked>Music & sound</label>
+          <button id="btn-fullscreen" class="menu-button">Toggle fullscreen</button>
+          <button id="btn-install" class="menu-button" hidden>Install Resident Lovely</button>
+          <p id="install-help" class="menu-note"></p>
+        </section>
+        <section class="menu-panel character-panel"><h2>Your Agent Joy</h2><p>Three looks. One joyful adventurer.</p>
+          <div class="character-styles"><button data-skin="starlight" aria-pressed="true">Starlight</button><button data-skin="sakura" aria-pressed="false">Sakura</button><button data-skin="jade" aria-pressed="false">Jade</button></div>
+        </section>
+        <section class="menu-panel controls-panel"><h2>Find your rhythm</h2>
+          <div class="control-reference"><p><strong>Keyboard & mouse</strong><br>WASD / arrows · move<br>Drag · look &nbsp; Right-click · aim<br>Space · blast &nbsp; E · interact / gate<br>Shift · sprint &nbsp; C · dash<br>M · map &nbsp; I · items &nbsp; Esc · pause</p><p><strong>Touch & controller</strong><br>Left pad · move &nbsp; Right pad · look<br>Hold Sprint · run &nbsp; Dash · burst<br>Controller: left / right sticks<br>A · interact &nbsp; B · dash &nbsp; RT · blast<br>L3 · sprint &nbsp; View · map<br>Menu · pause</p></div>
+        </section>
+      </div>
+      <button id="btn-resume" class="resume-button">BACK TO THE ADVENTURE <span>→</span></button>
+    </div>
+  </div>
   <!-- ESM Main Module Entrypoint -->
   <script type="module" src="./src/main.js"></script>
 

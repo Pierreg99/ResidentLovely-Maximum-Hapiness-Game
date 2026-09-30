@@ -58,7 +58,9 @@ export const rooms = {
   abyssal_trench_gateway: new THREE.Group(),
   coral_trench: new THREE.Group(),
   deep_alchemical_vault: new THREE.Group(),
-  ancient_core_crucible: new THREE.Group()
+  ancient_core_crucible: new THREE.Group(),
+  rainbow_sky_garden: new THREE.Group(),
+  aurora_bay: new THREE.Group()
 };
 
 // Aliases by Sector ID and Alternate Slugs for direct indexing
@@ -220,6 +222,24 @@ export function createChamberFloor(w, d, color1 = 0x090d16, color2 = 0x131d31, r
   const geo = new THREE.BoxGeometry(tileSize, 0.2, tileSize);
   const mat1 = new THREE.MeshStandardMaterial({ color: color1, roughness, metalness, envMapIntensity: 1.05 });
   const mat2 = new THREE.MeshStandardMaterial({ color: color2, roughness: Math.min(1.0, roughness + 0.04), metalness: Math.min(1.0, metalness + 0.1), envMapIntensity: 1.05 });
+  // Each checkerboard needs two draw calls, rather than one draw call per tile.
+  if (typeof THREE.InstancedMesh === 'function' && typeof THREE.Matrix4 === 'function') {
+    const tiles = [[], []];
+    for (let x = 0; x < nx; x++) {
+      for (let z = 0; z < nz; z++) {
+        tiles[(x + z) % 2].push([x * tileSize - w / 2 + 1, z * tileSize - d / 2 + 1]);
+      }
+    }
+    tiles.forEach((positions, index) => {
+      const mesh = new THREE.InstancedMesh(geo, index === 0 ? mat1 : mat2, positions.length);
+      const matrix = new THREE.Matrix4();
+      positions.forEach(([x, z], i) => mesh.setMatrixAt(i, matrix.makeTranslation(x, -0.1, z)));
+      mesh.receiveShadow = true;
+      mesh.instanceMatrix.needsUpdate = true;
+      group.add(mesh);
+    });
+    return group;
+  }
 
   for (let x = -nx / 2; x < nx / 2; x++) {
     for (let z = -nz / 2; z < nz / 2; z++) {
@@ -532,6 +552,8 @@ export function initRooms() {
       addedGroups.add(r);
     }
   });
+
+  initExpandedDestinations();
 
   // Standard shared PBR Materials (procedural marble/gold maps for foyer fidelity)
   const goldTrimMat = createLuxuryGoldMaterial();
@@ -2542,4 +2564,62 @@ export function getRoomInteractables(roomNameOrId) {
 export function getRoomCollisionBoxes(roomNameOrId) {
   const r = rooms[roomNameOrId];
   return r?.userData?.collisionBoxes || [];
+}
+
+function mesh(group, geometry, material, x, y, z) {
+  const result = new THREE.Mesh(geometry, material);
+  result.position.set(x, y, z); result.castShadow = true; result.receiveShadow = true;
+  group.add(result); return result;
+}
+
+function initExpandedDestinations() {
+  const gold = new THREE.MeshStandardMaterial({ color: 0xfde68a, metalness: 0.8, roughness: 0.2 });
+  const stone = new THREE.MeshStandardMaterial({ color: 0xf5e7d6, roughness: 0.55 });
+  const wood = new THREE.MeshStandardMaterial({ color: 0x956556, roughness: 0.65 });
+  const leaves = new THREE.MeshStandardMaterial({ color: 0xd6a3cf, roughness: 0.65 });
+  const mint = new THREE.MeshStandardMaterial({ color: 0x80cdb1, roughness: 0.55 });
+  const glow = new THREE.MeshStandardMaterial({ color: 0xa5f3fc, emissive: 0x22d3ee, emissiveIntensity: 0.8 });
+  for (const id of ['S41', 'S42']) {
+    const sector = getSector(id); const group = rooms[sector.slug];
+    group.position.set(sector.coords.x, sector.coords.y, sector.coords.z);
+    setupRoomMetadata(group, id, [32, 18, 32], []);
+    group.userData.props = id === 'S41' ? ['rainbow_sculpture', 'sakura_garden', 'garden_benches'] : ['aurora_lighthouse', 'mint_grove', 'bay_promenade'];
+    group.add(createChamberFloor(32, 32, id === 'S41' ? 0xcbdcc8 : 0x73989f, 0xc3c3af, 0.6, 0.05));
+    // A continuous walkable promenade, with a central landmark and edge gardens.
+    mesh(group, new THREE.BoxGeometry(8, 0.16, 30), stone, 0, 0.04, 0);
+    const ring = mesh(group, new THREE.TorusGeometry(5, 0.14, 8, 64), gold, 0, 0.2, 0);
+    ring.rotation.x = Math.PI / 2;
+    for (let i = 0; i < 8; i++) {
+      // Keep the center promenade and its third-person camera clear of crowns.
+      const x = i < 4 ? -11 : 11; const z = -10 + (i % 4) * 7;
+      mesh(group, new THREE.CylinderGeometry(0.24, 0.45, 2.8, 8), wood, x, 1.4, z);
+      const crown = mesh(group, new THREE.SphereGeometry(2.2, 12, 12), id === 'S41' ? leaves : mint, x, 3.8, z);
+      crown.scale.set(1, 0.8, 1);
+      mesh(group, new THREE.SphereGeometry(0.13, 8, 8), glow, x, 3, z + 0.9);
+    }
+    for (let sign of [-1, 1]) {
+      mesh(group, new THREE.BoxGeometry(3, 0.3, 0.9), wood, sign * 6, 0.8, 5);
+      mesh(group, new THREE.BoxGeometry(3, 0.8, 0.15), wood, sign * 6, 1.35, 5.4);
+      for (const dx of [-1, 1]) mesh(group, new THREE.BoxGeometry(0.15, 0.8, 0.7), gold, sign * 6 + dx, 0.4, 5);
+    }
+    mesh(group, new THREE.CylinderGeometry(3.8, 4.3, 0.5, 32), stone, 0, 0.3, 0);
+    if (id === 'S41') {
+      // Seven concentric rainbow arcs form the garden's sculpture.
+      [0xfb7185, 0xfbbf24, 0xfde68a, 0x6ee7b7, 0x7dd3fc, 0xa78bfa, 0xf0abfc].forEach((color, i) => {
+        const arc = mesh(group, new THREE.TorusGeometry(3.1 + i * 0.22, 0.09, 8, 48, Math.PI),
+          new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.18 }), 0, 1.2, -3.5);
+        arc.rotation.z = 0;
+      });
+    } else {
+      mesh(group, new THREE.CylinderGeometry(1, 1.6, 5.8, 12), stone, 0, 3.3, 0);
+      mesh(group, new THREE.ConeGeometry(1.8, 1.2, 12), gold, 0, 6.8, 0);
+      mesh(group, new THREE.SphereGeometry(0.6, 16, 16), glow, 0, 6.1, 0);
+      const aurora = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide,
+        uniforms: { uTime: { value: 0 } }, vertexShader: 'varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+        fragmentShader: 'varying vec2 vUv; uniform float uTime; void main(){float wave=sin(vUv.x*18.+uTime*.4)*.1; float band=exp(-pow((vUv.y-.55-wave)*7.,2.)); vec3 c=mix(vec3(.15,.9,.7),vec3(.6,.3,1.),vUv.x); gl_FragColor=vec4(c,band*.55);}' });
+      mesh(group, new THREE.PlaneGeometry(54, 15), aurora, 0, 12, -18);
+      if (!group.userData) group.userData = {};
+      group.userData.aurora = aurora;
+    }
+  }
 }

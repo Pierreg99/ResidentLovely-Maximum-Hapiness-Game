@@ -118,8 +118,8 @@ class TestSectorRegistryExpansion(unittest.TestCase):
         """Verify that all 32 sectors (S01 to S32) are registered with required schema fields."""
         code = """
         const { SECTOR_REGISTRY } = sectorsModule;
-        if (SECTOR_REGISTRY.length !== 32 && SECTOR_REGISTRY.length !== 40) {
-            throw new Error(`Expected 32 or 40 sectors, got ${SECTOR_REGISTRY.length}`);
+        if (SECTOR_REGISTRY.length !== 42) {
+            throw new Error(`Expected 42 sectors, got ${SECTOR_REGISTRY.length}`);
         }
         SECTOR_REGISTRY.forEach(s => {
             if (!s.id || !s.slug || !s.name || !s.floor || !s.biome || !s.biomeColor || !s.coords || !s.size || !s.connections) {
@@ -171,11 +171,11 @@ class TestSectorRegistryExpansion(unittest.TestCase):
         self.assertEqual(counts['1F'], 10)
         self.assertEqual(counts['B1'], 1)
         self.assertEqual(counts['B2'], 4)
-        self.assertEqual(counts['OUTDOOR'], 9)
+        self.assertEqual(counts['OUTDOOR'], 11)
         if '5F' in counts:
             self.assertEqual(counts['5F'], 4)
             self.assertEqual(counts['B3'], 4)
-            self.assertEqual(sum(counts.values()), 40)
+            self.assertEqual(sum(counts.values()), 42)
         else:
             self.assertEqual(sum(counts.values()), 32)
 

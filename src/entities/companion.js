@@ -1,6 +1,7 @@
 import { scene, spawnConfetti, spawnHeartBubbles } from '../world/scene.js';
 import { player } from './player.js';
 import { audio } from '../engine/audio.js';
+import { softenPlush } from '../world/sweet-assets.js';
 
 export class CompanionSquad {
   constructor() {
@@ -18,10 +19,24 @@ export class CompanionSquad {
     fGroup.position.copy(player.group.position).add(new THREE.Vector3((Math.random() - 0.5) * 2, 0, (Math.random() - 0.5) * 2));
 
     // Clone species visual
-    const furMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.5 });
+    const species = grumpEntity.type || 'bear';
+    const furMat = new THREE.MeshStandardMaterial({ color: { bear: 0xfcd34d, bunny: 0xf9a8d4, cat: 0xc4b5fd, ghost: 0xe0f2fe, penguin: 0x93c5fd }[species] || 0xfcd34d, roughness: 0.65 });
+    softenPlush(furMat);
     const body = new THREE.Mesh(new THREE.SphereGeometry(0.48, 16, 16), furMat);
     body.position.y = 0.48;
     fGroup.add(body);
+    body.castShadow = true;
+    for (const sign of [-1, 1]) {
+      const earGeometry = species === 'bunny' ? new THREE.CylinderGeometry(.08, .1, .6, 10) :
+        species === 'cat' ? new THREE.ConeGeometry(.14, .3, 8) : new THREE.SphereGeometry(.14, 10, 10);
+      const ear = new THREE.Mesh(earGeometry, furMat);
+      ear.position.set(sign * .27, species === 'bunny' ? 1.03 : .92, -.02);
+      ear.rotation.z = sign * -.16; ear.castShadow = true; fGroup.add(ear);
+      const paw = new THREE.Mesh(new THREE.SphereGeometry(.13, 10, 10), furMat);
+      paw.position.set(sign * .29, .14, .2); paw.scale.set(1, .65, 1.3); fGroup.add(paw);
+    }
+    const scarf = new THREE.Mesh(new THREE.TorusGeometry(.31, .045, 8, 20), new THREE.MeshStandardMaterial({ color: 0xf43f5e, roughness: .45 }));
+    scarf.rotation.x = Math.PI / 2; scarf.position.y = .66; fGroup.add(scarf);
 
     // Glowing Star Eyes
     for (let x of [-0.14, 0.14]) {

@@ -8,6 +8,7 @@ import { audio } from '../engine/audio.js';
 
 export const projectiles = [];
 export let currentTargetLock = null;
+let nextFireTime = 0;
 
 function getEntityWorldPos(roomName, localPos) {
   const wp = localPos.clone();
@@ -151,6 +152,9 @@ export function launchProjectile(type, origin, dir, currentRoom) {
 }
 
 export function triggerWeaponFire(gameState, cameraController, callbacks) {
+  const now = performance.now();
+  if (now < nextFireTime) return;
+  nextFireTime = now + ({ pistol: 180, shotgun: 500, mortar: 750, beam: 300 }[gameState.currentWeapon] || 250);
   audio.init();
 
   // Weapon recoil kickback animation (+Z is forward)

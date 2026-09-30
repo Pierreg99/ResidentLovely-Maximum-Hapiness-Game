@@ -55,6 +55,9 @@ export function saveGame(gameState, lanternMeshes, QUESTS) {
   const savePayload = {
     joy: gameState.joy,
     room: gameState.room,
+    position: typeof window !== 'undefined' && window.__playerPos ? {
+      x: window.__playerPos.x, y: window.__playerPos.y, z: window.__playerPos.z
+    } : null,
     unlockedDoors: gameState.unlockedDoors,
     inventory: gameState.inventory,
     grumpsUpliftedCount: gameState.grumpsUpliftedCount,
@@ -74,7 +77,7 @@ export function loadGame(gameState, lanternMeshes, QUESTS, inventorySystem, ques
   if (data) {
     try {
       const p = JSON.parse(data);
-      gameState.joy = p.joy || 100;
+      gameState.joy = typeof p.joy === 'number' ? Math.max(0, Math.min(100, p.joy)) : 100;
       gameState.room = p.room || 'foyer';
       gameState.unlockedDoors = p.unlockedDoors || gameState.unlockedDoors;
       gameState.inventory = p.inventory || gameState.inventory;
@@ -102,6 +105,7 @@ export function loadGame(gameState, lanternMeshes, QUESTS, inventorySystem, ques
 
       inventorySystem.updateVitalityHUD();
       questSystem.render();
+      return p;
     } catch(e) {
       console.error(e);
     }
